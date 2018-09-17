@@ -1,0 +1,397 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"battery_monitor.c"
+  23              	.Ltext0:
+  24              		.file 1 "battery_monitor.c"
+ 18430              		.align	1
+ 18431              		.global	battery_monitor_init
+ 18432              		.thumb
+ 18433              		.thumb_func
+ 18435              	battery_monitor_init:
+ 18436              	.LFB27:
+   0:battery_monitor.c **** #include "global.h"
+   1:battery_monitor.c **** 
+   2:battery_monitor.c **** #define VOLTAGE_AVERAGE_BUF_DZ 64
+   3:battery_monitor.c **** #define K_VOLTAGE 14
+   4:battery_monitor.c **** static volatile uint16_t _averageBuffer[VOLTAGE_AVERAGE_BUF_DZ];
+   5:battery_monitor.c **** static volatile uint16_t voltageValue = 0;
+   6:battery_monitor.c **** 
+   7:battery_monitor.c **** 
+   8:battery_monitor.c **** void battery_monitor_init(void) {
+ 18437              		.loc 1 9 0
+ 18438              		@ args = 0, pretend = 0, frame = 24
+ 18439              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18440 0000 70B5     		push	{r4, r5, r6, lr}
+ 18441              	.LCFI0:
+ 18442 0002 86B0     		sub	sp, sp, #24
+ 18443              	.LCFI1:
+   9:battery_monitor.c **** 	// PA0 (ADC123_IN0)
+  10:battery_monitor.c **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  11:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  12:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+  13:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 18444              		.loc 1 14 0
+ 18445 0004 0124     		movs	r4, #1
+ 18446 0006 06A9     		add	r1, sp, #24
+  12:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18447              		.loc 1 12 0
+ 18448 0008 0320     		movs	r0, #3
+  13:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+ 18449              		.loc 1 13 0
+ 18450 000a 0025     		movs	r5, #0
+  12:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18451              		.loc 1 12 0
+ 18452 000c 8DF81600 		strb	r0, [sp, #22]
+ 18453              		.loc 1 14 0
+ 18454 0010 21F8044D 		strh	r4, [r1, #-4]!	@ movhi
+  14:battery_monitor.c **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 18455              		.loc 1 15 0
+ 18456 0014 1E48     		ldr	r0, .L7
+  13:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+ 18457              		.loc 1 13 0
+ 18458 0016 8DF81750 		strb	r5, [sp, #23]
+ 18459              		.loc 1 15 0
+ 18460 001a FFF7FEFF 		bl	GPIO_Init
+  15:battery_monitor.c **** 
+  16:battery_monitor.c **** 	// ===== Battery voltage control ADC
+  17:battery_monitor.c **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+ 18461              		.loc 1 18 0
+ 18462 001e 2046     		mov	r0, r4
+ 18463 0020 2146     		mov	r1, r4
+ 18464 0022 FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+  18:battery_monitor.c **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+ 18465              		.loc 1 19 0
+ 18466 0026 4FF40070 		mov	r0, #512
+ 18467 002a 2146     		mov	r1, r4
+ 18468 002c FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+  19:battery_monitor.c **** 	ADC_InitTypeDef ADC_InitStructure;
+  20:battery_monitor.c **** 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+  21:battery_monitor.c **** 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+  22:battery_monitor.c **** 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+  23:battery_monitor.c **** 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+ 18469              		.loc 1 24 0
+ 18470 0030 4FF46023 		mov	r3, #917504
+  24:battery_monitor.c **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  25:battery_monitor.c **** 	ADC_InitStructure.ADC_NbrOfChannel = 1;
+  26:battery_monitor.c **** 	ADC_Init(ADC1, &ADC_InitStructure);
+ 18471              		.loc 1 27 0
+ 18472 0034 1748     		ldr	r0, .L7+4
+ 18473 0036 6946     		mov	r1, sp
+  24:battery_monitor.c **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+ 18474              		.loc 1 24 0
+ 18475 0038 0293     		str	r3, [sp, #8]
+  21:battery_monitor.c **** 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+ 18476              		.loc 1 21 0
+ 18477 003a 0095     		str	r5, [sp, #0]
+  22:battery_monitor.c **** 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+ 18478              		.loc 1 22 0
+ 18479 003c 8DF80440 		strb	r4, [sp, #4]
+  23:battery_monitor.c **** 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+ 18480              		.loc 1 23 0
+ 18481 0040 8DF80540 		strb	r4, [sp, #5]
+  25:battery_monitor.c **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+ 18482              		.loc 1 25 0
+ 18483 0044 0395     		str	r5, [sp, #12]
+  26:battery_monitor.c **** 	ADC_InitStructure.ADC_NbrOfChannel = 1;
+ 18484              		.loc 1 26 0
+ 18485 0046 8DF81040 		strb	r4, [sp, #16]
+ 18486              		.loc 1 27 0
+ 18487 004a FFF7FEFF 		bl	ADC_Init
+  27:battery_monitor.c **** 	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_239Cycles5);
+ 18488              		.loc 1 28 0
+ 18489 004e 2246     		mov	r2, r4
+ 18490 0050 0723     		movs	r3, #7
+ 18491 0052 1048     		ldr	r0, .L7+4
+ 18492 0054 2946     		mov	r1, r5
+ 18493 0056 FFF7FEFF 		bl	ADC_RegularChannelConfig
+  28:battery_monitor.c **** 	ADC_DMACmd(ADC1, ENABLE);
+ 18494              		.loc 1 29 0
+ 18495 005a 0E48     		ldr	r0, .L7+4
+ 18496 005c 2146     		mov	r1, r4
+ 18497 005e FFF7FEFF 		bl	ADC_DMACmd
+  29:battery_monitor.c **** 	ADC_Cmd(ADC1, ENABLE);
+ 18498              		.loc 1 30 0
+ 18499 0062 0C48     		ldr	r0, .L7+4
+ 18500 0064 2146     		mov	r1, r4
+ 18501 0066 FFF7FEFF 		bl	ADC_Cmd
+  30:battery_monitor.c **** 	ADC_ResetCalibration(ADC1);
+ 18502              		.loc 1 31 0
+ 18503 006a 0A48     		ldr	r0, .L7+4
+  14:battery_monitor.c **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+ 18504              		.loc 1 14 0
+ 18505 006c 2646     		mov	r6, r4	@ movhi
+ 18506              		.loc 1 31 0
+ 18507 006e FFF7FEFF 		bl	ADC_ResetCalibration
+ 18508              	.L2:
+  31:battery_monitor.c **** 	while (ADC_GetResetCalibrationStatus(ADC1))
+ 18509              		.loc 1 32 0 discriminator 1
+ 18510 0072 0848     		ldr	r0, .L7+4
+ 18511 0074 FFF7FEFF 		bl	ADC_GetResetCalibrationStatus
+ 18512 0078 0028     		cmp	r0, #0
+ 18513 007a FAD1     		bne	.L2
+  32:battery_monitor.c **** 		;
+  33:battery_monitor.c **** 	ADC_StartCalibration(ADC1);
+ 18514              		.loc 1 34 0
+ 18515 007c 0548     		ldr	r0, .L7+4
+ 18516 007e FFF7FEFF 		bl	ADC_StartCalibration
+ 18517              	.L3:
+  34:battery_monitor.c **** 	while (ADC_GetCalibrationStatus(ADC1))
+ 18518              		.loc 1 35 0 discriminator 1
+ 18519 0082 0448     		ldr	r0, .L7+4
+ 18520 0084 FFF7FEFF 		bl	ADC_GetCalibrationStatus
+ 18521 0088 0028     		cmp	r0, #0
+ 18522 008a FAD1     		bne	.L3
+  35:battery_monitor.c **** 		;
+  36:battery_monitor.c **** }
+ 18523              		.loc 1 37 0
+ 18524 008c 06B0     		add	sp, sp, #24
+ 18525 008e 70BD     		pop	{r4, r5, r6, pc}
+ 18526              	.L8:
+ 18527              		.align	2
+ 18528              	.L7:
+ 18529 0090 00080140 		.word	1073809408
+ 18530 0094 00240140 		.word	1073816576
+ 18531              	.LFE27:
+ 18533              		.section	.text.battery_monitor_get,"ax",%progbits
+ 18534              		.align	1
+ 18535              		.global	battery_monitor_get
+ 18536              		.thumb
+ 18537              		.thumb_func
+ 18539              	battery_monitor_get:
+ 18540              	.LFB28:
+  37:battery_monitor.c **** 
+  38:battery_monitor.c **** uint16_t battery_monitor_get(void) {
+ 18541              		.loc 1 39 0
+ 18542              		@ args = 0, pretend = 0, frame = 0
+ 18543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18544              		@ link register save eliminated.
+  39:battery_monitor.c **** 	return voltageValue;
+ 18545              		.loc 1 40 0
+ 18546 0000 014B     		ldr	r3, .L10
+ 18547 0002 1888     		ldrh	r0, [r3, #0]
+ 18548 0004 80B2     		uxth	r0, r0
+  40:battery_monitor.c **** }
+ 18549              		.loc 1 41 0
+ 18550 0006 7047     		bx	lr
+ 18551              	.L11:
+ 18552              		.align	2
+ 18553              	.L10:
+ 18554 0008 00000000 		.word	.LANCHOR0
+ 18555              	.LFE28:
+ 18557              		.section	.text.battery_monitor_fix,"ax",%progbits
+ 18558              		.align	1
+ 18559              		.global	battery_monitor_fix
+ 18560              		.thumb
+ 18561              		.thumb_func
+ 18563              	battery_monitor_fix:
+ 18564              	.LFB29:
+  41:battery_monitor.c **** 
+  42:battery_monitor.c **** void battery_monitor_fix(void) {
+ 18565              		.loc 1 43 0
+ 18566              		@ args = 0, pretend = 0, frame = 48
+ 18567              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18568              	.LVL0:
+ 18569 0000 10B5     		push	{r4, lr}
+ 18570              	.LCFI2:
+ 18571              	.LBB2:
+  43:battery_monitor.c **** 	uint32_t v = 0;
+  44:battery_monitor.c **** 	for (int i = 0; i < VOLTAGE_AVERAGE_BUF_DZ; i++)
+  45:battery_monitor.c **** 		v += _averageBuffer[i];
+ 18572              		.loc 1 46 0
+ 18573 0002 1D4A     		ldr	r2, .L15
+ 18574              	.LBE2:
+  45:battery_monitor.c **** 		v += _averageBuffer[i];
+ 18575              		.loc 1 45 0
+ 18576 0004 0024     		movs	r4, #0
+  43:battery_monitor.c **** 	uint32_t v = 0;
+ 18577              		.loc 1 43 0
+ 18578 0006 8CB0     		sub	sp, sp, #48
+ 18579              	.LCFI3:
+  44:battery_monitor.c **** 	uint32_t v = 0;
+ 18580              		.loc 1 44 0
+ 18581 0008 2346     		mov	r3, r4
+ 18582              	.LVL1:
+ 18583              	.L13:
+ 18584              	.LBB3:
+ 18585              		.loc 1 46 0 discriminator 2
+ 18586 000a 32F81400 		ldrh	r0, [r2, r4, lsl #1]
+ 18587              	.LVL2:
+  45:battery_monitor.c **** 	for (int i = 0; i < VOLTAGE_AVERAGE_BUF_DZ; i++)
+ 18588              		.loc 1 45 0 discriminator 2
+ 18589 000e 0134     		adds	r4, r4, #1
+ 18590              	.LVL3:
+ 18591              		.loc 1 46 0 discriminator 2
+ 18592 0010 81B2     		uxth	r1, r0
+ 18593              	.LVL4:
+ 18594 0012 5B18     		adds	r3, r3, r1
+ 18595              	.LVL5:
+  45:battery_monitor.c **** 	for (int i = 0; i < VOLTAGE_AVERAGE_BUF_DZ; i++)
+ 18596              		.loc 1 45 0 discriminator 2
+ 18597 0014 402C     		cmp	r4, #64
+ 18598 0016 F8D1     		bne	.L13
+ 18599              	.LBE3:
+  46:battery_monitor.c **** 	voltageValue = (v / VOLTAGE_AVERAGE_BUF_DZ)/K_VOLTAGE;
+ 18600              		.loc 1 47 0
+ 18601 0018 4FF46070 		mov	r0, #896
+ 18602              	.LVL6:
+ 18603 001c B3FBF0F1 		udiv	r1, r3, r0
+ 18604 0020 DFF858E0 		ldr	lr, .L15+4
+ 18605 0024 1FFA81FC 		uxth	ip, r1
+ 18606 0028 AEF800C0 		strh	ip, [lr, #0]	@ movhi
+  47:battery_monitor.c **** 	// DMA for ADC
+  48:battery_monitor.c **** 	DMA_InitTypeDef DMA_InitStructure;
+  49:battery_monitor.c **** 	DMA_DeInit(DMA1_Channel1);
+ 18607              		.loc 1 50 0
+ 18608 002c 1448     		ldr	r0, .L15+8
+ 18609 002e FFF7FEFF 		bl	DMA_DeInit
+ 18610              	.LVL7:
+  50:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)
+  51:battery_monitor.c **** 			& (((ADC_TypeDef*) ADC1_BASE)->DR);
+  52:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) _averageBuffer;
+  53:battery_monitor.c **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  54:battery_monitor.c **** 	DMA_InitStructure.DMA_BufferSize = VOLTAGE_AVERAGE_BUF_DZ;
+  55:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  56:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 18611              		.loc 1 57 0
+ 18612 0032 8020     		movs	r0, #128
+  57:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // 16 bit
+ 18613              		.loc 1 58 0
+ 18614 0034 0118     		adds	r1, r0, r0
+  51:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)
+ 18615              		.loc 1 51 0
+ 18616 0036 134A     		ldr	r2, .L15+12
+  53:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) _averageBuffer;
+ 18617              		.loc 1 53 0
+ 18618 0038 0F4B     		ldr	r3, .L15
+  58:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; //16 bit
+ 18619              		.loc 1 59 0
+ 18620 003a 01F5407C 		add	ip, r1, #768
+  51:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)
+ 18621              		.loc 1 51 0
+ 18622 003e 0192     		str	r2, [sp, #4]
+  53:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) _averageBuffer;
+ 18623              		.loc 1 53 0
+ 18624 0040 0293     		str	r3, [sp, #8]
+  59:battery_monitor.c **** 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  60:battery_monitor.c **** 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+ 18625              		.loc 1 61 0
+ 18626 0042 0CF53052 		add	r2, ip, #11264
+  54:battery_monitor.c **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+ 18627              		.loc 1 54 0
+ 18628 0046 0023     		movs	r3, #0
+  57:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 18629              		.loc 1 57 0
+ 18630 0048 0690     		str	r0, [sp, #24]
+  58:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // 16 bit
+ 18631              		.loc 1 58 0
+ 18632 004a 0791     		str	r1, [sp, #28]
+  61:battery_monitor.c **** 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  62:battery_monitor.c **** 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+ 18633              		.loc 1 63 0
+ 18634 004c 0C48     		ldr	r0, .L15+8
+ 18635 004e 01A9     		add	r1, sp, #4
+  54:battery_monitor.c **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+ 18636              		.loc 1 54 0
+ 18637 0050 0393     		str	r3, [sp, #12]
+  56:battery_monitor.c **** 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+ 18638              		.loc 1 56 0
+ 18639 0052 0593     		str	r3, [sp, #20]
+  59:battery_monitor.c **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; //16 bit
+ 18640              		.loc 1 59 0
+ 18641 0054 CDF820C0 		str	ip, [sp, #32]
+  60:battery_monitor.c **** 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+ 18642              		.loc 1 60 0
+ 18643 0058 0993     		str	r3, [sp, #36]
+  61:battery_monitor.c **** 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+ 18644              		.loc 1 61 0
+ 18645 005a 0A92     		str	r2, [sp, #40]
+  62:battery_monitor.c **** 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+ 18646              		.loc 1 62 0
+ 18647 005c 0B93     		str	r3, [sp, #44]
+ 18648              	.LVL8:
+  55:battery_monitor.c **** 	DMA_InitStructure.DMA_BufferSize = VOLTAGE_AVERAGE_BUF_DZ;
+ 18649              		.loc 1 55 0
+ 18650 005e 0494     		str	r4, [sp, #16]
+ 18651              		.loc 1 63 0
+ 18652 0060 FFF7FEFF 		bl	DMA_Init
+  63:battery_monitor.c **** 	DMA_Cmd(DMA1_Channel1, ENABLE);
+ 18653              		.loc 1 64 0
+ 18654 0064 0121     		movs	r1, #1
+ 18655 0066 0648     		ldr	r0, .L15+8
+ 18656 0068 FFF7FEFF 		bl	DMA_Cmd
+  64:battery_monitor.c **** 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+ 18657              		.loc 1 65 0
+ 18658 006c 0648     		ldr	r0, .L15+16
+ 18659 006e 0121     		movs	r1, #1
+ 18660 0070 FFF7FEFF 		bl	ADC_SoftwareStartConvCmd
+  65:battery_monitor.c **** }
+ 18661              		.loc 1 66 0
+ 18662 0074 0CB0     		add	sp, sp, #48
+ 18663 0076 10BD     		pop	{r4, pc}
+ 18664              	.L16:
+ 18665              		.align	2
+ 18666              	.L15:
+ 18667 0078 00000000 		.word	.LANCHOR1
+ 18668 007c 00000000 		.word	.LANCHOR0
+ 18669 0080 08000240 		.word	1073872904
+ 18670 0084 4C240140 		.word	1073816652
+ 18671 0088 00240140 		.word	1073816576
+ 18672              	.LFE29:
+ 18674              		.section	.bss._averageBuffer,"aw",%nobits
+ 18675              		.align	2
+ 18676              		.set	.LANCHOR1,. + 0
+ 18679              	_averageBuffer:
+ 18680 0000 00000000 		.space	128
+ 18680      00000000 
+ 18680      00000000 
+ 18680      00000000 
+ 18680      00000000 
+ 18681              		.section	.bss.voltageValue,"aw",%nobits
+ 18682              		.align	1
+ 18683              		.set	.LANCHOR0,. + 0
+ 18686              	voltageValue:
+ 18687 0000 0000     		.space	2
+ 18756              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 battery_monitor.c
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18430  .text.battery_monitor_init:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18435  .text.battery_monitor_init:00000000 battery_monitor_init
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18529  .text.battery_monitor_init:00000090 $d
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18534  .text.battery_monitor_get:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18539  .text.battery_monitor_get:00000000 battery_monitor_get
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18554  .text.battery_monitor_get:00000008 $d
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18558  .text.battery_monitor_fix:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18563  .text.battery_monitor_fix:00000000 battery_monitor_fix
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18667  .text.battery_monitor_fix:00000078 $d
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18675  .bss._averageBuffer:00000000 $d
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18679  .bss._averageBuffer:00000000 _averageBuffer
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18682  .bss.voltageValue:00000000 $d
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18686  .bss.voltageValue:00000000 voltageValue
+C:\Users\ts\AppData\Local\Temp\ccSp2Z6P.s:18701  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+GPIO_Init
+RCC_AHBPeriphClockCmd
+RCC_APB2PeriphClockCmd
+ADC_Init
+ADC_RegularChannelConfig
+ADC_DMACmd
+ADC_Cmd
+ADC_ResetCalibration
+ADC_GetResetCalibrationStatus
+ADC_StartCalibration
+ADC_GetCalibrationStatus
+DMA_DeInit
+DMA_Init
+DMA_Cmd
+ADC_SoftwareStartConvCmd

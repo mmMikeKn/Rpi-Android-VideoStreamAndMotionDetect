@@ -1,0 +1,116 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/cfg_startCheckMotionService"
+        android:title="@string/pref_title_startCheckMotionService" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:defaultValue="true"
+        android:key="@string/cfg_vibrateMotionNotification"
+        android:title="@string/pref_title_vibrateMotionNotification" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:defaultValue="true"
+        android:key="@string/cfg_loadMotionSnapshot"
+        android:title="@string/pref_title_loadMotionSnapshot" />
+
+    <EditTextPreference
+        android:dependency="@string/cfg_loadMotionSnapshot"
+        android:key="@string/cfg_motionSnapshotFileMask"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionSnapshotFileMask" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:defaultValue="true"
+        android:key="@string/cfg_hasNotificationsSound"
+        android:title="@string/pref_title_hasNotificationsSound" />
+
+    <RingtonePreference
+        android:dependency="@string/cfg_hasNotificationsSound"
+        android:key="@string/cfg_notifications_ringtone"
+        android:ringtoneType="notification"
+        android:title="@string/pref_title_motion_notification_ringtone" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_loadMotionSnapshot"
+        android:defaultValue="false"
+        android:key="@string/cfg_snapshotColorless"
+        android:title="@string/pref_title_snapshotColorless" />
+
+    <EditTextPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:key="@string/cfg_motionCheckPollingDt"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionCheckPollingDt" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionThresholdValue"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionThresholdValue" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionThresholdCnt"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionThresholdCnt" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionThresholdSAD"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionThresholdSAD" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionSnapshotDt"
+        android:inputType="number"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionSnapshotDt" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionDetectTimeWindow"
+        android:inputType="number"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionDetectTimeWindow" />
+
+    <EditTextPreference
+        android:key="@string/cfg_motionNumberInTimeWindow"
+        android:inputType="number"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_motionNumberInTimeWindow" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:defaultValue="true"
+        android:key="@string/cfg_motionNoiseFilter"
+        android:title="@string/pref_title_motionNoiseFilter" />
+
+    <ListPreference
+        android:key="@string/cfg_modeSnapshot"
+        android:title="@string/pref_modeSnapshot"
+        android:entries="@array/mv_mode_entries"
+        android:entryValues="@array/mv_mode_values"
+        android:defaultValue="0"
+        />
+
+</PreferenceScreen>

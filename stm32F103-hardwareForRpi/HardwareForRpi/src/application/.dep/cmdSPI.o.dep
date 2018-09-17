@@ -1,0 +1,60 @@
+cmdSPI.o: cmdSPI.c ../libhardware/stm32f10x_spi.h ../libcmsis/stm32f10x.h \
+ ../libcmsis/core_cm3.h \
+ m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/include/stdint.h \
+ m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/../../../../arm-kgp-eabi/include/stdint.h \
+ ../libcmsis/system_stm32f10x.h ../include/stm32f10x_conf.h \
+ ../libhardware/stm32f10x_adc.h ../libhardware/stm32f10x_dma.h \
+ ../libhardware/stm32f10x_exti.h ../libhardware/stm32f10x_flash.h \
+ ../libhardware/stm32f10x_gpio.h ../libhardware/stm32f10x_rcc.h \
+ ../libhardware/stm32f10x_sdio.h ../libhardware/stm32f10x_tim.h \
+ ../libhardware/misc.h ../libcmsis/core_cm3.h global.h \
+ ../libhardware/stm32f10x_rtc.h hw_config.h USART_io.h motor_pwm.h \
+ cmdSPI.h battery_monitor.h
+
+../libhardware/stm32f10x_spi.h:
+
+../libcmsis/stm32f10x.h:
+
+../libcmsis/core_cm3.h:
+
+m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/include/stdint.h:
+
+m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/../../../../arm-kgp-eabi/include/stdint.h:
+
+../libcmsis/system_stm32f10x.h:
+
+../include/stm32f10x_conf.h:
+
+../libhardware/stm32f10x_adc.h:
+
+../libhardware/stm32f10x_dma.h:
+
+../libhardware/stm32f10x_exti.h:
+
+../libhardware/stm32f10x_flash.h:
+
+../libhardware/stm32f10x_gpio.h:
+
+../libhardware/stm32f10x_rcc.h:
+
+../libhardware/stm32f10x_sdio.h:
+
+../libhardware/stm32f10x_tim.h:
+
+../libhardware/misc.h:
+
+../libcmsis/core_cm3.h:
+
+global.h:
+
+../libhardware/stm32f10x_rtc.h:
+
+hw_config.h:
+
+USART_io.h:
+
+motor_pwm.h:
+
+cmdSPI.h:
+
+battery_monitor.h:

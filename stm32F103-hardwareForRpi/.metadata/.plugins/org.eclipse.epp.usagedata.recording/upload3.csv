@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.resources",1534487782336
+started,bundle,org.eclipse.ui.net,1.2.1.r35x_20090812-1200,"org.eclipse.ui.net",1534487782336
+started,bundle,org.eclipse.ui.views,3.4.1.M20090826-0800,"org.eclipse.ui.views",1534487782336
+started,bundle,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"org.eclipse.ui.workbench",1534487782336
+os,sysinfo,,,"win32",1534487782336
+arch,sysinfo,,,"x86",1534487782336
+ws,sysinfo,,,"win32",1534487782336
+locale,sysinfo,,,"ru_RU",1534487782336
+processors,sysinfo,,,"4",1534487782336
+java.runtime.name,sysinfo,,,"Java(TM) SE Runtime Environment",1534487782336
+java.runtime.version,sysinfo,,,"1.8.0_131-b11",1534487782336
+java.specification.name,sysinfo,,,"Java Platform API Specification",1534487782336
+java.specification.vendor,sysinfo,,,"Oracle Corporation",1534487782336
+java.specification.version,sysinfo,,,"1.8",1534487782336
+java.vendor,sysinfo,,,"Oracle Corporation",1534487782336
+java.version,sysinfo,,,"1.8.0_131",1534487782336
+java.vm.info,sysinfo,,,"mixed mode",1534487782336
+java.vm.name,sysinfo,,,"Java HotSpot(TM) Client VM",1534487782336
+java.vm.specification.name,sysinfo,,,"Java Virtual Machine Specification",1534487782336
+java.vm.specification.vendor,sysinfo,,,"Oracle Corporation",1534487782336
+java.vm.specification.version,sysinfo,,,"1.8",1534487782336
+java.vm.vendor,sysinfo,,,"Oracle Corporation",1534487782336
+java.vm.version,sysinfo,,,"25.131-b11",1534487782336
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534487782570
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534487790370

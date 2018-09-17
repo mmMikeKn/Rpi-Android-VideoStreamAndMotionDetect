@@ -1,0 +1,91 @@
+!SESSION 2018-08-17 13:36:18.280 -----------------------------------------------
+eclipse.buildId=M20090917-0800
+java.version=1.8.0_131
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=ru_RU
+Framework arguments:  -product org.eclipse.epp.package.cpp.product -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.cpp.product -data D:\MyPrivate\raspberry\Rpi-Android-VideoStreamAndMotionDetect\stm32F103-hardwareForRpi -product org.eclipse.epp.package.cpp.product
+
+!ENTRY org.eclipse.cdt.core 1 0 2018-08-17 13:38:20.194
+!MESSAGE Indexed 'HardwareForRpi' (34 sources, 44 headers) in 1,12 sec: 4 555 declarations; 12 681 references; 23 unresolved inclusions; 20 syntax errors; 3 793 unresolved names (18,04 %)
+!SESSION 2018-08-17 14:07:18.762 -----------------------------------------------
+eclipse.buildId=M20090917-0800
+java.version=1.8.0_131
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=ru_RU
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.cpp.product
+
+!ENTRY org.eclipse.core.jobs 4 2 2018-08-17 16:16:32.764
+!MESSAGE An internal error occurred during: "Open Declaration".
+!STACK 0
+java.lang.ClassCastException: org.eclipse.cdt.internal.core.dom.parser.c.CASTSimpleDeclSpecifier cannot be cast to org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.findDeclarationOwner(CPPVisitor.java:2062)
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.findNameOwner(CPPVisitor.java:2038)
+	at org.eclipse.cdt.internal.core.dom.parser.ProblemBinding.getOwner(ProblemBinding.java:249)
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.getQualifiedName(CPPVisitor.java:1898)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.removeSecondaryBindings(OpenDeclarationsJob.java:635)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.navigationFallBack(OpenDeclarationsJob.java:596)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.runOnAST(OpenDeclarationsJob.java:232)
+	at org.eclipse.cdt.internal.core.model.ASTCache.runOnAST(ASTCache.java:221)
+	at org.eclipse.cdt.internal.ui.editor.ASTProvider.runOnAST(ASTProvider.java:344)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.performNavigation(OpenDeclarationsJob.java:136)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.run(OpenDeclarationsJob.java:112)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+
+!ENTRY org.eclipse.core.jobs 4 2 2018-08-17 16:16:39.757
+!MESSAGE An internal error occurred during: "Open Declaration".
+!STACK 0
+java.lang.ClassCastException: org.eclipse.cdt.internal.core.dom.parser.c.CASTSimpleDeclSpecifier cannot be cast to org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.findDeclarationOwner(CPPVisitor.java:2062)
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.findNameOwner(CPPVisitor.java:2038)
+	at org.eclipse.cdt.internal.core.dom.parser.ProblemBinding.getOwner(ProblemBinding.java:249)
+	at org.eclipse.cdt.internal.core.dom.parser.cpp.semantics.CPPVisitor.getQualifiedName(CPPVisitor.java:1898)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.removeSecondaryBindings(OpenDeclarationsJob.java:635)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.navigationFallBack(OpenDeclarationsJob.java:596)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.runOnAST(OpenDeclarationsJob.java:232)
+	at org.eclipse.cdt.internal.core.model.ASTCache.runOnAST(ASTCache.java:221)
+	at org.eclipse.cdt.internal.ui.editor.ASTProvider.runOnAST(ASTProvider.java:344)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.performNavigation(OpenDeclarationsJob.java:136)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.run(OpenDeclarationsJob.java:112)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+!SESSION 2018-08-20 09:51:16.815 -----------------------------------------------
+eclipse.buildId=M20090917-0800
+java.version=1.8.0_131
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=ru_RU
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.cpp.product
+
+!ENTRY org.eclipse.core.jobs 4 2 2018-08-21 12:37:48.370
+!MESSAGE An internal error occurred during: "Open Declaration".
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.isSameName(OpenDeclarationsJob.java:382)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.runOnAST(OpenDeclarationsJob.java:202)
+	at org.eclipse.cdt.internal.core.model.ASTCache.runOnAST(ASTCache.java:221)
+	at org.eclipse.cdt.internal.ui.editor.ASTProvider.runOnAST(ASTProvider.java:344)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.performNavigation(OpenDeclarationsJob.java:136)
+	at org.eclipse.cdt.internal.ui.search.actions.OpenDeclarationsJob.run(OpenDeclarationsJob.java:112)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+
+!ENTRY org.eclipse.cdt.ui 4 0 2018-08-21 14:22:45.842
+!MESSAGE Error in CDT UI during reconcile
+!STACK 1
+C Model Exception: C Model Status [Element motors_pwm.c does not exist.]
+	at org.eclipse.cdt.internal.core.model.CElement.newNotPresentException(CElement.java:487)
+	at org.eclipse.cdt.internal.core.model.TranslationUnit.makeConsistent(TranslationUnit.java:574)
+	at org.eclipse.cdt.internal.core.model.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:61)
+	at org.eclipse.cdt.internal.core.model.CModelOperation.execute(CModelOperation.java:338)
+	at org.eclipse.cdt.internal.core.model.CModelOperation.run(CModelOperation.java:603)
+	at org.eclipse.cdt.internal.core.model.CModelOperation.runOperation(CModelOperation.java:631)
+	at org.eclipse.cdt.internal.core.model.WorkingCopy.reconcile(WorkingCopy.java:416)
+	at org.eclipse.cdt.internal.ui.text.CReconcilingStrategy.reconcile(CReconcilingStrategy.java:86)
+	at org.eclipse.cdt.internal.ui.text.CReconcilingStrategy.reconcile(CReconcilingStrategy.java:71)
+	at org.eclipse.cdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:84)
+	at org.eclipse.cdt.internal.ui.text.CCompositeReconcilingStrategy.reconcile(CCompositeReconcilingStrategy.java:90)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:77)
+	at org.eclipse.cdt.internal.ui.text.CReconciler.process(CReconciler.java:412)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:206)
+!SUBENTRY 1 org.eclipse.cdt.core 4 969 2018-08-21 14:22:45.844
+!MESSAGE Element motors_pwm.c does not exist.

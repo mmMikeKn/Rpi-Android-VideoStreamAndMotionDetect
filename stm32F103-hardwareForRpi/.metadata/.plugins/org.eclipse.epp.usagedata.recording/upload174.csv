@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.equinox.p2.engine,1.0.101.R35x_v20090825,"org.eclipse.equinox.p2.engine",1535595529746
+started,bundle,org.eclipse.equinox.p2.metadata.repository,1.0.101.R35x_v20090812,"org.eclipse.equinox.p2.metadata.repository",1535595529761
+started,bundle,org.eclipse.equinox.p2.repository,1.0.1.v20090901-1041,"org.eclipse.equinox.p2.repository",1535595529761
+started,bundle,org.eclipse.help,3.4.1.v20090805_35x,"org.eclipse.help",1535595529761
+started,bundle,org.eclipse.jface,3.5.1.M20090826-0800,"org.eclipse.jface",1535595529761
+started,bundle,org.eclipse.search,3.5.1.r351_v20090708-0800,"org.eclipse.search",1535595529761
+started,bundle,org.eclipse.team.cvs.ui,3.3.201.R35x_v20090826-0905,"org.eclipse.team.cvs.ui",1535595529761
+started,bundle,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui",1535595529761
+started,bundle,org.eclipse.ui.forms,3.4.1.v20090714_35x,"org.eclipse.ui.forms",1535595529761
+started,bundle,org.eclipse.ui.ide,3.5.1.M20090826-0800,"org.eclipse.ui.ide",1535595529761
+started,bundle,org.eclipse.ui.navigator,3.4.1.M20090911-1550,"org.eclipse.ui.navigator",1535595529761
+started,bundle,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.resources",1535595529761
+started,bundle,org.eclipse.ui.net,1.2.1.r35x_20090812-1200,"org.eclipse.ui.net",1535595529761
+started,bundle,org.eclipse.ui.views,3.4.1.M20090826-0800,"org.eclipse.ui.views",1535595529761
+started,bundle,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"org.eclipse.ui.workbench",1535595529761
+os,sysinfo,,,"win32",1535595529761
+arch,sysinfo,,,"x86",1535595529761
+ws,sysinfo,,,"win32",1535595529761
+locale,sysinfo,,,"ru_RU",1535595529761
+processors,sysinfo,,,"4",1535595529761
+java.runtime.name,sysinfo,,,"Java(TM) SE Runtime Environment",1535595529761
+java.runtime.version,sysinfo,,,"1.8.0_131-b11",1535595529761
+java.specification.name,sysinfo,,,"Java Platform API Specification",1535595529761
+java.specification.vendor,sysinfo,,,"Oracle Corporation",1535595529761
+java.specification.version,sysinfo,,,"1.8",1535595529761

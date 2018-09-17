@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+java.vm.vendor,sysinfo,,,"Oracle Corporation",1534906427009
+java.vm.version,sysinfo,,,"25.131-b11",1534906427009
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906499449
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906649199
+activated,view,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.ProjectExplorer",1534906654352
+started,bundle,org.eclipse.compare,3.5.0.I20090514-0808,"org.eclipse.compare",1534906658566
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906662654
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.paste",1534906663327
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.copy",1534906698779
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906700364
+opened,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534906700436
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534906700456
+activated,view,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.ProjectExplorer",1534906702113
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906706258
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.paste",1534906707469
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906709655
+opened,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534906709693
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534906709708
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.delete",1534906712552
+activated,view,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.ProjectExplorer",1534906714753
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534906715003
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.delete",1534906716529
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.lineEnd",1534906728205
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906729709
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534906740163

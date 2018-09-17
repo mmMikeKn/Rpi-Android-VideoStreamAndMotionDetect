@@ -1,0 +1,7 @@
+core_cm3.o: core_cm3.c \
+ m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/include/stdint.h \
+ m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/../../../../arm-kgp-eabi/include/stdint.h
+
+m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/include/stdint.h:
+
+m:\myprivate\raspberry\rpi-android-videostreamandmotiondetect\stm32f103-hardwareforrpi\bin\../lib/gcc/arm-kgp-eabi/4.5.0/../../../../arm-kgp-eabi/include/stdint.h:

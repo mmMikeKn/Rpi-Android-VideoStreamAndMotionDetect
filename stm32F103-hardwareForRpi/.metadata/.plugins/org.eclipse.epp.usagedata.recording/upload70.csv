@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.delete",1534497311501
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.delete",1534497312548
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordNext",1534497314863
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.copy",1534497316766
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497318299
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497373163
+executed,command,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.edit.opendecl",1534497392757
+error,log,,,"An internal error occurred during: ""Open Declaration"".",1534497392766
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497392801
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497393921
+started,bundle,org.eclipse.debug.ui,3.5.1.v20090811_r351,"org.eclipse.debug.ui",1534497396895
+started,bundle,org.eclipse.cdt.debug.core,6.0.0.200909110608,"org.eclipse.cdt.debug.core",1534497396935
+started,bundle,org.eclipse.cdt.debug.ui,6.0.0.200909110608,"org.eclipse.cdt.debug.ui",1534497396939
+executed,command,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.edit.opendecl",1534497399732
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497399742
+error,log,,,"An internal error occurred during: ""Open Declaration"".",1534497399757
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497400952
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.copy",1534497403684
+activated,view,org.eclipse.ui.navigator.resources,3.4.1.M20090826-0800,"org.eclipse.ui.navigator.ProjectExplorer",1534497407931
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497417813
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534497431907
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534497433980
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.lineStart",1534497435635
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.paste",1534497436519
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.delete",1534497437093

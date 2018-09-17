@@ -1,0 +1,1361 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"USART_io.c"
+  23              	.Ltext0:
+  24              		.file 1 "USART_io.c"
+ 19345              		.align	1
+ 19346              		.thumb
+ 19347              		.thumb_func
+ 19349              	USART_DBG_itoa.clone.0:
+ 19350              	.LFB36:
+   0:USART_io.c    **** #include <string.h>
+   1:USART_io.c    **** #include <stdarg.h>
+   2:USART_io.c    **** 
+   3:USART_io.c    **** #include "stm32f10x.h"
+   4:USART_io.c    **** #include "stm32f10x_conf.h"
+   5:USART_io.c    **** #include <core_cm3.h>
+   6:USART_io.c    **** #include <stm32f10x_usart.h>
+   7:USART_io.c    **** #include <stm32f10x_rtc.h>
+   8:USART_io.c    **** #include "USART_io.h"
+   9:USART_io.c    **** #include "global.h"
+  10:USART_io.c    **** 
+  11:USART_io.c    **** #ifdef USART2_ENABLE
+  12:USART_io.c    **** //=========================================================================================
+  13:USART_io.c    **** // USART2 Command Interface (CI)
+  14:USART_io.c    **** static volatile uint8_t USART2_TxBuffer[256+4];
+  15:USART_io.c    **** static volatile uint32_t USART2_TxBufferSz = 0, USART2_TxBufferPtr = 0;
+  16:USART_io.c    **** static volatile uint8_t USART2_isTrnsmitEnd = TRUE;
+  17:USART_io.c    **** static volatile uint8_t USART2_RxBuffer[512];
+  18:USART_io.c    **** static volatile uint32_t USART2_RxBufferPtr = 0;
+  19:USART_io.c    **** static volatile short recvCmdCode = CMD_ST_NO_CMD;
+  20:USART_io.c    **** 
+  21:USART_io.c    **** void USART2_IT_TxReady_exec() {
+  22:USART_io.c    **** 	USART_SendData(USART2, (uint16_t)USART2_TxBuffer[USART2_TxBufferPtr++]);
+  23:USART_io.c    **** 	if(USART2_TxBufferPtr >= USART2_TxBufferSz) {
+  24:USART_io.c    **** 		USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+  25:USART_io.c    **** 		USART2_isTrnsmitEnd = TRUE;
+  26:USART_io.c    **** 	}
+  27:USART_io.c    **** }
+  28:USART_io.c    **** 
+  29:USART_io.c    **** #define STX 0x02
+  30:USART_io.c    **** 
+  31:USART_io.c    **** // STX[2] || code[1] || sz[1] || body[sz] || lrc
+  32:USART_io.c    **** void CI_putCmd(uint8_t code, const uint8_t *data, int sz) {
+  33:USART_io.c    **** 	while(!USART2_isTrnsmitEnd) {};
+  34:USART_io.c    **** 	USART2_TxBuffer[0] = STX;
+  35:USART_io.c    **** 	USART2_TxBuffer[1] = code;
+  36:USART_io.c    **** 	USART2_TxBuffer[2] = sz;
+  37:USART_io.c    **** 	if(sz != 0 && data != NULL) {
+  38:USART_io.c    **** 	 memcpy((unsigned char*)USART2_TxBuffer+3, data, sz);
+  39:USART_io.c    **** 	}
+  40:USART_io.c    **** 	USART2_TxBuffer[3+sz] = 0;
+  41:USART_io.c    **** 	for(int i = 0; i < (sz+2); i++) USART2_TxBuffer[3+sz] ^= USART2_TxBuffer[1+i];
+  42:USART_io.c    **** 	USART2_TxBufferSz = sz+4; USART2_TxBufferPtr = 0; USART2_isTrnsmitEnd = FALSE;
+  43:USART_io.c    **** 	USART_DBG_hexDump((uint8_t*)USART2_TxBuffer, USART2_TxBufferSz); USART_DBG_puts(" snd\n");
+  44:USART_io.c    **** 	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+  45:USART_io.c    **** 	while(!USART2_isTrnsmitEnd) {}
+  46:USART_io.c    **** }
+  47:USART_io.c    **** 
+  48:USART_io.c    **** // STX || code[1] || sz[1] || body[sz] || lrc
+  49:USART_io.c    **** void USART2_IT_RxReady_exec(uint8_t c) {
+  50:USART_io.c    **** 	if(USART2_RxBufferPtr == 0 && c != STX) return;
+  51:USART_io.c    **** 	USART2_RxBuffer[USART2_RxBufferPtr++] = c;
+  52:USART_io.c    **** 
+  53:USART_io.c    **** 	if(USART2_RxBufferPtr > 3) {
+  54:USART_io.c    **** 		uint32_t crcOfs = USART2_RxBuffer[2] + 3;
+  55:USART_io.c    **** 		if(USART2_RxBufferPtr > crcOfs) {
+  56:USART_io.c    **** 			USART_DBG_hexDump((uint8_t*)USART2_RxBuffer, USART2_RxBufferPtr); USART_DBG_puts(" rcv\n");
+  57:USART_io.c    **** 			for(uint32_t i = 1; i < crcOfs; i++) USART2_RxBuffer[crcOfs] ^= USART2_RxBuffer[i];
+  58:USART_io.c    **** 			if(USART2_RxBuffer[crcOfs] != 0) {
+  59:USART_io.c    **** 				recvCmdCode = CMD_ST_WRONG_DATA;
+  60:USART_io.c    **** 			} else {
+  61:USART_io.c    **** 				recvCmdCode = USART2_RxBuffer[1];
+  62:USART_io.c    **** 				USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+  63:USART_io.c    **** 			}
+  64:USART_io.c    **** 			USART2_RxBufferPtr = 0;
+  65:USART_io.c    **** 		}
+  66:USART_io.c    **** 	}
+  67:USART_io.c    **** }
+  68:USART_io.c    **** 
+  69:USART_io.c    **** short CI_getLastCmdCode(void) {
+  70:USART_io.c    **** 	if(recvCmdCode == CMD_ST_NO_CMD) return CMD_ST_NO_CMD;
+  71:USART_io.c    **** 	if(recvCmdCode < 0) {
+  72:USART_io.c    **** 		short st = recvCmdCode;
+  73:USART_io.c    **** 		recvCmdCode = CMD_ST_NO_CMD;
+  74:USART_io.c    **** 		return st;
+  75:USART_io.c    **** 	}
+  76:USART_io.c    **** 	return recvCmdCode;
+  77:USART_io.c    **** }
+  78:USART_io.c    **** 
+  79:USART_io.c    **** uint8_t CI_getCmdBody(uint8_t *data, int maxSz) {
+  80:USART_io.c    **** 	uint8_t sz = USART2_RxBuffer[3];
+  81:USART_io.c    **** 	if(data != NULL) {
+  82:USART_io.c    **** 		memcpy(data, (uint8_t*)USART2_RxBuffer+3, maxSz < sz? maxSz:sz);
+  83:USART_io.c    **** 	}
+  84:USART_io.c    **** 	recvCmdCode = CMD_ST_NO_CMD;
+  85:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+  86:USART_io.c    **** 	return sz;
+  87:USART_io.c    **** }
+  88:USART_io.c    **** #endif
+  89:USART_io.c    **** //=========================================================================================
+  90:USART_io.c    **** 
+  91:USART_io.c    **** #ifdef USART1_ENABLE
+  92:USART_io.c    **** static volatile unsigned char USART1_TX_ring_buffer[USART_DBG_TX_BUFFER_SZ];
+  93:USART_io.c    **** static volatile uint16_t USART_DBG_buffer_ptr_get = 0;
+  94:USART_io.c    **** static volatile uint16_t USART_DBG_buffer_ptr_put = 0;
+  95:USART_io.c    **** static volatile uint16_t USART_DBG_buffer_data_size = 0;
+  96:USART_io.c    **** 
+  97:USART_io.c    **** void USART1_IT_RxReady_exec(uint8_t c) {
+  98:USART_io.c    **** 	USART_DBG_putc(c); // echo
+  99:USART_io.c    **** }
+ 100:USART_io.c    **** 
+ 101:USART_io.c    **** void USART1_IT_TxReady_exec() {
+ 102:USART_io.c    **** 	if(USART_DBG_buffer_data_size > 0) {
+ 103:USART_io.c    **** 		USART_SendData(USART1, (uint16_t)USART1_TX_ring_buffer[USART_DBG_buffer_ptr_get]);
+ 104:USART_io.c    **** 		USART_DBG_buffer_ptr_get++; USART_DBG_buffer_data_size--;
+ 105:USART_io.c    **** 		if(USART_DBG_buffer_ptr_get >= sizeof(USART1_TX_ring_buffer)) {
+ 106:USART_io.c    **** 			USART_DBG_buffer_ptr_get = 0;
+ 107:USART_io.c    **** 		}
+ 108:USART_io.c    **** 	} else {
+ 109:USART_io.c    **** 		USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 110:USART_io.c    **** 	}
+ 111:USART_io.c    **** }
+ 112:USART_io.c    **** 
+ 113:USART_io.c    **** void USART_DBG_putc(char c) {
+ 114:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 115:USART_io.c    ****  	USART1_TX_ring_buffer[USART_DBG_buffer_ptr_put] = c;
+ 116:USART_io.c    ****  	USART_DBG_buffer_ptr_put++;
+ 117:USART_io.c    ****  	USART_DBG_buffer_data_size++;
+ 118:USART_io.c    ****  	if(USART_DBG_buffer_ptr_put >= sizeof(USART1_TX_ring_buffer)) {
+ 119:USART_io.c    ****  		USART_DBG_buffer_ptr_put = 0;
+ 120:USART_io.c    ****  	}
+ 121:USART_io.c    ****  	USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+ 122:USART_io.c    **** }
+ 123:USART_io.c    **** 
+ 124:USART_io.c    **** 
+ 125:USART_io.c    **** void USART_DBG_puts(char *str) {
+ 126:USART_io.c    ****  for(int i = 0; str[i] != 0; i++) USART_DBG_putc(str[i]);
+ 127:USART_io.c    **** }
+ 128:USART_io.c    **** 
+ 129:USART_io.c    **** static unsigned char USART_DBG_itoa(long val, int radix, int len, char *sout, unsigned char ptr) {
+ 19351              		.loc 1 130 0
+ 19352              		@ args = 0, pretend = 0, frame = 32
+ 19353              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19354              	.LVL0:
+ 19355 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 19356              	.LCFI0:
+ 19357              	.LVL1:
+ 130:USART_io.c    **** 	unsigned char c, r, sgn = 0, pad = ' ';
+ 131:USART_io.c    **** 	unsigned char s[20], i = 0;
+ 132:USART_io.c    **** 	unsigned long v;
+ 133:USART_io.c    **** 
+ 134:USART_io.c    **** 	if (radix < 0) {
+ 19358              		.loc 1 135 0
+ 19359 0002 0029     		cmp	r1, #0
+ 130:USART_io.c    **** 	unsigned char c, r, sgn = 0, pad = ' ';
+ 19360              		.loc 1 130 0
+ 19361 0004 89B0     		sub	sp, sp, #36
+ 19362              	.LCFI1:
+ 19363              		.loc 1 135 0
+ 19364 0006 05DA     		bge	.L13
+ 19365              	.LVL2:
+ 135:USART_io.c    **** 		radix = -radix;
+ 19366              		.loc 1 136 0
+ 19367 0008 4942     		negs	r1, r1
+ 19368              	.LVL3:
+ 136:USART_io.c    **** 		if (val < 0) {		val = -val;	sgn = '-';	}
+ 19369              		.loc 1 137 0
+ 19370 000a 0028     		cmp	r0, #0
+ 19371 000c 02DA     		bge	.L13
+ 19372              	.LVL4:
+ 19373 000e 4042     		negs	r0, r0
+ 19374              	.LVL5:
+ 19375 0010 2D25     		movs	r5, #45
+ 19376 0012 00E0     		b	.L2
+ 19377              	.LVL6:
+ 19378              	.L13:
+ 131:USART_io.c    **** 	unsigned char c, r, sgn = 0, pad = ' ';
+ 19379              		.loc 1 131 0
+ 19380 0014 0025     		movs	r5, #0
+ 19381              	.LVL7:
+ 19382              	.L2:
+ 137:USART_io.c    **** 	}
+ 138:USART_io.c    **** 	v = val;
+ 139:USART_io.c    **** 	r = radix;
+ 140:USART_io.c    **** 	if (len < 0) {	len = -len;	pad = '0'; }
+ 19383              		.loc 1 141 0
+ 19384 0016 002A     		cmp	r2, #0
+ 140:USART_io.c    **** 	if (len < 0) {	len = -len;	pad = '0'; }
+ 19385              		.loc 1 140 0
+ 19386 0018 C9B2     		uxtb	r1, r1
+ 19387              	.LVL8:
+ 19388              		.loc 1 141 0
+ 19389 001a 02DA     		bge	.L14
+ 19390              	.LVL9:
+ 19391 001c 5242     		negs	r2, r2
+ 19392              	.LVL10:
+ 19393 001e 3026     		movs	r6, #48
+ 19394 0020 00E0     		b	.L3
+ 19395              	.LVL11:
+ 19396              	.L14:
+ 131:USART_io.c    **** 	unsigned char c, r, sgn = 0, pad = ' ';
+ 19397              		.loc 1 131 0
+ 19398 0022 2026     		movs	r6, #32
+ 19399              	.LVL12:
+ 19400              	.L3:
+ 141:USART_io.c    **** 	if (len > 20) return ptr;
+ 19401              		.loc 1 142 0
+ 19402 0024 142A     		cmp	r2, #20
+ 19403 0026 3FDC     		bgt	.L4
+ 19404              	.LVL13:
+ 139:USART_io.c    **** 	v = val;
+ 19405              		.loc 1 139 0
+ 19406 0028 0446     		mov	r4, r0
+ 19407 002a 4FF0000C 		mov	ip, #0
+ 19408              	.LVL14:
+ 19409              	.L6:
+ 142:USART_io.c    **** 	do {
+ 143:USART_io.c    **** 		c = (unsigned char)(v % r);
+ 19410              		.loc 1 144 0
+ 19411 002e B4FBF1F7 		udiv	r7, r4, r1
+ 19412 0032 01FB1740 		mls	r0, r1, r7, r4
+ 19413 0036 C0B2     		uxtb	r0, r0
+ 19414              	.LVL15:
+ 144:USART_io.c    **** 		if (c >= 10) c += 7;
+ 19415              		.loc 1 145 0
+ 19416 0038 0928     		cmp	r0, #9
+ 19417 003a 01D9     		bls	.L5
+ 19418              	.LVL16:
+ 19419 003c 0730     		adds	r0, r0, #7
+ 19420              	.LVL17:
+ 19421 003e C0B2     		uxtb	r0, r0
+ 19422              	.LVL18:
+ 19423              	.L5:
+ 145:USART_io.c    **** 		c += '0';
+ 146:USART_io.c    **** 		s[i++] = c;
+ 19424              		.loc 1 147 0
+ 19425 0040 08AF     		add	r7, sp, #32
+ 19426              	.LVL19:
+ 19427 0042 6744     		add	r7, r7, ip
+ 19428 0044 3030     		adds	r0, r0, #48
+ 19429 0046 0CF1010C 		add	ip, ip, #1
+ 19430              	.LVL20:
+ 147:USART_io.c    **** 		v /= r;
+ 19431              		.loc 1 148 0
+ 19432 004a B4FBF1F4 		udiv	r4, r4, r1
+ 19433              	.LVL21:
+ 147:USART_io.c    **** 		v /= r;
+ 19434              		.loc 1 147 0
+ 19435 004e 07F8140C 		strb	r0, [r7, #-20]
+ 19436 0052 5FFA8CFC 		uxtb	ip, ip
+ 19437              	.LVL22:
+ 148:USART_io.c    **** 	} while (v);
+ 19438              		.loc 1 149 0
+ 19439 0056 002C     		cmp	r4, #0
+ 19440 0058 E9D1     		bne	.L6
+ 149:USART_io.c    **** 	if (sgn) s[i++] = sgn;
+ 19441              		.loc 1 150 0
+ 19442 005a 3DB1     		cbz	r5, .L16
+ 19443 005c 08A9     		add	r1, sp, #32
+ 19444              	.LVL23:
+ 19445 005e 6144     		add	r1, r1, ip
+ 19446 0060 01F8145C 		strb	r5, [r1, #-20]
+ 19447              	.LVL24:
+ 19448              	.L17:
+ 150:USART_io.c    **** 	while (i < len)	s[i++] = pad;
+ 19449              		.loc 1 151 0
+ 19450 0064 0CF10104 		add	r4, ip, #1
+ 19451 0068 5FFA84FC 		uxtb	ip, r4
+ 19452              	.LVL25:
+ 19453              	.L16:
+ 19454 006c 9445     		cmp	ip, r2
+ 19455 006e BEBF     		ittt	lt
+ 19456 0070 08AF     		addlt	r7, sp, #32
+ 19457 0072 07EB0C01 		addlt	r1, r7, ip
+ 19458 0076 01F8146C 		strblt	r6, [r1, #-20]
+ 19459 007a F3DB     		blt	.L17
+ 19460              	.LVL26:
+ 130:USART_io.c    **** static unsigned char USART_DBG_itoa(long val, int radix, int len, char *sout, unsigned char ptr) {
+ 19461              		.loc 1 130 0
+ 19462 007c 0CF1FF32 		add	r2, ip, #-1
+ 19463              	.LVL27:
+ 19464 0080 D0B2     		uxtb	r0, r2
+ 151:USART_io.c    **** 	do	sout[ptr++] = (s[--i]);
+ 19465              		.loc 1 152 0
+ 19466 0082 0B4C     		ldr	r4, .L19
+ 130:USART_io.c    **** static unsigned char USART_DBG_itoa(long val, int radix, int len, char *sout, unsigned char ptr) {
+ 19467              		.loc 1 130 0
+ 19468 0084 0146     		mov	r1, r0
+ 19469 0086 0022     		movs	r2, #0
+ 19470              	.LVL28:
+ 19471              	.L11:
+ 19472              		.loc 1 152 0
+ 19473 0088 08AF     		add	r7, sp, #32
+ 19474 008a 7E18     		adds	r6, r7, r1
+ 19475              	.LVL29:
+ 19476 008c D518     		adds	r5, r2, r3
+ 19477 008e 16F8146C 		ldrb	r6, [r6, #-20]	@ zero_extendqisi2
+ 19478 0092 0139     		subs	r1, r1, #1
+ 19479 0094 EDB2     		uxtb	r5, r5
+ 152:USART_io.c    **** 	while (i);
+ 19480              		.loc 1 153 0
+ 19481 0096 8242     		cmp	r2, r0
+ 152:USART_io.c    **** 	while (i);
+ 19482              		.loc 1 152 0
+ 19483 0098 6655     		strb	r6, [r4, r5]
+ 19484 009a C9B2     		uxtb	r1, r1
+ 19485              		.loc 1 153 0
+ 19486 009c 02D2     		bcs	.L10
+ 19487 009e 571C     		adds	r7, r2, #1
+ 19488 00a0 FAB2     		uxtb	r2, r7
+ 19489 00a2 F1E7     		b	.L11
+ 19490              	.L10:
+ 19491 00a4 6344     		add	r3, ip, r3
+ 19492 00a6 DBB2     		uxtb	r3, r3
+ 19493              	.LVL30:
+ 19494              	.L4:
+ 153:USART_io.c    **** 	return ptr;
+ 154:USART_io.c    **** }
+ 19495              		.loc 1 155 0
+ 19496 00a8 1846     		mov	r0, r3
+ 19497 00aa 09B0     		add	sp, sp, #36
+ 19498 00ac F0BD     		pop	{r4, r5, r6, r7, pc}
+ 19499              	.L20:
+ 19500 00ae 00BF     		.align	2
+ 19501              	.L19:
+ 19502 00b0 00000000 		.word	.LANCHOR0
+ 19503              	.LFE36:
+ 19505              		.section	.text.USART1_IT_TxReady_exec,"ax",%progbits
+ 19506              		.align	1
+ 19507              		.global	USART1_IT_TxReady_exec
+ 19508              		.thumb
+ 19509              		.thumb_func
+ 19511              	USART1_IT_TxReady_exec:
+ 19512              	.LFB28:
+ 102:USART_io.c    **** void USART1_IT_TxReady_exec() {
+ 19513              		.loc 1 102 0
+ 19514              		@ args = 0, pretend = 0, frame = 0
+ 19515              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19516 0000 38B5     		push	{r3, r4, r5, lr}
+ 19517              	.LCFI2:
+ 103:USART_io.c    **** 	if(USART_DBG_buffer_data_size > 0) {
+ 19518              		.loc 1 103 0
+ 19519 0002 134D     		ldr	r5, .L24
+ 19520 0004 2A88     		ldrh	r2, [r5, #0]
+ 19521 0006 92B2     		uxth	r2, r2
+ 19522 0008 DAB1     		cbz	r2, .L22
+ 104:USART_io.c    **** 		USART_SendData(USART1, (uint16_t)USART1_TX_ring_buffer[USART_DBG_buffer_ptr_get]);
+ 19523              		.loc 1 104 0
+ 19524 000a 124C     		ldr	r4, .L24+4
+ 19525 000c DFF848E0 		ldr	lr, .L24+8
+ 19526 0010 2388     		ldrh	r3, [r4, #0]
+ 19527 0012 1248     		ldr	r0, .L24+12
+ 19528 0014 9AB2     		uxth	r2, r3
+ 19529 0016 1EF80210 		ldrb	r1, [lr, r2]	@ zero_extendqisi2
+ 19530 001a FFF7FEFF 		bl	USART_SendData
+ 105:USART_io.c    **** 		USART_DBG_buffer_ptr_get++; USART_DBG_buffer_data_size--;
+ 19531              		.loc 1 105 0
+ 19532 001e 2188     		ldrh	r1, [r4, #0]
+ 19533 0020 481C     		adds	r0, r1, #1
+ 19534 0022 1FFA80FC 		uxth	ip, r0
+ 19535 0026 A4F800C0 		strh	ip, [r4, #0]	@ movhi
+ 19536 002a 2B88     		ldrh	r3, [r5, #0]
+ 19537 002c 5A1E     		subs	r2, r3, #1
+ 19538 002e 91B2     		uxth	r1, r2
+ 19539 0030 2980     		strh	r1, [r5, #0]	@ movhi
+ 106:USART_io.c    **** 		if(USART_DBG_buffer_ptr_get >= sizeof(USART1_TX_ring_buffer)) {
+ 19540              		.loc 1 106 0
+ 19541 0032 2088     		ldrh	r0, [r4, #0]
+ 19542 0034 83B2     		uxth	r3, r0
+ 19543 0036 B3F5007F 		cmp	r3, #512
+ 19544 003a 07D3     		bcc	.L21
+ 107:USART_io.c    **** 			USART_DBG_buffer_ptr_get = 0;
+ 19545              		.loc 1 107 0
+ 19546 003c 0020     		movs	r0, #0
+ 19547 003e 2080     		strh	r0, [r4, #0]	@ movhi
+ 19548 0040 04E0     		b	.L21
+ 19549              	.L22:
+ 110:USART_io.c    **** 		USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 19550              		.loc 1 110 0
+ 19551 0042 0648     		ldr	r0, .L24+12
+ 19552 0044 40F22771 		movw	r1, #1831
+ 19553 0048 FFF7FEFF 		bl	USART_ITConfig
+ 19554              	.L21:
+ 112:USART_io.c    **** }
+ 19555              		.loc 1 112 0
+ 19556 004c 38BD     		pop	{r3, r4, r5, pc}
+ 19557              	.L25:
+ 19558 004e 00BF     		.align	2
+ 19559              	.L24:
+ 19560 0050 00000000 		.word	.LANCHOR1
+ 19561 0054 00000000 		.word	.LANCHOR2
+ 19562 0058 00000000 		.word	.LANCHOR3
+ 19563 005c 00380140 		.word	1073821696
+ 19564              	.LFE28:
+ 19566              		.section	.text.USART_DBG_putc,"ax",%progbits
+ 19567              		.align	1
+ 19568              		.global	USART_DBG_putc
+ 19569              		.thumb
+ 19570              		.thumb_func
+ 19572              	USART_DBG_putc:
+ 19573              	.LFB29:
+ 114:USART_io.c    **** void USART_DBG_putc(char c) {
+ 19574              		.loc 1 114 0
+ 19575              		@ args = 0, pretend = 0, frame = 0
+ 19576              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19577              	.LVL31:
+ 115:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 19578              		.loc 1 115 0
+ 19579 0000 0022     		movs	r2, #0
+ 114:USART_io.c    **** void USART_DBG_putc(char c) {
+ 19580              		.loc 1 114 0
+ 19581 0002 10B5     		push	{r4, lr}
+ 19582              	.LCFI3:
+ 115:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 19583              		.loc 1 115 0
+ 19584 0004 40F22771 		movw	r1, #1831
+ 114:USART_io.c    **** void USART_DBG_putc(char c) {
+ 19585              		.loc 1 114 0
+ 19586 0008 0446     		mov	r4, r0
+ 115:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 19587              		.loc 1 115 0
+ 19588 000a 1248     		ldr	r0, .L28
+ 19589              	.LVL32:
+ 19590 000c FFF7FEFF 		bl	USART_ITConfig
+ 116:USART_io.c    ****  	USART1_TX_ring_buffer[USART_DBG_buffer_ptr_put] = c;
+ 19591              		.loc 1 116 0
+ 19592 0010 114B     		ldr	r3, .L28+4
+ 19593 0012 DFF848C0 		ldr	ip, .L28+8
+ 19594 0016 1A88     		ldrh	r2, [r3, #0]
+ 19595 0018 91B2     		uxth	r1, r2
+ 19596 001a 0CF80140 		strb	r4, [ip, r1]
+ 117:USART_io.c    ****  	USART_DBG_buffer_ptr_put++;
+ 19597              		.loc 1 117 0
+ 19598 001e 1888     		ldrh	r0, [r3, #0]
+ 118:USART_io.c    ****  	USART_DBG_buffer_data_size++;
+ 19599              		.loc 1 118 0
+ 19600 0020 DFF83CC0 		ldr	ip, .L28+12
+ 117:USART_io.c    ****  	USART_DBG_buffer_ptr_put++;
+ 19601              		.loc 1 117 0
+ 19602 0024 421C     		adds	r2, r0, #1
+ 19603 0026 91B2     		uxth	r1, r2
+ 19604 0028 1980     		strh	r1, [r3, #0]	@ movhi
+ 118:USART_io.c    ****  	USART_DBG_buffer_data_size++;
+ 19605              		.loc 1 118 0
+ 19606 002a BCF80000 		ldrh	r0, [ip, #0]
+ 19607 002e 421C     		adds	r2, r0, #1
+ 19608 0030 91B2     		uxth	r1, r2
+ 19609 0032 ACF80010 		strh	r1, [ip, #0]	@ movhi
+ 119:USART_io.c    ****  	if(USART_DBG_buffer_ptr_put >= sizeof(USART1_TX_ring_buffer)) {
+ 19610              		.loc 1 119 0
+ 19611 0036 1888     		ldrh	r0, [r3, #0]
+ 19612 0038 82B2     		uxth	r2, r0
+ 19613 003a B2F5007F 		cmp	r2, #512
+ 19614 003e 01D3     		bcc	.L27
+ 120:USART_io.c    ****  		USART_DBG_buffer_ptr_put = 0;
+ 19615              		.loc 1 120 0
+ 19616 0040 0020     		movs	r0, #0
+ 19617 0042 1880     		strh	r0, [r3, #0]	@ movhi
+ 19618              	.L27:
+ 122:USART_io.c    ****  	USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+ 19619              		.loc 1 122 0
+ 19620 0044 0348     		ldr	r0, .L28
+ 19621 0046 40F22771 		movw	r1, #1831
+ 19622 004a 0122     		movs	r2, #1
+ 19623 004c FFF7FEFF 		bl	USART_ITConfig
+ 123:USART_io.c    **** }
+ 19624              		.loc 1 123 0
+ 19625 0050 10BD     		pop	{r4, pc}
+ 19626              	.L29:
+ 19627 0052 00BF     		.align	2
+ 19628              	.L28:
+ 19629 0054 00380140 		.word	1073821696
+ 19630 0058 00000000 		.word	.LANCHOR4
+ 19631 005c 00000000 		.word	.LANCHOR3
+ 19632 0060 00000000 		.word	.LANCHOR1
+ 19633              	.LFE29:
+ 19635              		.section	.text.USART1_IT_RxReady_exec,"ax",%progbits
+ 19636              		.align	1
+ 19637              		.global	USART1_IT_RxReady_exec
+ 19638              		.thumb
+ 19639              		.thumb_func
+ 19641              	USART1_IT_RxReady_exec:
+ 19642              	.LFB27:
+  98:USART_io.c    **** void USART1_IT_RxReady_exec(uint8_t c) {
+ 19643              		.loc 1 98 0
+ 19644              		@ args = 0, pretend = 0, frame = 0
+ 19645              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19646              	.LVL33:
+ 19647 0000 08B5     		push	{r3, lr}
+ 19648              	.LCFI4:
+  99:USART_io.c    **** 	USART_DBG_putc(c); // echo
+ 19649              		.loc 1 99 0
+ 19650 0002 FFF7FEFF 		bl	USART_DBG_putc
+ 19651              	.LVL34:
+ 100:USART_io.c    **** }
+ 19652              		.loc 1 100 0
+ 19653 0006 08BD     		pop	{r3, pc}
+ 19654              	.LFE27:
+ 19656              		.section	.text.USART_DBG_puts,"ax",%progbits
+ 19657              		.align	1
+ 19658              		.global	USART_DBG_puts
+ 19659              		.thumb
+ 19660              		.thumb_func
+ 19662              	USART_DBG_puts:
+ 19663              	.LFB30:
+ 126:USART_io.c    **** void USART_DBG_puts(char *str) {
+ 19664              		.loc 1 126 0
+ 19665              		@ args = 0, pretend = 0, frame = 0
+ 19666              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19667              	.LVL35:
+ 19668 0000 10B5     		push	{r4, lr}
+ 19669              	.LCFI5:
+ 19670              	.LVL36:
+ 126:USART_io.c    **** void USART_DBG_puts(char *str) {
+ 19671              		.loc 1 126 0
+ 19672 0002 0446     		mov	r4, r0
+ 19673              	.LBB2:
+ 127:USART_io.c    ****  for(int i = 0; str[i] != 0; i++) USART_DBG_putc(str[i]);
+ 19674              		.loc 1 127 0
+ 19675 0004 01E0     		b	.L32
+ 19676              	.LVL37:
+ 19677              	.L33:
+ 127:USART_io.c    ****  for(int i = 0; str[i] != 0; i++) USART_DBG_putc(str[i]);
+ 19678              		.loc 1 127 0 is_stmt 0 discriminator 2
+ 19679 0006 FFF7FEFF 		bl	USART_DBG_putc
+ 19680              	.L32:
+ 127:USART_io.c    ****  for(int i = 0; str[i] != 0; i++) USART_DBG_putc(str[i]);
+ 19681              		.loc 1 127 0 discriminator 1
+ 19682 000a 14F8010B 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 19683 000e 0028     		cmp	r0, #0
+ 19684 0010 F9D1     		bne	.L33
+ 19685              	.LBE2:
+ 128:USART_io.c    **** }
+ 19686              		.loc 1 128 0 is_stmt 1
+ 19687 0012 10BD     		pop	{r4, pc}
+ 19688              	.LFE30:
+ 19690              		.section	.text.USART_DBG_bin,"ax",%progbits
+ 19691              		.align	1
+ 19692              		.global	USART_DBG_bin
+ 19693              		.thumb
+ 19694              		.thumb_func
+ 19696              	USART_DBG_bin:
+ 19697              	.LFB32:
+ 155:USART_io.c    **** 
+ 156:USART_io.c    **** void USART_DBG_bin(uint8_t *bin, uint16_t len) {
+ 19698              		.loc 1 157 0
+ 19699              		@ args = 0, pretend = 0, frame = 8
+ 19700              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19701              	.LVL38:
+ 19702 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 19703              	.LCFI6:
+ 19704              	.LVL39:
+ 19705              		.loc 1 157 0
+ 19706 0002 0E46     		mov	r6, r1
+ 19707 0004 0446     		mov	r4, r0
+ 157:USART_io.c    **** 	USART_DBG_putc(0x1B);
+ 19708              		.loc 1 158 0
+ 19709 0006 1B20     		movs	r0, #27
+ 19710              	.LVL40:
+ 19711 0008 FFF7FEFF 		bl	USART_DBG_putc
+ 158:USART_io.c    **** 	USART_DBG_putc((uint8_t)(len >> 8));
+ 19712              		.loc 1 159 0
+ 19713 000c 300A     		lsrs	r0, r6, #8
+ 19714 000e FFF7FEFF 		bl	USART_DBG_putc
+ 159:USART_io.c    **** 	USART_DBG_putc((uint8_t)len);
+ 19715              		.loc 1 160 0
+ 19716 0012 F0B2     		uxtb	r0, r6
+ 19717 0014 FFF7FEFF 		bl	USART_DBG_putc
+ 19718              	.LVL41:
+ 19719              	.LBB3:
+ 160:USART_io.c    **** 	for(int i = 0; i < len; i++) {
+ 19720              		.loc 1 161 0
+ 19721 0018 0025     		movs	r5, #0
+ 161:USART_io.c    **** 		while(USART_DBG_buffer_data_size >= sizeof(USART1_TX_ring_buffer)) {}
+ 19722              		.loc 1 162 0
+ 19723 001a 084B     		ldr	r3, .L39
+ 19724 001c 40F2FF17 		movw	r7, #511
+ 161:USART_io.c    **** 		while(USART_DBG_buffer_data_size >= sizeof(USART1_TX_ring_buffer)) {}
+ 19725              		.loc 1 161 0
+ 19726 0020 09E0     		b	.L35
+ 19727              	.LVL42:
+ 19728              	.L37:
+ 19729              		.loc 1 162 0 discriminator 1
+ 19730 0022 1888     		ldrh	r0, [r3, #0]
+ 19731 0024 82B2     		uxth	r2, r0
+ 19732 0026 BA42     		cmp	r2, r7
+ 19733 0028 FBD8     		bhi	.L37
+ 19734              	.LVL43:
+ 162:USART_io.c    **** 		USART_DBG_putc(bin[i]);
+ 19735              		.loc 1 163 0
+ 19736 002a 605D     		ldrb	r0, [r4, r5]	@ zero_extendqisi2
+ 19737 002c 0193     		str	r3, [sp, #4]
+ 19738 002e FFF7FEFF 		bl	USART_DBG_putc
+ 161:USART_io.c    **** 		while(USART_DBG_buffer_data_size >= sizeof(USART1_TX_ring_buffer)) {}
+ 19739              		.loc 1 161 0
+ 19740 0032 019B     		ldr	r3, [sp, #4]
+ 19741 0034 0135     		adds	r5, r5, #1
+ 19742              	.LVL44:
+ 19743              	.L35:
+ 161:USART_io.c    **** 		while(USART_DBG_buffer_data_size >= sizeof(USART1_TX_ring_buffer)) {}
+ 19744              		.loc 1 161 0 is_stmt 0 discriminator 1
+ 19745 0036 B542     		cmp	r5, r6
+ 19746 0038 F3DB     		blt	.L37
+ 19747              	.LVL45:
+ 19748              	.LBE3:
+ 163:USART_io.c    **** 	}
+ 164:USART_io.c    **** }
+ 19749              		.loc 1 165 0 is_stmt 1
+ 19750 003a FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 19751              	.L40:
+ 19752              		.align	2
+ 19753              	.L39:
+ 19754 003c 00000000 		.word	.LANCHOR1
+ 19755              	.LFE32:
+ 19757              		.section	.text.USART_DBG_hexDump,"ax",%progbits
+ 19758              		.align	1
+ 19759              		.global	USART_DBG_hexDump
+ 19760              		.thumb
+ 19761              		.thumb_func
+ 19763              	USART_DBG_hexDump:
+ 19764              	.LFB33:
+ 165:USART_io.c    **** 
+ 166:USART_io.c    **** 
+ 167:USART_io.c    **** void USART_DBG_hexDump(uint8_t *bin, uint8_t len) {
+ 19765              		.loc 1 168 0
+ 19766              		@ args = 0, pretend = 0, frame = 512
+ 19767              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19768              	.LVL46:
+ 19769 0000 10B5     		push	{r4, lr}
+ 19770              	.LCFI7:
+ 19771 0002 ADF5007D 		sub	sp, sp, #512
+ 19772              	.LCFI8:
+ 168:USART_io.c    ****  char sout[512], *xStr = sout;
+ 169:USART_io.c    ****  static uint8_t xlat[16] =  { '0','1','2','3','4','5','6','7', '8','9','A','B','C','D','E','F'};
+ 170:USART_io.c    ****  *(xStr++) = '<';
+ 19773              		.loc 1 171 0
+ 19774 0006 3C22     		movs	r2, #60
+ 19775 0008 6B46     		mov	r3, sp
+ 19776 000a 03F8012B 		strb	r2, [r3], #1
+ 19777              	.LVL47:
+ 171:USART_io.c    ****  int   i;
+ 172:USART_io.c    ****  for (i=0; i<len; i++) {
+ 173:USART_io.c    ****   *(xStr++)=xlat[(*bin)>>4];
+ 19778              		.loc 1 174 0
+ 19779 000e DFF844E0 		ldr	lr, .L44
+ 173:USART_io.c    ****   *(xStr++)=xlat[(*bin)>>4];
+ 19780              		.loc 1 173 0
+ 19781 0012 0022     		movs	r2, #0
+ 19782 0014 0EE0     		b	.L42
+ 19783              	.LVL48:
+ 19784              	.L43:
+ 19785              		.loc 1 174 0 discriminator 2
+ 19786 0016 10F802C0 		ldrb	ip, [r0, r2]	@ zero_extendqisi2
+ 173:USART_io.c    ****   *(xStr++)=xlat[(*bin)>>4];
+ 19787              		.loc 1 173 0 discriminator 2
+ 19788 001a 0132     		adds	r2, r2, #1
+ 19789              	.LVL49:
+ 19790              		.loc 1 174 0 discriminator 2
+ 19791 001c 4FEA1C14 		lsr	r4, ip, #4
+ 174:USART_io.c    ****   *(xStr++)=xlat[(*bin)&0x0F];
+ 19792              		.loc 1 175 0 discriminator 2
+ 19793 0020 0CF00F0C 		and	ip, ip, #15
+ 174:USART_io.c    ****   *(xStr++)=xlat[(*bin)&0x0F];
+ 19794              		.loc 1 174 0 discriminator 2
+ 19795 0024 1EF80440 		ldrb	r4, [lr, r4]	@ zero_extendqisi2
+ 19796              		.loc 1 175 0 discriminator 2
+ 19797 0028 1EF80CC0 		ldrb	ip, [lr, ip]	@ zero_extendqisi2
+ 174:USART_io.c    ****   *(xStr++)=xlat[(*bin)&0x0F];
+ 19798              		.loc 1 174 0 discriminator 2
+ 19799 002c 03F8024C 		strb	r4, [r3, #-2]
+ 19800              	.LVL50:
+ 19801              		.loc 1 175 0 discriminator 2
+ 19802 0030 03F801CC 		strb	ip, [r3, #-1]
+ 19803              	.LVL51:
+ 19804              	.L42:
+ 173:USART_io.c    ****  for (i=0; i<len; i++) {
+ 19805              		.loc 1 173 0 discriminator 1
+ 19806 0034 9C46     		mov	ip, r3
+ 19807              	.LVL52:
+ 19808 0036 0233     		adds	r3, r3, #2
+ 19809 0038 8A42     		cmp	r2, r1
+ 19810 003a ECDB     		blt	.L43
+ 19811              	.LVL53:
+ 175:USART_io.c    ****   ++bin;
+ 176:USART_io.c    ****  }
+ 177:USART_io.c    ****  *(xStr++) = '>';
+ 19812              		.loc 1 178 0
+ 19813 003c 3E20     		movs	r0, #62
+ 178:USART_io.c    ****  *(xStr++) = 0;
+ 19814              		.loc 1 179 0
+ 19815 003e 0023     		movs	r3, #0
+ 178:USART_io.c    ****  *(xStr++) = 0;
+ 19816              		.loc 1 178 0
+ 19817 0040 8CF80000 		strb	r0, [ip, #0]
+ 19818              		.loc 1 179 0
+ 19819 0044 8CF80130 		strb	r3, [ip, #1]
+ 179:USART_io.c    ****  USART_DBG_puts(sout);
+ 19820              		.loc 1 180 0
+ 19821 0048 6846     		mov	r0, sp
+ 19822 004a FFF7FEFF 		bl	USART_DBG_puts
+ 19823              	.LVL54:
+ 180:USART_io.c    **** }
+ 19824              		.loc 1 181 0
+ 19825 004e 0DF5007D 		add	sp, sp, #512
+ 19826 0052 10BD     		pop	{r4, pc}
+ 19827              	.L45:
+ 19828              		.align	2
+ 19829              	.L44:
+ 19830 0054 00000000 		.word	.LANCHOR5
+ 19831              	.LFE33:
+ 19833              		.section	.text.USART_DBG_printf,"ax",%progbits
+ 19834              		.align	1
+ 19835              		.global	USART_DBG_printf
+ 19836              		.thumb
+ 19837              		.thumb_func
+ 19839              	USART_DBG_printf:
+ 19840              	.LFB34:
+ 181:USART_io.c    **** 
+ 182:USART_io.c    **** 
+ 183:USART_io.c    **** char *USART_DBG_printf(const char* str, ...) {
+ 19841              		.loc 1 184 0
+ 19842              		@ args = 4, pretend = 16, frame = 8
+ 19843              		@ frame_needed = 0, uses_anonymous_args = 1
+ 19844              	.LVL55:
+ 19845 0000 0FB4     		push	{r0, r1, r2, r3}
+ 19846              	.LCFI9:
+ 19847 0002 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 19848              	.LCFI10:
+ 19849              		.loc 1 184 0
+ 19850 0004 08AB     		add	r3, sp, #32
+ 19851 0006 53F8044B 		ldr	r4, [r3], #4
+ 184:USART_io.c    **** 	va_list arp;
+ 185:USART_io.c    **** 	int d, r, w, s, l;
+ 186:USART_io.c    **** 	va_start(arp, str);
+ 187:USART_io.c    **** 	static char sout[256];
+ 188:USART_io.c    **** 	unsigned char ptr = 0;
+ 189:USART_io.c    **** 
+ 190:USART_io.c    **** 	while ((d = *str++) != 0) {
+ 191:USART_io.c    **** 			if (d != '%') {	sout[ptr++]=d; continue;	}
+ 192:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 193:USART_io.c    **** 			if (d == '0') {
+ 194:USART_io.c    **** 				d = *str++; s = 1;
+ 195:USART_io.c    **** 			}
+ 196:USART_io.c    **** 			while ((d >= '0')&&(d <= '9')) {
+ 197:USART_io.c    **** 				w += w * 10 + (d - '0');
+ 19852              		.loc 1 198 0
+ 19853 000a 0A26     		movs	r6, #10
+ 187:USART_io.c    **** 	va_start(arp, str);
+ 19854              		.loc 1 187 0
+ 19855 000c 0193     		str	r3, [sp, #4]
+ 19856              	.LVL56:
+ 198:USART_io.c    **** 				d = *str++;
+ 199:USART_io.c    **** 			}
+ 200:USART_io.c    **** 			if (s) w = -w;
+ 201:USART_io.c    **** 			if (d == 'l') {
+ 202:USART_io.c    **** 				l = 1;
+ 203:USART_io.c    **** 				d = *str++;
+ 204:USART_io.c    **** 			}
+ 205:USART_io.c    **** 			if (!d) break;
+ 206:USART_io.c    **** 			if (d == 's') {
+ 207:USART_io.c    **** 				char *s = va_arg(arp, char*);
+ 208:USART_io.c    **** 				while(*s != 0) { sout[ptr++] = *s; s++; }
+ 209:USART_io.c    **** 				continue;
+ 210:USART_io.c    **** 			}
+ 211:USART_io.c    **** 			if (d == 'c') {
+ 212:USART_io.c    **** 				sout[ptr++] = (char)va_arg(arp, int);
+ 19857              		.loc 1 213 0
+ 19858 000e 3E4D     		ldr	r5, .L76
+ 189:USART_io.c    **** 	unsigned char ptr = 0;
+ 19859              		.loc 1 189 0
+ 19860 0010 0023     		movs	r3, #0
+ 191:USART_io.c    **** 	while ((d = *str++) != 0) {
+ 19861              		.loc 1 191 0
+ 19862 0012 6BE0     		b	.L73
+ 19863              	.LVL57:
+ 19864              	.L66:
+ 19865 0014 0134     		adds	r4, r4, #1
+ 19866              	.LVL58:
+ 192:USART_io.c    **** 			if (d != '%') {	sout[ptr++]=d; continue;	}
+ 19867              		.loc 1 192 0
+ 19868 0016 252A     		cmp	r2, #37
+ 19869 0018 35D1     		bne	.L74
+ 193:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 19870              		.loc 1 193 0
+ 19871 001a 14F8010B 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 19872              	.LVL59:
+ 194:USART_io.c    **** 			if (d == '0') {
+ 19873              		.loc 1 194 0
+ 19874 001e 3028     		cmp	r0, #48
+ 19875 0020 03D1     		bne	.L67
+ 19876              	.LVL60:
+ 195:USART_io.c    **** 				d = *str++; s = 1;
+ 19877              		.loc 1 195 0
+ 19878 0022 14F8010B 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 19879              	.LVL61:
+ 19880 0026 0121     		movs	r1, #1
+ 19881 0028 00E0     		b	.L50
+ 19882              	.LVL62:
+ 19883              	.L67:
+ 193:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 19884              		.loc 1 193 0
+ 19885 002a 0021     		movs	r1, #0
+ 19886              	.LVL63:
+ 19887              	.L50:
+ 193:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 19888              		.loc 1 193 0 is_stmt 0 discriminator 1
+ 19889 002c 0022     		movs	r2, #0
+ 19890 002e 05E0     		b	.L51
+ 19891              	.LVL64:
+ 19892              	.L52:
+ 198:USART_io.c    **** 				w += w * 10 + (d - '0');
+ 19893              		.loc 1 198 0 is_stmt 1
+ 19894 0030 8018     		adds	r0, r0, r2
+ 19895              	.LVL65:
+ 19896 0032 3038     		subs	r0, r0, #48
+ 19897 0034 06FB0202 		mla	r2, r6, r2, r0
+ 19898              	.LVL66:
+ 199:USART_io.c    **** 				d = *str++;
+ 19899              		.loc 1 199 0
+ 19900 0038 14F8010B 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 19901              	.LVL67:
+ 19902              	.L51:
+ 197:USART_io.c    **** 			while ((d >= '0')&&(d <= '9')) {
+ 19903              		.loc 1 197 0 discriminator 1
+ 19904 003c A0F1300C 		sub	ip, r0, #48
+ 19905 0040 BCF1090F 		cmp	ip, #9
+ 19906 0044 F4D9     		bls	.L52
+ 19907              	.LVL68:
+ 201:USART_io.c    **** 			if (s) w = -w;
+ 19908              		.loc 1 201 0
+ 19909 0046 01B1     		cbz	r1, .L53
+ 19910              	.LVL69:
+ 201:USART_io.c    **** 			if (s) w = -w;
+ 19911              		.loc 1 201 0 is_stmt 0 discriminator 1
+ 19912 0048 5242     		negs	r2, r2
+ 19913              	.LVL70:
+ 19914              	.L53:
+ 202:USART_io.c    **** 			if (d == 'l') {
+ 19915              		.loc 1 202 0 is_stmt 1
+ 19916 004a 6C28     		cmp	r0, #108
+ 19917 004c 03D1     		bne	.L68
+ 19918              	.LVL71:
+ 204:USART_io.c    **** 				d = *str++;
+ 19919              		.loc 1 204 0
+ 19920 004e 14F8010B 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 19921              	.LVL72:
+ 203:USART_io.c    **** 				l = 1;
+ 19922              		.loc 1 203 0
+ 19923 0052 0127     		movs	r7, #1
+ 19924 0054 00E0     		b	.L54
+ 19925              	.LVL73:
+ 19926              	.L68:
+ 193:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 19927              		.loc 1 193 0
+ 19928 0056 0027     		movs	r7, #0
+ 19929              	.LVL74:
+ 19930              	.L54:
+ 206:USART_io.c    **** 			if (!d) break;
+ 19931              		.loc 1 206 0
+ 19932 0058 0028     		cmp	r0, #0
+ 19933 005a 4AD0     		beq	.L55
+ 19934              	.LVL75:
+ 207:USART_io.c    **** 			if (d == 's') {
+ 19935              		.loc 1 207 0
+ 19936 005c 7328     		cmp	r0, #115
+ 19937 005e 0CD1     		bne	.L56
+ 19938              	.LBB4:
+ 208:USART_io.c    **** 				char *s = va_arg(arp, char*);
+ 19939              		.loc 1 208 0
+ 19940 0060 019A     		ldr	r2, [sp, #4]
+ 19941              	.LVL76:
+ 19942 0062 111D     		adds	r1, r2, #4
+ 19943 0064 0191     		str	r1, [sp, #4]
+ 19944 0066 1268     		ldr	r2, [r2, #0]
+ 209:USART_io.c    **** 				while(*s != 0) { sout[ptr++] = *s; s++; }
+ 19945              		.loc 1 209 0
+ 19946 0068 02E0     		b	.L57
+ 19947              	.LVL77:
+ 19948              	.L58:
+ 209:USART_io.c    **** 				while(*s != 0) { sout[ptr++] = *s; s++; }
+ 19949              		.loc 1 209 0 is_stmt 0 discriminator 2
+ 19950 006a E954     		strb	r1, [r5, r3]
+ 19951 006c 0133     		adds	r3, r3, #1
+ 19952              	.LVL78:
+ 19953 006e DBB2     		uxtb	r3, r3
+ 19954              	.LVL79:
+ 19955              	.L57:
+ 209:USART_io.c    **** 				while(*s != 0) { sout[ptr++] = *s; s++; }
+ 19956              		.loc 1 209 0 discriminator 1
+ 19957 0070 12F8011B 		ldrb	r1, [r2], #1	@ zero_extendqisi2
+ 19958 0074 0029     		cmp	r1, #0
+ 19959 0076 F8D1     		bne	.L58
+ 19960 0078 38E0     		b	.L73
+ 19961              	.LVL80:
+ 19962              	.L56:
+ 19963              	.LBE4:
+ 212:USART_io.c    **** 			if (d == 'c') {
+ 19964              		.loc 1 212 0 is_stmt 1
+ 19965 007a 6328     		cmp	r0, #99
+ 19966 007c 07D1     		bne	.L59
+ 19967              		.loc 1 213 0
+ 19968 007e 0198     		ldr	r0, [sp, #4]
+ 19969              	.LVL81:
+ 19970 0080 021D     		adds	r2, r0, #4
+ 19971              	.LVL82:
+ 19972 0082 0192     		str	r2, [sp, #4]
+ 19973 0084 0268     		ldr	r2, [r0, #0]
+ 19974              	.LVL83:
+ 19975              	.L74:
+ 19976 0086 591C     		adds	r1, r3, #1
+ 19977 0088 EA54     		strb	r2, [r5, r3]
+ 19978 008a CBB2     		uxtb	r3, r1
+ 19979              	.LVL84:
+ 213:USART_io.c    **** 				continue;
+ 19980              		.loc 1 214 0
+ 19981 008c 2EE0     		b	.L73
+ 19982              	.LVL85:
+ 19983              	.L59:
+ 214:USART_io.c    **** 			}
+ 215:USART_io.c    **** 			if (d == 'u') r = 10;
+ 216:USART_io.c    **** 			if (d == 'd' || d == 'i') r = -10;
+ 19984              		.loc 1 217 0
+ 19985 008e 6428     		cmp	r0, #100
+ 19986 0090 14BF     		ite	ne
+ 19987 0092 0021     		movne	r1, #0
+ 19988 0094 0121     		moveq	r1, #1
+ 19989 0096 6928     		cmp	r0, #105
+ 19990 0098 08BF     		it	eq
+ 19991 009a 41F00101 		orreq	r1, r1, #1
+ 193:USART_io.c    **** 			d = *str++; w = r = s = l = 0;
+ 19992              		.loc 1 193 0
+ 19993 009e 7528     		cmp	r0, #117
+ 19994 00a0 0CBF     		ite	eq
+ 19995 00a2 4FF00A0C 		moveq	ip, #10
+ 19996 00a6 4FF0000C 		movne	ip, #0
+ 19997              	.LVL86:
+ 19998              		.loc 1 217 0
+ 19999 00aa 0029     		cmp	r1, #0
+ 20000 00ac 18BF     		it	ne
+ 20001 00ae 6FF0090C 		mvnne	ip, #9
+ 20002              	.LVL87:
+ 217:USART_io.c    **** 			if (d == 'X' || d == 'x') r = 16; // 'x' added by mthomas in increase compatibility
+ 20003              		.loc 1 218 0
+ 20004 00b2 5828     		cmp	r0, #88
+ 20005 00b4 14BF     		ite	ne
+ 20006 00b6 4FF0000E 		movne	lr, #0
+ 20007 00ba 4FF0010E 		moveq	lr, #1
+ 20008 00be 7828     		cmp	r0, #120
+ 20009 00c0 08BF     		it	eq
+ 20010 00c2 4EF0010E 		orreq	lr, lr, #1
+ 20011 00c6 BEF1000F 		cmp	lr, #0
+ 20012 00ca 0CBF     		ite	eq
+ 20013 00cc 6146     		moveq	r1, ip
+ 20014 00ce 1021     		movne	r1, #16
+ 20015              	.LVL88:
+ 218:USART_io.c    **** 			if (d == 'b') r = 2;
+ 20016              		.loc 1 219 0
+ 20017 00d0 6228     		cmp	r0, #98
+ 20018 00d2 01D0     		beq	.L72
+ 20019              	.LVL89:
+ 219:USART_io.c    **** 			if (!r) break;
+ 20020              		.loc 1 220 0
+ 20021 00d4 09B9     		cbnz	r1, .L63
+ 20022              	.LVL90:
+ 20023 00d6 0CE0     		b	.L55
+ 20024              	.LVL91:
+ 20025              	.L72:
+ 219:USART_io.c    **** 			if (!r) break;
+ 20026              		.loc 1 219 0
+ 20027 00d8 0221     		movs	r1, #2
+ 20028              	.LVL92:
+ 20029              	.L63:
+ 20030 00da 0198     		ldr	r0, [sp, #4]
+ 20031              	.LVL93:
+ 220:USART_io.c    **** 			if (l) {
+ 221:USART_io.c    **** 				ptr = USART_DBG_itoa((long)va_arg(arp, long), r, w, sout, ptr);
+ 222:USART_io.c    **** 			} else {
+ 223:USART_io.c    **** 				if (r > 0) ptr = USART_DBG_itoa((unsigned long)va_arg(arp, int), r, w, sout, ptr);
+ 224:USART_io.c    **** 				else	ptr = USART_DBG_itoa((long)va_arg(arp, int), r, w, sout, ptr);
+ 20032              		.loc 1 225 0
+ 20033 00dc 00F1040E 		add	lr, r0, #4
+ 20034 00e0 CDF804E0 		str	lr, [sp, #4]
+ 20035 00e4 0068     		ldr	r0, [r0, #0]
+ 20036 00e6 FFF7FEFF 		bl	USART_DBG_itoa.clone.0
+ 20037              	.LVL94:
+ 20038 00ea 0346     		mov	r3, r0
+ 20039              	.LVL95:
+ 20040              	.L73:
+ 191:USART_io.c    **** 	while ((d = *str++) != 0) {
+ 20041              		.loc 1 191 0 discriminator 1
+ 20042 00ec 2278     		ldrb	r2, [r4, #0]	@ zero_extendqisi2
+ 20043              	.LVL96:
+ 20044 00ee 002A     		cmp	r2, #0
+ 20045 00f0 90D1     		bne	.L66
+ 20046              	.LVL97:
+ 20047              	.L55:
+ 225:USART_io.c    **** 			}
+ 226:USART_io.c    **** 	}
+ 227:USART_io.c    **** 	va_end(arp);
+ 228:USART_io.c    **** 	sout[ptr] = 0;
+ 20048              		.loc 1 229 0
+ 20049 00f2 054C     		ldr	r4, .L76
+ 20050 00f4 0022     		movs	r2, #0
+ 229:USART_io.c    **** 	USART_DBG_puts(sout);
+ 20051              		.loc 1 230 0
+ 20052 00f6 2046     		mov	r0, r4
+ 20053              	.LVL98:
+ 229:USART_io.c    **** 	USART_DBG_puts(sout);
+ 20054              		.loc 1 229 0
+ 20055 00f8 E254     		strb	r2, [r4, r3]
+ 20056              		.loc 1 230 0
+ 20057 00fa FFF7FEFF 		bl	USART_DBG_puts
+ 20058              	.LVL99:
+ 230:USART_io.c    **** 	return sout;
+ 231:USART_io.c    **** }
+ 20059              		.loc 1 232 0
+ 20060 00fe 2046     		mov	r0, r4
+ 20061 0100 BDE8FE40 		pop	{r1, r2, r3, r4, r5, r6, r7, lr}
+ 20062 0104 04B0     		add	sp, sp, #16
+ 20063 0106 7047     		bx	lr
+ 20064              	.L77:
+ 20065              		.align	2
+ 20066              	.L76:
+ 20067 0108 00000000 		.word	.LANCHOR0
+ 20068              	.LFE34:
+ 20070              		.section	.text.USART_init,"ax",%progbits
+ 20071              		.align	1
+ 20072              		.global	USART_init
+ 20073              		.thumb
+ 20074              		.thumb_func
+ 20076              	USART_init:
+ 20077              	.LFB35:
+ 232:USART_io.c    **** #endif
+ 233:USART_io.c    **** 
+ 234:USART_io.c    **** 
+ 235:USART_io.c    **** //=========================================================================================
+ 236:USART_io.c    **** //#ifdef USART2_ENABLE || USART1_ENABLE
+ 237:USART_io.c    **** 
+ 238:USART_io.c    **** void USART_init() {
+ 20078              		.loc 1 239 0
+ 20079              		@ args = 0, pretend = 0, frame = 24
+ 20080              		@ frame_needed = 0, uses_anonymous_args = 0
+ 20081 0000 70B5     		push	{r4, r5, r6, lr}
+ 20082              	.LCFI11:
+ 239:USART_io.c    **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+ 20083              		.loc 1 240 0
+ 20084 0002 0121     		movs	r1, #1
+ 239:USART_io.c    **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+ 20085              		.loc 1 239 0
+ 20086 0004 86B0     		sub	sp, sp, #24
+ 20087              	.LCFI12:
+ 20088              		.loc 1 240 0
+ 20089 0006 4FF48040 		mov	r0, #16384
+ 20090 000a FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+ 240:USART_io.c    **** #ifdef USART2_ENABLE
+ 241:USART_io.c    **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+ 242:USART_io.c    **** #endif
+ 243:USART_io.c    **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 244:USART_io.c    **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 20091              		.loc 1 245 0
+ 20092 000e 0321     		movs	r1, #3
+ 245:USART_io.c    **** 
+ 246:USART_io.c    **** 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+ 20093              		.loc 1 247 0
+ 20094 0010 4FF4C060 		mov	r0, #1536
+ 245:USART_io.c    **** 
+ 20095              		.loc 1 245 0
+ 20096 0014 8DF81610 		strb	r1, [sp, #22]
+ 247:USART_io.c    **** 	NVIC_InitTypeDef NVIC_InitStructure;
+ 248:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+ 249:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+ 250:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 251:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 252:USART_io.c    **** 	NVIC_Init(&NVIC_InitStructure);
+ 20097              		.loc 1 253 0
+ 20098 0018 04AC     		add	r4, sp, #16
+ 247:USART_io.c    **** 	NVIC_InitTypeDef NVIC_InitStructure;
+ 20099              		.loc 1 247 0
+ 20100 001a FFF7FEFF 		bl	NVIC_PriorityGroupConfig
+ 250:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+ 20101              		.loc 1 250 0
+ 20102 001e 0226     		movs	r6, #2
+ 249:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+ 20103              		.loc 1 249 0
+ 20104 0020 2520     		movs	r0, #37
+ 20105 0022 8DF81000 		strb	r0, [sp, #16]
+ 250:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+ 20106              		.loc 1 250 0
+ 20107 0026 8DF81160 		strb	r6, [sp, #17]
+ 20108              		.loc 1 253 0
+ 20109 002a 2046     		mov	r0, r4
+ 251:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 20110              		.loc 1 251 0
+ 20111 002c 0126     		movs	r6, #1
+ 253:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+ 254:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 255:USART_io.c    **** 	NVIC_Init(&NVIC_InitStructure);
+ 256:USART_io.c    **** 
+ 257:USART_io.c    **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 20112              		.loc 1 258 0
+ 20113 002e 1825     		movs	r5, #24
+ 251:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 20114              		.loc 1 251 0
+ 20115 0030 8DF81260 		strb	r6, [sp, #18]
+ 252:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 20116              		.loc 1 252 0
+ 20117 0034 8DF81360 		strb	r6, [sp, #19]
+ 253:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+ 20118              		.loc 1 253 0
+ 20119 0038 FFF7FEFF 		bl	NVIC_Init
+ 254:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+ 20120              		.loc 1 254 0
+ 20121 003c 2623     		movs	r3, #38
+ 256:USART_io.c    **** 	NVIC_Init(&NVIC_InitStructure);
+ 20122              		.loc 1 256 0
+ 20123 003e 2046     		mov	r0, r4
+ 254:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+ 20124              		.loc 1 254 0
+ 20125 0040 8DF81030 		strb	r3, [sp, #16]
+ 258:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; // USAR1 TX
+ 20126              		.loc 1 259 0
+ 20127 0044 0DEB0504 		add	r4, sp, r5
+ 255:USART_io.c    **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 20128              		.loc 1 255 0
+ 20129 0048 8DF81160 		strb	r6, [sp, #17]
+ 256:USART_io.c    **** 	NVIC_Init(&NVIC_InitStructure);
+ 20130              		.loc 1 256 0
+ 20131 004c FFF7FEFF 		bl	NVIC_Init
+ 20132              		.loc 1 259 0
+ 20133 0050 4FF4007C 		mov	ip, #512	@ movhi
+ 258:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; // USAR1 TX
+ 20134              		.loc 1 258 0
+ 20135 0054 8DF81750 		strb	r5, [sp, #23]
+ 259:USART_io.c    **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 20136              		.loc 1 260 0
+ 20137 0058 1C4D     		ldr	r5, .L79
+ 259:USART_io.c    **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 20138              		.loc 1 259 0
+ 20139 005a 24F804CD 		strh	ip, [r4, #-4]!	@ movhi
+ 20140              		.loc 1 260 0
+ 20141 005e 2846     		mov	r0, r5
+ 20142 0060 2146     		mov	r1, r4
+ 20143 0062 FFF7FEFF 		bl	GPIO_Init
+ 260:USART_io.c    **** #ifdef USART2_ENABLE
+ 261:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2; // USAR2 TX
+ 262:USART_io.c    **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 263:USART_io.c    **** #endif
+ 264:USART_io.c    **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+ 265:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; // USAR1 RX
+ 20144              		.loc 1 266 0
+ 20145 0066 4FF48061 		mov	r1, #1024	@ movhi
+ 265:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; // USAR1 RX
+ 20146              		.loc 1 265 0
+ 20147 006a 0422     		movs	r2, #4
+ 20148              		.loc 1 266 0
+ 20149 006c ADF81410 		strh	r1, [sp, #20]	@ movhi
+ 266:USART_io.c    **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 20150              		.loc 1 267 0
+ 20151 0070 2846     		mov	r0, r5
+ 20152 0072 2146     		mov	r1, r4
+ 265:USART_io.c    **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+ 20153              		.loc 1 265 0
+ 20154 0074 8DF81720 		strb	r2, [sp, #23]
+ 267:USART_io.c    **** #ifdef USART2_ENABLE
+ 268:USART_io.c    **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;  // USAR2 RX
+ 269:USART_io.c    **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 270:USART_io.c    **** #endif
+ 271:USART_io.c    **** 	USART_InitTypeDef USART_InitStructure;
+ 272:USART_io.c    **** 	USART_InitStructure.USART_BaudRate = 115200;
+ 273:USART_io.c    **** 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+ 274:USART_io.c    **** 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+ 275:USART_io.c    **** 	USART_InitStructure.USART_Parity = USART_Parity_No;
+ 276:USART_io.c    **** 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+ 277:USART_io.c    **** 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+ 278:USART_io.c    **** 
+ 279:USART_io.c    **** #ifdef USART1_ENABLE
+ 280:USART_io.c    **** 	USART_Init(USART1, &USART_InitStructure);
+ 20155              		.loc 1 281 0
+ 20156 0078 05F54055 		add	r5, r5, #12288
+ 267:USART_io.c    **** #ifdef USART2_ENABLE
+ 20157              		.loc 1 267 0
+ 20158 007c FFF7FEFF 		bl	GPIO_Init
+ 273:USART_io.c    **** 	USART_InitStructure.USART_BaudRate = 115200;
+ 20159              		.loc 1 273 0
+ 20160 0080 4FF4E130 		mov	r0, #115200
+ 274:USART_io.c    **** 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+ 20161              		.loc 1 274 0
+ 20162 0084 0024     		movs	r4, #0
+ 278:USART_io.c    **** 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+ 20163              		.loc 1 278 0
+ 20164 0086 0C23     		movs	r3, #12
+ 273:USART_io.c    **** 	USART_InitStructure.USART_BaudRate = 115200;
+ 20165              		.loc 1 273 0
+ 20166 0088 0090     		str	r0, [sp, #0]
+ 20167              		.loc 1 281 0
+ 20168 008a 6946     		mov	r1, sp
+ 20169 008c 2846     		mov	r0, r5
+ 278:USART_io.c    **** 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+ 20170              		.loc 1 278 0
+ 20171 008e ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 274:USART_io.c    **** 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+ 20172              		.loc 1 274 0
+ 20173 0092 ADF80440 		strh	r4, [sp, #4]	@ movhi
+ 275:USART_io.c    **** 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+ 20174              		.loc 1 275 0
+ 20175 0096 ADF80640 		strh	r4, [sp, #6]	@ movhi
+ 276:USART_io.c    **** 	USART_InitStructure.USART_Parity = USART_Parity_No;
+ 20176              		.loc 1 276 0
+ 20177 009a ADF80840 		strh	r4, [sp, #8]	@ movhi
+ 277:USART_io.c    **** 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+ 20178              		.loc 1 277 0
+ 20179 009e ADF80C40 		strh	r4, [sp, #12]	@ movhi
+ 20180              		.loc 1 281 0
+ 20181 00a2 FFF7FEFF 		bl	USART_Init
+ 281:USART_io.c    **** 	USART_Cmd(USART1, ENABLE);
+ 20182              		.loc 1 282 0
+ 20183 00a6 2846     		mov	r0, r5
+ 20184 00a8 3146     		mov	r1, r6
+ 20185 00aa FFF7FEFF 		bl	USART_Cmd
+ 282:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+ 20186              		.loc 1 283 0
+ 20187 00ae 2846     		mov	r0, r5
+ 20188 00b0 3246     		mov	r2, r6
+ 20189 00b2 40F22551 		movw	r1, #1317
+ 20190 00b6 FFF7FEFF 		bl	USART_ITConfig
+ 283:USART_io.c    **** 	USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+ 20191              		.loc 1 284 0
+ 20192 00ba 2846     		mov	r0, r5
+ 20193 00bc 40F22771 		movw	r1, #1831
+ 20194 00c0 2246     		mov	r2, r4
+ 20195 00c2 FFF7FEFF 		bl	USART_ITConfig
+ 284:USART_io.c    **** #endif
+ 285:USART_io.c    **** 
+ 286:USART_io.c    **** #ifdef USART2_ENABLE
+ 287:USART_io.c    **** 	USART_Init(USART2, &USART_InitStructure); USART_Cmd(USART2, ENABLE);
+ 288:USART_io.c    **** 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+ 289:USART_io.c    **** 	USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+ 290:USART_io.c    **** #endif
+ 291:USART_io.c    **** }
+ 20196              		.loc 1 292 0
+ 20197 00c6 06B0     		add	sp, sp, #24
+ 20198 00c8 70BD     		pop	{r4, r5, r6, pc}
+ 20199              	.L80:
+ 20200 00ca 00BF     		.align	2
+ 20201              	.L79:
+ 20202 00cc 00080140 		.word	1073809408
+ 20203              	.LFE35:
+ 20205              		.section	.bss.USART_DBG_buffer_ptr_put,"aw",%nobits
+ 20206              		.align	1
+ 20207              		.set	.LANCHOR4,. + 0
+ 20210              	USART_DBG_buffer_ptr_put:
+ 20211 0000 0000     		.space	2
+ 20212              		.section	.bss.USART_DBG_buffer_ptr_get,"aw",%nobits
+ 20213              		.align	1
+ 20214              		.set	.LANCHOR2,. + 0
+ 20217              	USART_DBG_buffer_ptr_get:
+ 20218 0000 0000     		.space	2
+ 20219              		.section	.rodata.xlat.3457,"a",%progbits
+ 20220              		.align	2
+ 20221              		.set	.LANCHOR5,. + 0
+ 20224              	xlat.3457:
+ 20225 0000 30       		.byte	48
+ 20226 0001 31       		.byte	49
+ 20227 0002 32       		.byte	50
+ 20228 0003 33       		.byte	51
+ 20229 0004 34       		.byte	52
+ 20230 0005 35       		.byte	53
+ 20231 0006 36       		.byte	54
+ 20232 0007 37       		.byte	55
+ 20233 0008 38       		.byte	56
+ 20234 0009 39       		.byte	57
+ 20235 000a 41       		.byte	65
+ 20236 000b 42       		.byte	66
+ 20237 000c 43       		.byte	67
+ 20238 000d 44       		.byte	68
+ 20239 000e 45       		.byte	69
+ 20240 000f 46       		.byte	70
+ 20241              		.section	.bss.USART1_TX_ring_buffer,"aw",%nobits
+ 20242              		.align	2
+ 20243              		.set	.LANCHOR3,. + 0
+ 20246              	USART1_TX_ring_buffer:
+ 20247 0000 00000000 		.space	512
+ 20247      00000000 
+ 20247      00000000 
+ 20247      00000000 
+ 20247      00000000 
+ 20248              		.section	.bss.sout.3471,"aw",%nobits
+ 20249              		.align	2
+ 20250              		.set	.LANCHOR0,. + 0
+ 20253              	sout.3471:
+ 20254 0000 00000000 		.space	256
+ 20254      00000000 
+ 20254      00000000 
+ 20254      00000000 
+ 20254      00000000 
+ 20255              		.section	.bss.USART_DBG_buffer_data_size,"aw",%nobits
+ 20256              		.align	1
+ 20257              		.set	.LANCHOR1,. + 0
+ 20260              	USART_DBG_buffer_data_size:
+ 20261 0000 0000     		.space	2
+ 20478              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 USART_io.c
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19345  .text.USART_DBG_itoa.clone.0:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19349  .text.USART_DBG_itoa.clone.0:00000000 USART_DBG_itoa.clone.0
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19502  .text.USART_DBG_itoa.clone.0:000000b0 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19506  .text.USART1_IT_TxReady_exec:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19511  .text.USART1_IT_TxReady_exec:00000000 USART1_IT_TxReady_exec
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19560  .text.USART1_IT_TxReady_exec:00000050 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19567  .text.USART_DBG_putc:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19572  .text.USART_DBG_putc:00000000 USART_DBG_putc
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19629  .text.USART_DBG_putc:00000054 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19636  .text.USART1_IT_RxReady_exec:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19641  .text.USART1_IT_RxReady_exec:00000000 USART1_IT_RxReady_exec
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19657  .text.USART_DBG_puts:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19662  .text.USART_DBG_puts:00000000 USART_DBG_puts
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19691  .text.USART_DBG_bin:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19696  .text.USART_DBG_bin:00000000 USART_DBG_bin
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19754  .text.USART_DBG_bin:0000003c $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19758  .text.USART_DBG_hexDump:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19763  .text.USART_DBG_hexDump:00000000 USART_DBG_hexDump
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19830  .text.USART_DBG_hexDump:00000054 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19834  .text.USART_DBG_printf:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:19839  .text.USART_DBG_printf:00000000 USART_DBG_printf
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20067  .text.USART_DBG_printf:00000108 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20071  .text.USART_init:00000000 $t
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20076  .text.USART_init:00000000 USART_init
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20202  .text.USART_init:000000cc $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20206  .bss.USART_DBG_buffer_ptr_put:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20210  .bss.USART_DBG_buffer_ptr_put:00000000 USART_DBG_buffer_ptr_put
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20213  .bss.USART_DBG_buffer_ptr_get:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20217  .bss.USART_DBG_buffer_ptr_get:00000000 USART_DBG_buffer_ptr_get
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20220  .rodata.xlat.3457:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20224  .rodata.xlat.3457:00000000 xlat.3457
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20242  .bss.USART1_TX_ring_buffer:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20246  .bss.USART1_TX_ring_buffer:00000000 USART1_TX_ring_buffer
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20249  .bss.sout.3471:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20253  .bss.sout.3471:00000000 sout.3471
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20256  .bss.USART_DBG_buffer_data_size:00000000 $d
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20260  .bss.USART_DBG_buffer_data_size:00000000 USART_DBG_buffer_data_size
+C:\Users\ts\AppData\Local\Temp\cceSIdpe.s:20275  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+USART_SendData
+USART_ITConfig
+RCC_APB2PeriphClockCmd
+NVIC_PriorityGroupConfig
+NVIC_Init
+GPIO_Init
+USART_Init
+USART_Cmd

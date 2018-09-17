@@ -1,0 +1,1093 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"rtc.c"
+  23              	.Ltext0:
+  24              		.file 1 "rtc.c"
+ 18653              		.align	1
+ 18654              		.thumb
+ 18655              		.thumb_func
+ 18657              	isDST:
+ 18658              	.LFB27:
+   0:rtc.c         **** /*--------------------------------------------------------------------------  */
+   1:rtc.c         **** /*  RTC controls for STM32                                                    */
+   2:rtc.c         **** /*  Copyright (c) 2009, Martin Thomas 4/2009, 3BSD-license                    */
+   3:rtc.c         **** /*  partly based on code from STMircoelectronics, Peter Dannegger, "LaLaDumm" */
+   4:rtc.c         **** /*--------------------------------------------------------------------------  */
+   5:rtc.c         **** 
+   6:rtc.c         **** #include <stm32f10x.h>
+   7:rtc.c         **** #include <stm32f10x_conf.h>
+   8:rtc.c         **** #include <stm32f10x_bkp.h>
+   9:rtc.c         **** #include <stm32f10x_rtc.h>
+  10:rtc.c         **** #include <stm32f10x_pwr.h>
+  11:rtc.c         **** #include "rtc.h"
+  12:rtc.c         **** 
+  13:rtc.c         **** #define FIRSTYEAR   2000		// start year
+  14:rtc.c         **** #define FIRSTDAY    6			// 0 = Sunday
+  15:rtc.c         **** 
+  16:rtc.c         **** static const uint8_t DaysInMonth[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+  17:rtc.c         **** 
+  18:rtc.c         **** /*******************************************************************************
+  19:rtc.c         **** * Function Name  : isDST
+  20:rtc.c         **** * Description    : checks if given time is in Daylight Saving time-span.
+  21:rtc.c         **** * Input          : time-struct, must be fully populated including weekday
+  22:rtc.c         **** * Output         : none
+  23:rtc.c         **** * Return         : false: no DST ("winter"), true: in DST ("summer")
+  24:rtc.c         **** *  DST according to German standard
+  25:rtc.c         **** *  Based on code from Peter Dannegger found in the microcontroller.net forum.
+  26:rtc.c         **** *******************************************************************************/
+  27:rtc.c         **** static bool isDST( const RTC_t *t ) {
+ 18659              		.loc 1 28 0
+ 18660              		@ args = 0, pretend = 0, frame = 0
+ 18661              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18662              		@ link register save eliminated.
+ 18663              	.LVL0:
+  28:rtc.c         **** 	uint8_t wday, month;		// locals for faster access
+  29:rtc.c         **** 
+  30:rtc.c         **** 	month = t->month;
+ 18664              		.loc 1 31 0
+ 18665 0000 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+ 18666              	.LVL1:
+  31:rtc.c         **** 
+  32:rtc.c         **** 	if( month < 3 || month > 10 ) {		// month 1, 2, 11, 12
+ 18667              		.loc 1 33 0
+ 18668 0002 D91E     		subs	r1, r3, #3
+ 18669 0004 CAB2     		uxtb	r2, r1
+ 18670 0006 072A     		cmp	r2, #7
+ 18671 0008 11D8     		bhi	.L5
+ 18672              	.LVL2:
+  33:rtc.c         **** 		return false;					// -> Winter
+  34:rtc.c         **** 	}
+  35:rtc.c         **** 
+  36:rtc.c         **** 	wday  = t->wday;
+ 18673              		.loc 1 37 0
+ 18674 000a 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 18675              	.LVL3:
+  37:rtc.c         **** 
+  38:rtc.c         **** 	if( t->mday - wday >= 25 && (wday || t->hour >= 2) ) { // after last Sunday 2:00
+ 18676              		.loc 1 39 0
+ 18677 000c C178     		ldrb	r1, [r0, #3]	@ zero_extendqisi2
+ 18678 000e 891A     		subs	r1, r1, r2
+ 18679 0010 1829     		cmp	r1, #24
+ 18680 0012 08DD     		ble	.L3
+ 18681              		.loc 1 39 0 is_stmt 0 discriminator 1
+ 18682 0014 12B9     		cbnz	r2, .L4
+ 18683              	.LVL4:
+ 18684 0016 4079     		ldrb	r0, [r0, #5]	@ zero_extendqisi2
+ 18685              	.LVL5:
+ 18686 0018 0128     		cmp	r0, #1
+ 18687 001a 04D9     		bls	.L3
+ 18688              	.LVL6:
+ 18689              	.L4:
+  28:rtc.c         **** static bool isDST( const RTC_t *t ) {
+ 18690              		.loc 1 28 0 is_stmt 1
+ 18691 001c B3F10A00 		subs	r0, r3, #10
+ 18692 0020 18BF     		it	ne
+ 18693 0022 0120     		movne	r0, #1
+ 18694 0024 04E0     		b	.L2
+ 18695              	.LVL7:
+ 18696              	.L3:
+ 18697 0026 D81E     		subs	r0, r3, #3
+ 18698 0028 18BF     		it	ne
+ 18699 002a 0120     		movne	r0, #1
+ 18700 002c 00E0     		b	.L2
+ 18701              	.LVL8:
+ 18702              	.L5:
+  34:rtc.c         **** 		return false;					// -> Winter
+ 18703              		.loc 1 34 0
+ 18704 002e 0020     		movs	r0, #0
+ 18705              	.LVL9:
+ 18706              	.L2:
+  39:rtc.c         **** 		if( month == 10 ) {				// October -> Winter
+  40:rtc.c         **** 			return false;
+  41:rtc.c         **** 		}
+  42:rtc.c         **** 	} else {							// before last Sunday 2:00
+  43:rtc.c         **** 		if( month == 3 ) {				// March -> Winter
+  44:rtc.c         **** 			return false;
+  45:rtc.c         **** 		}
+  46:rtc.c         **** 	}
+  47:rtc.c         **** 
+  48:rtc.c         **** 	return true;
+  49:rtc.c         **** }
+ 18707              		.loc 1 50 0
+ 18708 0030 7047     		bx	lr
+ 18709              	.LFE27:
+ 18711              		.section	.text.counter_to_struct,"ax",%progbits
+ 18712              		.align	1
+ 18713              		.thumb
+ 18714              		.thumb_func
+ 18716              	counter_to_struct:
+ 18717              	.LFB29:
+  50:rtc.c         **** 
+  51:rtc.c         **** /*******************************************************************************
+  52:rtc.c         **** * Function Name  : adjustDST
+  53:rtc.c         **** * Description    : adjusts time to DST if needed
+  54:rtc.c         **** * Input          : non DST time-struct, must be fully populated including weekday
+  55:rtc.c         **** * Output         : time-stuct gets modified
+  56:rtc.c         **** * Return         : false: no DST ("winter"), true: in DST ("summer")
+  57:rtc.c         **** *  DST according to German standard
+  58:rtc.c         **** *  Based on code from Peter Dannegger found in the mikrocontroller.net forum.
+  59:rtc.c         **** *******************************************************************************/
+  60:rtc.c         **** static bool adjustDST( RTC_t *t ) {
+  61:rtc.c         **** 	uint8_t hour, day, wday, month;			// locals for faster access
+  62:rtc.c         **** 
+  63:rtc.c         **** 	hour  = t->hour;
+  64:rtc.c         **** 	day   = t->mday;
+  65:rtc.c         **** 	wday  = t->wday;
+  66:rtc.c         **** 	month = t->month;
+  67:rtc.c         **** 
+  68:rtc.c         **** 	if ( isDST(t) ) {
+  69:rtc.c         **** 		t->dst = 1;
+  70:rtc.c         **** 		hour++;								// add one hour
+  71:rtc.c         **** 		if( hour == 24 ){					// next day
+  72:rtc.c         **** 			hour = 0;
+  73:rtc.c         **** 			wday++;							// next weekday
+  74:rtc.c         **** 			if( wday == 7 ) {
+  75:rtc.c         **** 				wday = 0;
+  76:rtc.c         **** 			}
+  77:rtc.c         **** 			if( day == DaysInMonth[month-1] ) {		// next month
+  78:rtc.c         **** 				day = 0;
+  79:rtc.c         **** 				month++;
+  80:rtc.c         **** 			}
+  81:rtc.c         **** 			day++;
+  82:rtc.c         **** 		}
+  83:rtc.c         **** 		t->month = month;
+  84:rtc.c         **** 		t->hour  = hour;
+  85:rtc.c         **** 		t->mday  = day;
+  86:rtc.c         **** 		t->wday  = wday;
+  87:rtc.c         **** 		return true;
+  88:rtc.c         **** 	} else {
+  89:rtc.c         **** 		t->dst = 0;
+  90:rtc.c         **** 		return false;
+  91:rtc.c         **** 	}
+  92:rtc.c         **** }
+  93:rtc.c         **** 
+  94:rtc.c         **** /*******************************************************************************
+  95:rtc.c         **** * Function Name  : counter_to_struct
+  96:rtc.c         **** * Description    : populates time-struct based on counter-value
+  97:rtc.c         **** * Input          : - counter-value (unit seconds, 0 -> 1.1.2000 00:00:00),
+  98:rtc.c         **** *                  - Pointer to time-struct
+  99:rtc.c         **** * Output         : time-struct gets populated, DST not taken into account here
+ 100:rtc.c         **** * Return         : none
+ 101:rtc.c         **** *  Based on code from Peter Dannegger found in the mikrocontroller.net forum.
+ 102:rtc.c         **** *******************************************************************************/
+ 103:rtc.c         **** static void counter_to_struct( uint32_t sec, RTC_t *t ) {
+ 18718              		.loc 1 104 0
+ 18719              		@ args = 0, pretend = 0, frame = 0
+ 18720              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18721              	.LVL10:
+ 104:rtc.c         **** 	uint16_t day;
+ 105:rtc.c         **** 	uint8_t year;
+ 106:rtc.c         **** 	uint16_t dayofyear;
+ 107:rtc.c         **** 	uint8_t leap400;
+ 108:rtc.c         **** 	uint8_t month;
+ 109:rtc.c         **** 
+ 110:rtc.c         **** 	t->sec = sec % 60;
+ 18722              		.loc 1 111 0
+ 18723 0000 3C23     		movs	r3, #60
+ 104:rtc.c         **** 	uint16_t day;
+ 18724              		.loc 1 104 0
+ 18725 0002 10B5     		push	{r4, lr}
+ 18726              	.LCFI0:
+ 18727              	.LVL11:
+ 18728              		.loc 1 111 0
+ 18729 0004 B0FBF3F4 		udiv	r4, r0, r3
+ 18730 0008 03FB1400 		mls	r0, r3, r4, r0
+ 18731              	.LVL12:
+ 111:rtc.c         **** 	sec /= 60;
+ 112:rtc.c         **** 	t->min = sec % 60;
+ 18732              		.loc 1 113 0
+ 18733 000c B4FBF3F2 		udiv	r2, r4, r3
+ 18734 0010 03FB124C 		mls	ip, r3, r2, r4
+ 113:rtc.c         **** 	sec /= 60;
+ 114:rtc.c         **** 	t->hour = sec % 24;
+ 18735              		.loc 1 115 0
+ 18736 0014 1824     		movs	r4, #24
+ 18737 0016 B2FBF4F3 		udiv	r3, r2, r4
+ 18738              	.LVL13:
+ 111:rtc.c         **** 	sec /= 60;
+ 18739              		.loc 1 111 0
+ 18740 001a C871     		strb	r0, [r1, #7]
+ 18741              	.LVL14:
+ 18742              		.loc 1 115 0
+ 18743 001c 04FB1320 		mls	r0, r4, r3, r2
+ 115:rtc.c         **** 	day = (uint16_t)(sec / 24);
+ 18744              		.loc 1 116 0
+ 18745 0020 9BB2     		uxth	r3, r3
+ 116:rtc.c         **** 
+ 117:rtc.c         **** 	t->wday = (day + FIRSTDAY) % 7;		// weekday
+ 18746              		.loc 1 118 0
+ 18747 0022 0724     		movs	r4, #7
+ 115:rtc.c         **** 	day = (uint16_t)(sec / 24);
+ 18748              		.loc 1 115 0
+ 18749 0024 4871     		strb	r0, [r1, #5]
+ 18750              		.loc 1 118 0
+ 18751 0026 981D     		adds	r0, r3, #6
+ 113:rtc.c         **** 	t->min = sec % 60;
+ 18752              		.loc 1 113 0
+ 18753 0028 81F806C0 		strb	ip, [r1, #6]
+ 18754              	.LVL15:
+ 18755              		.loc 1 118 0
+ 18756 002c 90FBF4FC 		sdiv	ip, r0, r4
+ 18757 0030 04FB1C02 		mls	r2, r4, ip, r0
+ 118:rtc.c         **** 
+ 119:rtc.c         **** 	year = FIRSTYEAR % 100;				// 0..99
+ 120:rtc.c         **** 	leap400 = 4 - ((FIRSTYEAR - 1) / 100 & 3);	// 4, 3, 2, 1
+ 18758              		.loc 1 121 0
+ 18759 0034 4FF0010C 		mov	ip, #1
+ 118:rtc.c         **** 
+ 18760              		.loc 1 118 0
+ 18761 0038 0A71     		strb	r2, [r1, #4]
+ 18762              	.LVL16:
+ 121:rtc.c         **** 
+ 122:rtc.c         **** 	for(;;) {
+ 123:rtc.c         **** 		dayofyear = 365;
+ 18763              		.loc 1 124 0
+ 18764 003a 40F26D14 		movw	r4, #365
+ 120:rtc.c         **** 	year = FIRSTYEAR % 100;				// 0..99
+ 18765              		.loc 1 120 0
+ 18766 003e 0022     		movs	r2, #0
+ 18767              	.LVL17:
+ 18768              	.L11:
+ 124:rtc.c         **** 		if( (year & 3) == 0 ) {
+ 18769              		.loc 1 125 0
+ 18770 0040 12F0030F 		tst	r2, #3
+ 124:rtc.c         **** 		if( (year & 3) == 0 ) {
+ 18771              		.loc 1 124 0
+ 18772 0044 18BF     		it	ne
+ 18773 0046 40F26D10 		movwne	r0, #365
+ 18774              		.loc 1 125 0
+ 18775 004a 17D1     		bne	.L8
+ 18776              	.LVL18:
+ 125:rtc.c         **** 			dayofyear = 366;					// leap year
+ 126:rtc.c         **** 			if( year == 0 || year == 100 || year == 200 ) {	// 100 year exception
+ 18777              		.loc 1 127 0
+ 18778 004c D2F10100 		rsbs	r0, r2, #1
+ 18779 0050 38BF     		it	cc
+ 18780 0052 0020     		movcc	r0, #0
+ 18781 0054 642A     		cmp	r2, #100
+ 18782 0056 08BF     		it	eq
+ 18783 0058 40F00100 		orreq	r0, r0, #1
+ 18784 005c 20B9     		cbnz	r0, .L9
+ 18785              	.LVL19:
+ 18786              		.loc 1 127 0 is_stmt 0 discriminator 1
+ 18787 005e C82A     		cmp	r2, #200
+ 126:rtc.c         **** 			if( year == 0 || year == 100 || year == 200 ) {	// 100 year exception
+ 18788              		.loc 1 126 0 is_stmt 1 discriminator 1
+ 18789 0060 18BF     		it	ne
+ 18790 0062 4FF4B770 		movne	r0, #366
+ 18791              		.loc 1 127 0 discriminator 1
+ 18792 0066 09D1     		bne	.L8
+ 18793              	.LVL20:
+ 18794              	.L9:
+ 127:rtc.c         **** 				if( --leap400 ) {					// 400 year exception
+ 18795              		.loc 1 128 0
+ 18796 0068 0CF1FF3C 		add	ip, ip, #-1
+ 18797              	.LVL21:
+ 18798 006c 5FFA8CFC 		uxtb	ip, ip
+ 18799              	.LVL22:
+ 126:rtc.c         **** 			dayofyear = 366;					// leap year
+ 18800              		.loc 1 126 0
+ 18801 0070 BCF1000F 		cmp	ip, #0
+ 18802 0074 14BF     		ite	ne
+ 18803 0076 2046     		movne	r0, r4
+ 18804 0078 4FF4B770 		moveq	r0, #366
+ 18805              	.LVL23:
+ 18806              	.L8:
+ 128:rtc.c         **** 					dayofyear = 365;
+ 129:rtc.c         **** 				}
+ 130:rtc.c         **** 			}
+ 131:rtc.c         **** 		}
+ 132:rtc.c         **** 		if( day < dayofyear ) {
+ 18807              		.loc 1 133 0
+ 18808 007c 8342     		cmp	r3, r0
+ 18809 007e 04D3     		bcc	.L10
+ 18810              	.LVL24:
+ 133:rtc.c         **** 			break;
+ 134:rtc.c         **** 		}
+ 135:rtc.c         **** 		day -= dayofyear;
+ 18811              		.loc 1 136 0
+ 18812 0080 1B1A     		subs	r3, r3, r0
+ 18813              	.LVL25:
+ 136:rtc.c         **** 		year++;					// 00..136 / 99..235
+ 18814              		.loc 1 137 0
+ 18815 0082 0132     		adds	r2, r2, #1
+ 18816              	.LVL26:
+ 136:rtc.c         **** 		year++;					// 00..136 / 99..235
+ 18817              		.loc 1 136 0
+ 18818 0084 9BB2     		uxth	r3, r3
+ 18819              	.LVL27:
+ 18820              		.loc 1 137 0
+ 18821 0086 D2B2     		uxtb	r2, r2
+ 18822              	.LVL28:
+ 137:rtc.c         **** 	}
+ 18823              		.loc 1 138 0
+ 18824 0088 DAE7     		b	.L11
+ 18825              	.LVL29:
+ 18826              	.L10:
+ 138:rtc.c         **** 	t->year = year + FIRSTYEAR / 100 * 100;	// + century
+ 18827              		.loc 1 139 0
+ 18828 008a 02F5FA6C 		add	ip, r2, #2000
+ 18829              	.LVL30:
+ 139:rtc.c         **** 
+ 140:rtc.c         **** 	if( dayofyear & 1 && day > 58 ) { 	// no leap year and after 28.2.
+ 18830              		.loc 1 141 0
+ 18831 008e 3A2B     		cmp	r3, #58
+ 18832 0090 94BF     		ite	ls
+ 18833 0092 0020     		movls	r0, #0
+ 18834 0094 00F00100 		andhi	r0, r0, #1
+ 18835              	.LVL31:
+ 139:rtc.c         **** 
+ 18836              		.loc 1 139 0
+ 18837 0098 A1F800C0 		strh	ip, [r1, #0]	@ movhi
+ 18838              		.loc 1 141 0
+ 18839 009c 08B1     		cbz	r0, .L12
+ 18840              	.LVL32:
+ 141:rtc.c         **** 		day++;					// skip 29.2.
+ 18841              		.loc 1 142 0
+ 18842 009e 581C     		adds	r0, r3, #1
+ 18843 00a0 83B2     		uxth	r3, r0
+ 18844              	.LVL33:
+ 18845              	.L12:
+ 133:rtc.c         **** 		if( day < dayofyear ) {
+ 18846              		.loc 1 133 0 discriminator 1
+ 18847 00a2 0122     		movs	r2, #1
+ 18848              	.LVL34:
+ 142:rtc.c         **** 	}
+ 143:rtc.c         **** 
+ 144:rtc.c         **** 	for( month = 1; day >= DaysInMonth[month-1]; month++ ) {
+ 18849              		.loc 1 145 0 discriminator 1
+ 18850 00a4 DFF820C0 		ldr	ip, .L18
+ 18851 00a8 03E0     		b	.L13
+ 18852              	.LVL35:
+ 18853              	.L14:
+ 145:rtc.c         **** 		day -= DaysInMonth[month-1];
+ 18854              		.loc 1 146 0 discriminator 2
+ 18855 00aa 1B1A     		subs	r3, r3, r0
+ 18856              	.LVL36:
+ 145:rtc.c         **** 		day -= DaysInMonth[month-1];
+ 18857              		.loc 1 145 0 discriminator 2
+ 18858 00ac 0132     		adds	r2, r2, #1
+ 18859              	.LVL37:
+ 18860              		.loc 1 146 0 discriminator 2
+ 18861 00ae 9BB2     		uxth	r3, r3
+ 18862              	.LVL38:
+ 145:rtc.c         **** 		day -= DaysInMonth[month-1];
+ 18863              		.loc 1 145 0 discriminator 2
+ 18864 00b0 D2B2     		uxtb	r2, r2
+ 18865              	.LVL39:
+ 18866              	.L13:
+ 145:rtc.c         **** 		day -= DaysInMonth[month-1];
+ 18867              		.loc 1 145 0 is_stmt 0 discriminator 1
+ 18868 00b2 0CEB0200 		add	r0, ip, r2
+ 18869 00b6 10F8010C 		ldrb	r0, [r0, #-1]	@ zero_extendqisi2
+ 18870 00ba 8342     		cmp	r3, r0
+ 18871 00bc F5D2     		bcs	.L14
+ 18872              	.LVL40:
+ 146:rtc.c         **** 	}
+ 147:rtc.c         **** 
+ 148:rtc.c         **** 	t->month = month;				// 1..12
+ 18873              		.loc 1 149 0 is_stmt 1
+ 18874 00be 8A70     		strb	r2, [r1, #2]
+ 18875              	.LVL41:
+ 149:rtc.c         **** 	t->mday = day + 1;				// 1..31
+ 18876              		.loc 1 150 0
+ 18877 00c0 5A1C     		adds	r2, r3, #1
+ 18878              	.LVL42:
+ 18879 00c2 CA70     		strb	r2, [r1, #3]
+ 150:rtc.c         **** }
+ 18880              		.loc 1 151 0
+ 18881 00c4 10BD     		pop	{r4, pc}
+ 18882              	.L19:
+ 18883 00c6 00BF     		.align	2
+ 18884              	.L18:
+ 18885 00c8 00000000 		.word	.LANCHOR0
+ 18886              	.LFE29:
+ 18888              		.section	.text.rtc_gettime,"ax",%progbits
+ 18889              		.align	1
+ 18890              		.global	rtc_gettime
+ 18891              		.thumb
+ 18892              		.thumb_func
+ 18894              	rtc_gettime:
+ 18895              	.LFB31:
+ 151:rtc.c         **** 
+ 152:rtc.c         **** /*******************************************************************************
+ 153:rtc.c         **** * Function Name  : struct_to_counter
+ 154:rtc.c         **** * Description    : calculates second-counter from populated time-struct
+ 155:rtc.c         **** * Input          : Pointer to time-struct
+ 156:rtc.c         **** * Output         : none
+ 157:rtc.c         **** * Return         : counter-value (unit seconds, 0 -> 1.1.2000 00:00:00),
+ 158:rtc.c         **** *  Based on code from "LalaDumm" found in the mikrocontroller.net forum.
+ 159:rtc.c         **** *******************************************************************************/
+ 160:rtc.c         **** static uint32_t struct_to_counter( const RTC_t *t )
+ 161:rtc.c         **** {
+ 162:rtc.c         **** 	uint8_t i;
+ 163:rtc.c         **** 	uint32_t result = 0;
+ 164:rtc.c         **** 	uint16_t idx, year;
+ 165:rtc.c         **** 
+ 166:rtc.c         **** 	year = t->year;
+ 167:rtc.c         **** 
+ 168:rtc.c         **** 	/* Calculate days of years before */
+ 169:rtc.c         **** 	result = (uint32_t)year * 365;
+ 170:rtc.c         **** 	if (t->year >= 1) {
+ 171:rtc.c         **** 		result += (year + 3) / 4;
+ 172:rtc.c         **** 		result -= (year - 1) / 100;
+ 173:rtc.c         **** 		result += (year - 1) / 400;
+ 174:rtc.c         **** 	}
+ 175:rtc.c         **** 
+ 176:rtc.c         **** 	/* Start with 2000 a.d. */
+ 177:rtc.c         **** 	result -= 730485UL;
+ 178:rtc.c         **** 
+ 179:rtc.c         **** 	/* Make month an array index */
+ 180:rtc.c         **** 	idx = t->month - 1;
+ 181:rtc.c         **** 
+ 182:rtc.c         **** 	/* Loop thru each month, adding the days */
+ 183:rtc.c         **** 	for (i = 0; i < idx; i++) {
+ 184:rtc.c         **** 		result += DaysInMonth[i];
+ 185:rtc.c         **** 	}
+ 186:rtc.c         **** 
+ 187:rtc.c         **** 	/* Leap year? adjust February */
+ 188:rtc.c         **** 	if (year%400 == 0 || (year%4 == 0 && year%100 !=0)) {
+ 189:rtc.c         **** 		;
+ 190:rtc.c         **** 	} else {
+ 191:rtc.c         **** 		if (t->month > 1) {
+ 192:rtc.c         **** 			result--;
+ 193:rtc.c         **** 		}
+ 194:rtc.c         **** 	}
+ 195:rtc.c         **** 
+ 196:rtc.c         **** 	/* Add remaining days */
+ 197:rtc.c         **** 	result += t->mday;
+ 198:rtc.c         **** 
+ 199:rtc.c         **** 	/* Convert to seconds, add all the other stuff */
+ 200:rtc.c         **** 	result = (result-1) * 86400L + (uint32_t)t->hour * 3600 +
+ 201:rtc.c         **** 		(uint32_t)t->min * 60 + t->sec;
+ 202:rtc.c         **** 
+ 203:rtc.c         **** 	return result;
+ 204:rtc.c         **** }
+ 205:rtc.c         **** 
+ 206:rtc.c         **** /*******************************************************************************
+ 207:rtc.c         **** * Function Name  : rtc_gettime
+ 208:rtc.c         **** * Description    : populates structure from HW-RTC, takes DST into account
+ 209:rtc.c         **** * Input          : None
+ 210:rtc.c         **** * Output         : time-struct gets modified
+ 211:rtc.c         **** * Return         : always true/not used
+ 212:rtc.c         **** *******************************************************************************/
+ 213:rtc.c         **** bool rtc_gettime (RTC_t *rtc) {
+ 18896              		.loc 1 214 0
+ 18897              		@ args = 0, pretend = 0, frame = 8
+ 18898              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18899              	.LVL43:
+ 18900 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 18901              	.LCFI1:
+ 18902              		.loc 1 214 0
+ 18903 0002 0446     		mov	r4, r0
+ 214:rtc.c         **** 	uint32_t t;
+ 215:rtc.c         **** 
+ 216:rtc.c         **** //	while ( ( t = RTC_GetCounter() ) != RTC_GetCounter() ) { ; }
+ 217:rtc.c         **** 	t = RTC_GetCounter();
+ 18904              		.loc 1 218 0
+ 18905 0004 FFF7FEFF 		bl	RTC_GetCounter
+ 18906              	.LVL44:
+ 218:rtc.c         **** 	counter_to_struct( t, rtc ); // get non DST time
+ 18907              		.loc 1 219 0
+ 18908 0008 2146     		mov	r1, r4
+ 18909 000a FFF7FEFF 		bl	counter_to_struct
+ 18910              	.LVL45:
+ 18911              	.LBB8:
+ 18912              	.LBB9:
+  64:rtc.c         **** 	hour  = t->hour;
+ 18913              		.loc 1 64 0
+ 18914 000e 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 18915              	.LVL46:
+  69:rtc.c         **** 	if ( isDST(t) ) {
+ 18916              		.loc 1 69 0
+ 18917 0010 2046     		mov	r0, r4
+ 18918 0012 0193     		str	r3, [sp, #4]
+ 18919              	.LVL47:
+ 18920 0014 FFF7FEFF 		bl	isDST
+ 18921              	.LVL48:
+  65:rtc.c         **** 	day   = t->mday;
+ 18922              		.loc 1 65 0
+ 18923 0018 E578     		ldrb	r5, [r4, #3]	@ zero_extendqisi2
+ 18924              	.LVL49:
+  66:rtc.c         **** 	wday  = t->wday;
+ 18925              		.loc 1 66 0
+ 18926 001a 2779     		ldrb	r7, [r4, #4]	@ zero_extendqisi2
+ 18927              	.LVL50:
+  67:rtc.c         **** 	month = t->month;
+ 18928              		.loc 1 67 0
+ 18929 001c A678     		ldrb	r6, [r4, #2]	@ zero_extendqisi2
+ 18930              	.LVL51:
+  69:rtc.c         **** 	if ( isDST(t) ) {
+ 18931              		.loc 1 69 0
+ 18932 001e 019B     		ldr	r3, [sp, #4]
+ 18933 0020 D8B1     		cbz	r0, .L21
+  70:rtc.c         **** 		t->dst = 1;
+ 18934              		.loc 1 70 0
+ 18935 0022 0122     		movs	r2, #1
+  71:rtc.c         **** 		hour++;								// add one hour
+ 18936              		.loc 1 71 0
+ 18937 0024 9818     		adds	r0, r3, r2
+ 18938 0026 C3B2     		uxtb	r3, r0
+ 18939              	.LVL52:
+  72:rtc.c         **** 		if( hour == 24 ){					// next day
+ 18940              		.loc 1 72 0
+ 18941 0028 182B     		cmp	r3, #24
+ 18942              	.LVL53:
+  70:rtc.c         **** 		t->dst = 1;
+ 18943              		.loc 1 70 0
+ 18944 002a 2272     		strb	r2, [r4, #8]
+  72:rtc.c         **** 		if( hour == 24 ){					// next day
+ 18945              		.loc 1 72 0
+ 18946 002c 10D1     		bne	.L22
+ 18947              	.LVL54:
+  78:rtc.c         **** 			if( day == DaysInMonth[month-1] ) {		// next month
+ 18948              		.loc 1 78 0
+ 18949 002e 0C48     		ldr	r0, .L27
+ 18950              	.LVL55:
+  74:rtc.c         **** 			wday++;							// next weekday
+ 18951              		.loc 1 74 0
+ 18952 0030 BF18     		adds	r7, r7, r2
+ 18953              	.LVL56:
+  78:rtc.c         **** 			if( day == DaysInMonth[month-1] ) {		// next month
+ 18954              		.loc 1 78 0
+ 18955 0032 8319     		adds	r3, r0, r6
+ 18956 0034 13F8011C 		ldrb	r1, [r3, #-1]	@ zero_extendqisi2
+  74:rtc.c         **** 			wday++;							// next weekday
+ 18957              		.loc 1 74 0
+ 18958 0038 FFB2     		uxtb	r7, r7
+ 18959              	.LVL57:
+  76:rtc.c         **** 				wday = 0;
+ 18960              		.loc 1 76 0
+ 18961 003a 072F     		cmp	r7, #7
+ 18962 003c 08BF     		it	eq
+ 18963 003e 0027     		moveq	r7, #0
+ 18964              	.LVL58:
+  78:rtc.c         **** 			if( day == DaysInMonth[month-1] ) {		// next month
+ 18965              		.loc 1 78 0
+ 18966 0040 A942     		cmp	r1, r5
+ 18967 0042 02D1     		bne	.L24
+ 18968              	.LVL59:
+  80:rtc.c         **** 				month++;
+ 18969              		.loc 1 80 0
+ 18970 0044 B618     		adds	r6, r6, r2
+ 18971              	.LVL60:
+ 18972 0046 F6B2     		uxtb	r6, r6
+ 18973              	.LVL61:
+  79:rtc.c         **** 				day = 0;
+ 18974              		.loc 1 79 0
+ 18975 0048 0025     		movs	r5, #0
+ 18976              	.LVL62:
+ 18977              	.L24:
+  82:rtc.c         **** 			day++;
+ 18978              		.loc 1 82 0
+ 18979 004a 0135     		adds	r5, r5, #1
+ 18980              	.LVL63:
+ 18981 004c EDB2     		uxtb	r5, r5
+ 18982              	.LVL64:
+  73:rtc.c         **** 			hour = 0;
+ 18983              		.loc 1 73 0
+ 18984 004e 0023     		movs	r3, #0
+ 18985              	.LVL65:
+ 18986              	.L22:
+  84:rtc.c         **** 		t->month = month;
+ 18987              		.loc 1 84 0
+ 18988 0050 A670     		strb	r6, [r4, #2]
+  85:rtc.c         **** 		t->hour  = hour;
+ 18989              		.loc 1 85 0
+ 18990 0052 6371     		strb	r3, [r4, #5]
+  86:rtc.c         **** 		t->mday  = day;
+ 18991              		.loc 1 86 0
+ 18992 0054 E570     		strb	r5, [r4, #3]
+  87:rtc.c         **** 		t->wday  = wday;
+ 18993              		.loc 1 87 0
+ 18994 0056 2771     		strb	r7, [r4, #4]
+ 18995 0058 00E0     		b	.L25
+ 18996              	.LVL66:
+ 18997              	.L21:
+  90:rtc.c         **** 		t->dst = 0;
+ 18998              		.loc 1 90 0
+ 18999 005a 2072     		strb	r0, [r4, #8]
+ 19000              	.LVL67:
+ 19001              	.L25:
+ 19002              	.LBE9:
+ 19003              	.LBE8:
+ 219:rtc.c         **** 	adjustDST( rtc );
+ 220:rtc.c         **** 
+ 221:rtc.c         **** 	return true;
+ 222:rtc.c         **** }
+ 19004              		.loc 1 223 0
+ 19005 005c 0120     		movs	r0, #1
+ 19006 005e FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 19007              	.L28:
+ 19008              		.align	2
+ 19009              	.L27:
+ 19010 0060 00000000 		.word	.LANCHOR0
+ 19011              	.LFE31:
+ 19013              		.section	.text.rtc_settime,"ax",%progbits
+ 19014              		.align	1
+ 19015              		.global	rtc_settime
+ 19016              		.thumb
+ 19017              		.thumb_func
+ 19019              	rtc_settime:
+ 19020              	.LFB33:
+ 223:rtc.c         **** 
+ 224:rtc.c         **** /*******************************************************************************
+ 225:rtc.c         **** * Function Name  : my_RTC_SetCounter
+ 226:rtc.c         **** * Description    : sets the hardware-counter
+ 227:rtc.c         **** * Input          : new counter-value
+ 228:rtc.c         **** * Output         : None
+ 229:rtc.c         **** * Return         : None
+ 230:rtc.c         **** *******************************************************************************/
+ 231:rtc.c         **** static void my_RTC_SetCounter(uint32_t cnt)
+ 232:rtc.c         **** {
+ 233:rtc.c         **** 	/* Wait until last write operation on RTC registers has finished */
+ 234:rtc.c         **** 	RTC_WaitForLastTask();
+ 235:rtc.c         **** 	/* Change the current time */
+ 236:rtc.c         **** 	RTC_SetCounter(cnt);
+ 237:rtc.c         **** 	/* Wait until last write operation on RTC registers has finished */
+ 238:rtc.c         **** 	RTC_WaitForLastTask();
+ 239:rtc.c         **** }
+ 240:rtc.c         **** 
+ 241:rtc.c         **** /*******************************************************************************
+ 242:rtc.c         **** * Function Name  : rtc_settime
+ 243:rtc.c         **** * Description    : sets HW-RTC with values from time-struct, takes DST into
+ 244:rtc.c         **** *                  account, HW-RTC always running in non-DST time
+ 245:rtc.c         **** * Input          : None
+ 246:rtc.c         **** * Output         : None
+ 247:rtc.c         **** * Return         : not used
+ 248:rtc.c         **** *******************************************************************************/
+ 249:rtc.c         **** bool rtc_settime (const RTC_t *rtc)
+ 250:rtc.c         **** {
+ 19021              		.loc 1 251 0
+ 19022              		@ args = 0, pretend = 0, frame = 16
+ 19023              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19024              	.LVL68:
+ 19025 0000 30B5     		push	{r4, r5, lr}
+ 19026              	.LCFI2:
+ 19027              	.LBB10:
+ 19028              	.LBB11:
+ 167:rtc.c         **** 	year = t->year;
+ 19029              		.loc 1 167 0
+ 19030 0002 0388     		ldrh	r3, [r0, #0]
+ 19031              	.LVL69:
+ 170:rtc.c         **** 	result = (uint32_t)year * 365;
+ 19032              		.loc 1 170 0
+ 19033 0004 40F26D11 		movw	r1, #365
+ 19034              	.LBE11:
+ 19035              	.LBE10:
+ 19036              		.loc 1 251 0
+ 19037 0008 85B0     		sub	sp, sp, #20
+ 19038              	.LCFI3:
+ 19039              	.LBB13:
+ 19040              	.LBB12:
+ 170:rtc.c         **** 	result = (uint32_t)year * 365;
+ 19041              		.loc 1 170 0
+ 19042 000a 5943     		muls	r1, r3, r1
+ 19043              	.LVL70:
+ 171:rtc.c         **** 	if (t->year >= 1) {
+ 19044              		.loc 1 171 0
+ 19045 000c 93B1     		cbz	r3, .L30
+ 19046              	.LVL71:
+ 173:rtc.c         **** 		result -= (year - 1) / 100;
+ 19047              		.loc 1 173 0
+ 19048 000e 5C1E     		subs	r4, r3, #1
+ 172:rtc.c         **** 		result += (year + 3) / 4;
+ 19049              		.loc 1 172 0
+ 19050 0010 4FF00405 		mov	r5, #4
+ 19051 0014 6FF0630C 		mvn	ip, #99
+ 19052 0018 03F10302 		add	r2, r3, #3
+ 19053 001c 92FBF5F2 		sdiv	r2, r2, r5
+ 19054 0020 94FBFCFE 		sdiv	lr, r4, ip
+ 19055 0024 02EB0E05 		add	r5, r2, lr
+ 174:rtc.c         **** 		result += (year - 1) / 400;
+ 19056              		.loc 1 174 0
+ 19057 0028 4FF4C87C 		mov	ip, #400
+ 173:rtc.c         **** 		result -= (year - 1) / 100;
+ 19058              		.loc 1 173 0
+ 19059 002c 2944     		add	r1, r5, r1
+ 19060              	.LVL72:
+ 174:rtc.c         **** 		result += (year - 1) / 400;
+ 19061              		.loc 1 174 0
+ 19062 002e 94FBFCF2 		sdiv	r2, r4, ip
+ 19063 0032 8918     		adds	r1, r1, r2
+ 19064              	.LVL73:
+ 19065              	.L30:
+ 178:rtc.c         **** 	result -= 730485UL;
+ 19066              		.loc 1 178 0
+ 19067 0034 2B4C     		ldr	r4, .L37
+ 19068              	.LVL74:
+ 181:rtc.c         **** 	idx = t->month - 1;
+ 19069              		.loc 1 181 0
+ 19070 0036 90F802C0 		ldrb	ip, [r0, #2]	@ zero_extendqisi2
+ 178:rtc.c         **** 	result -= 730485UL;
+ 19071              		.loc 1 178 0
+ 19072 003a 0A19     		adds	r2, r1, r4
+ 19073              	.LVL75:
+ 181:rtc.c         **** 	idx = t->month - 1;
+ 19074              		.loc 1 181 0
+ 19075 003c 0CF1FF31 		add	r1, ip, #-1
+ 19076 0040 8CB2     		uxth	r4, r1
+ 19077              	.LVL76:
+ 185:rtc.c         **** 		result += DaysInMonth[i];
+ 19078              		.loc 1 185 0
+ 19079 0042 DFF8A4E0 		ldr	lr, .L37+4
+ 184:rtc.c         **** 	for (i = 0; i < idx; i++) {
+ 19080              		.loc 1 184 0
+ 19081 0046 0021     		movs	r1, #0
+ 19082 0048 04E0     		b	.L31
+ 19083              	.LVL77:
+ 19084              	.L32:
+ 185:rtc.c         **** 		result += DaysInMonth[i];
+ 19085              		.loc 1 185 0
+ 19086 004a 1EF80150 		ldrb	r5, [lr, r1]	@ zero_extendqisi2
+ 19087              	.LVL78:
+ 19088 004e 5219     		adds	r2, r2, r5
+ 19089              	.LVL79:
+ 184:rtc.c         **** 	for (i = 0; i < idx; i++) {
+ 19090              		.loc 1 184 0
+ 19091 0050 4D1C     		adds	r5, r1, #1
+ 19092 0052 E9B2     		uxtb	r1, r5
+ 19093              	.LVL80:
+ 19094              	.L31:
+ 19095 0054 A142     		cmp	r1, r4
+ 19096 0056 F8D3     		bcc	.L32
+ 19097              	.LVL81:
+ 189:rtc.c         **** 	if (year%400 == 0 || (year%4 == 0 && year%100 !=0)) {
+ 19098              		.loc 1 189 0
+ 19099 0058 4FF4C874 		mov	r4, #400
+ 19100              	.LVL82:
+ 19101 005c B3FBF4F5 		udiv	r5, r3, r4
+ 19102 0060 04FB153E 		mls	lr, r4, r5, r3
+ 19103 0064 1FFA8EF1 		uxth	r1, lr
+ 19104              	.LVL83:
+ 19105 0068 69B1     		cbz	r1, .L33
+ 19106              	.LVL84:
+ 19107 006a 13F0030F 		tst	r3, #3
+ 19108 006e 06D1     		bne	.L34
+ 19109 0070 6424     		movs	r4, #100
+ 19110              	.LVL85:
+ 19111 0072 B3FBF4FE 		udiv	lr, r3, r4
+ 19112 0076 04FB1E31 		mls	r1, r4, lr, r3
+ 19113 007a 8BB2     		uxth	r3, r1
+ 19114              	.LVL86:
+ 19115 007c 1BB9     		cbnz	r3, .L33
+ 19116              	.LVL87:
+ 19117              	.L34:
+ 192:rtc.c         **** 		if (t->month > 1) {
+ 19118              		.loc 1 192 0
+ 19119 007e BCF1010F 		cmp	ip, #1
+ 19120              	.LVL88:
+ 193:rtc.c         **** 			result--;
+ 19121              		.loc 1 193 0
+ 19122 0082 88BF     		it	hi
+ 19123 0084 013A     		subhi	r2, r2, #1
+ 19124              	.LVL89:
+ 19125              	.L33:
+ 201:rtc.c         **** 	result = (result-1) * 86400L + (uint32_t)t->hour * 3600 +
+ 19126              		.loc 1 201 0
+ 19127 0086 C179     		ldrb	r1, [r0, #7]	@ zero_extendqisi2
+ 19128 0088 90F805C0 		ldrb	ip, [r0, #5]	@ zero_extendqisi2
+ 19129 008c A1F5A833 		sub	r3, r1, #86016
+ 19130 0090 A3F5C07E 		sub	lr, r3, #384
+ 19131 0094 4FF46165 		mov	r5, #3600
+ 19132 0098 05FB0CE3 		mla	r3, r5, ip, lr
+ 19133 009c 8179     		ldrb	r1, [r0, #6]	@ zero_extendqisi2
+ 19134 009e 3C24     		movs	r4, #60
+ 19135 00a0 04FB013C 		mla	ip, r4, r1, r3
+ 19136 00a4 C578     		ldrb	r5, [r0, #3]	@ zero_extendqisi2
+ 19137 00a6 1148     		ldr	r0, .L37+8
+ 19138              	.LVL90:
+ 19139 00a8 5219     		adds	r2, r2, r5
+ 19140 00aa 00FB02C4 		mla	r4, r0, r2, ip
+ 19141              	.LVL91:
+ 19142              	.LBE12:
+ 19143              	.LBE13:
+ 251:rtc.c         **** 	uint32_t cnt;
+ 252:rtc.c         **** 	RTC_t ts;
+ 253:rtc.c         **** 
+ 254:rtc.c         **** 	cnt = struct_to_counter( rtc ); // non-DST counter-value
+ 255:rtc.c         **** 	counter_to_struct( cnt, &ts );  // normalize struct (for weekday)
+ 19144              		.loc 1 256 0
+ 19145 00ae 01AD     		add	r5, sp, #4
+ 19146 00b0 2046     		mov	r0, r4
+ 19147 00b2 2946     		mov	r1, r5
+ 19148 00b4 FFF7FEFF 		bl	counter_to_struct
+ 256:rtc.c         **** 	if ( isDST( &ts ) ) {
+ 19149              		.loc 1 257 0
+ 19150 00b8 2846     		mov	r0, r5
+ 19151 00ba FFF7FEFF 		bl	isDST
+ 19152 00be 08B1     		cbz	r0, .L36
+ 19153              	.LVL92:
+ 257:rtc.c         **** 		cnt -= 60*60; // Subtract one hour
+ 19154              		.loc 1 258 0
+ 19155 00c0 A4F56164 		sub	r4, r4, #3600
+ 19156              	.LVL93:
+ 19157              	.L36:
+ 258:rtc.c         **** 	}
+ 259:rtc.c         **** 	PWR_BackupAccessCmd(ENABLE);
+ 19158              		.loc 1 260 0
+ 19159 00c4 0120     		movs	r0, #1
+ 19160 00c6 FFF7FEFF 		bl	PWR_BackupAccessCmd
+ 19161              	.LVL94:
+ 19162              	.LBB14:
+ 19163              	.LBB15:
+ 235:rtc.c         **** 	RTC_WaitForLastTask();
+ 19164              		.loc 1 235 0
+ 19165 00ca FFF7FEFF 		bl	RTC_WaitForLastTask
+ 237:rtc.c         **** 	RTC_SetCounter(cnt);
+ 19166              		.loc 1 237 0
+ 19167 00ce 2046     		mov	r0, r4
+ 19168 00d0 FFF7FEFF 		bl	RTC_SetCounter
+ 239:rtc.c         **** 	RTC_WaitForLastTask();
+ 19169              		.loc 1 239 0
+ 19170 00d4 FFF7FEFF 		bl	RTC_WaitForLastTask
+ 19171              	.LBE15:
+ 19172              	.LBE14:
+ 260:rtc.c         **** 	my_RTC_SetCounter( cnt );
+ 261:rtc.c         **** 	PWR_BackupAccessCmd(DISABLE);
+ 19173              		.loc 1 262 0
+ 19174 00d8 0020     		movs	r0, #0
+ 19175 00da FFF7FEFF 		bl	PWR_BackupAccessCmd
+ 262:rtc.c         **** 
+ 263:rtc.c         **** 	return true;
+ 264:rtc.c         **** }
+ 19176              		.loc 1 265 0
+ 19177 00de 0120     		movs	r0, #1
+ 19178 00e0 05B0     		add	sp, sp, #20
+ 19179 00e2 30BD     		pop	{r4, r5, pc}
+ 19180              	.L38:
+ 19181              		.align	2
+ 19182              	.L37:
+ 19183 00e4 8BDAF4FF 		.word	-730485
+ 19184 00e8 00000000 		.word	.LANCHOR0
+ 19185 00ec 80510100 		.word	86400
+ 19186              	.LFE33:
+ 19188              		.section	.text.rtc_init,"ax",%progbits
+ 19189              		.align	1
+ 19190              		.global	rtc_init
+ 19191              		.thumb
+ 19192              		.thumb_func
+ 19194              	rtc_init:
+ 19195              	.LFB34:
+ 265:rtc.c         **** 
+ 266:rtc.c         **** /*******************************************************************************
+ 267:rtc.c         **** * Function Name  : rtc_init
+ 268:rtc.c         **** * Description    : initializes HW RTC,
+ 269:rtc.c         **** *                  sets default time-stamp if RTC has not been initialized before
+ 270:rtc.c         **** * Input          : None
+ 271:rtc.c         **** * Output         : None
+ 272:rtc.c         **** * Return         : not used
+ 273:rtc.c         **** *  Based on code from a STM RTC example in the StdPeriph-Library package
+ 274:rtc.c         **** *******************************************************************************/
+ 275:rtc.c         **** int rtc_init(void)
+ 276:rtc.c         **** {
+ 19196              		.loc 1 277 0
+ 19197              		@ args = 0, pretend = 0, frame = 8
+ 19198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19199 0000 07B5     		push	{r0, r1, r2, lr}
+ 19200              	.LCFI4:
+ 277:rtc.c         **** 	volatile uint16_t i;
+ 278:rtc.c         **** 
+ 279:rtc.c         **** 	/* Enable PWR and BKP clocks */
+ 280:rtc.c         **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+ 19201              		.loc 1 281 0
+ 19202 0002 4FF0C050 		mov	r0, #402653184
+ 19203 0006 0121     		movs	r1, #1
+ 19204 0008 FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+ 281:rtc.c         **** 
+ 282:rtc.c         **** 	/* LSI clock stabilization time */
+ 283:rtc.c         **** 	for(i=0;i<5000;i++) { ; }
+ 19205              		.loc 1 284 0
+ 19206 000c 0023     		movs	r3, #0
+ 19207 000e ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 19208              	.LVL95:
+ 19209 0012 41F28733 		movw	r3, #4999
+ 19210 0016 05E0     		b	.L40
+ 19211              	.LVL96:
+ 19212              	.L41:
+ 19213              		.loc 1 284 0 is_stmt 0 discriminator 2
+ 19214 0018 BDF80610 		ldrh	r1, [sp, #6]
+ 19215 001c 481C     		adds	r0, r1, #1
+ 19216 001e 82B2     		uxth	r2, r0
+ 19217              	.LVL97:
+ 19218 0020 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 19219              	.LVL98:
+ 19220              	.L40:
+ 19221              		.loc 1 284 0 discriminator 1
+ 19222 0024 BDF806E0 		ldrh	lr, [sp, #6]
+ 19223 0028 1FFA8EFC 		uxth	ip, lr
+ 19224 002c 9C45     		cmp	ip, r3
+ 19225 002e F3D9     		bls	.L41
+ 284:rtc.c         **** 
+ 285:rtc.c         **** 	if (BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5) {
+ 19226              		.loc 1 286 0 is_stmt 1
+ 19227 0030 0420     		movs	r0, #4
+ 19228 0032 FFF7FEFF 		bl	BKP_ReadBackupRegister
+ 19229              	.LVL99:
+ 19230 0036 4AF2A553 		movw	r3, #42405
+ 19231 003a 9842     		cmp	r0, r3
+ 19232 003c 2CD0     		beq	.L42
+ 286:rtc.c         **** 		/* Backup data register value is not correct or not yet programmed (when
+ 287:rtc.c         **** 		   the first time the program is executed) */
+ 288:rtc.c         **** 
+ 289:rtc.c         **** 		/* Allow access to BKP Domain */
+ 290:rtc.c         **** 		PWR_BackupAccessCmd(ENABLE);
+ 19233              		.loc 1 291 0
+ 19234 003e 0120     		movs	r0, #1
+ 19235 0040 FFF7FEFF 		bl	PWR_BackupAccessCmd
+ 291:rtc.c         **** 
+ 292:rtc.c         **** 		/* Reset Backup Domain */
+ 293:rtc.c         **** 		BKP_DeInit();
+ 19236              		.loc 1 294 0
+ 19237 0044 FFF7FEFF 		bl	BKP_DeInit
+ 294:rtc.c         **** 
+ 295:rtc.c         **** 		/* Enable LSE */
+ 296:rtc.c         **** 		RCC_LSEConfig(RCC_LSE_ON);
+ 19238              		.loc 1 297 0
+ 19239 0048 0120     		movs	r0, #1
+ 19240 004a FFF7FEFF 		bl	RCC_LSEConfig
+ 19241              	.L43:
+ 297:rtc.c         **** 
+ 298:rtc.c         **** 		/* Wait till LSE is ready */
+ 299:rtc.c         **** 		while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) { ; }
+ 19242              		.loc 1 300 0 discriminator 1
+ 19243 004e 4120     		movs	r0, #65
+ 19244 0050 FFF7FEFF 		bl	RCC_GetFlagStatus
+ 19245 0054 0028     		cmp	r0, #0
+ 19246 0056 FAD0     		beq	.L43
+ 300:rtc.c         **** 
+ 301:rtc.c         **** 		/* Select LSE as RTC Clock Source */
+ 302:rtc.c         **** 		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+ 19247              		.loc 1 303 0
+ 19248 0058 4FF48070 		mov	r0, #256
+ 19249 005c FFF7FEFF 		bl	RCC_RTCCLKConfig
+ 303:rtc.c         **** 
+ 304:rtc.c         **** 		/* Enable RTC Clock */
+ 305:rtc.c         **** 		RCC_RTCCLKCmd(ENABLE);
+ 19250              		.loc 1 306 0
+ 19251 0060 0120     		movs	r0, #1
+ 19252 0062 FFF7FEFF 		bl	RCC_RTCCLKCmd
+ 306:rtc.c         **** 
+ 307:rtc.c         **** 		/* Wait for RTC registers synchronization */
+ 308:rtc.c         **** 		RTC_WaitForSynchro();
+ 19253              		.loc 1 309 0
+ 19254 0066 FFF7FEFF 		bl	RTC_WaitForSynchro
+ 309:rtc.c         **** 
+ 310:rtc.c         **** 		/* Wait until last write operation on RTC registers has finished */
+ 311:rtc.c         **** 		RTC_WaitForLastTask();
+ 19255              		.loc 1 312 0
+ 19256 006a FFF7FEFF 		bl	RTC_WaitForLastTask
+ 312:rtc.c         **** 
+ 313:rtc.c         **** 		/* Set RTC prescaler: set RTC period to 1sec */
+ 314:rtc.c         **** 		RTC_SetPrescaler(32767); /* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) */
+ 19257              		.loc 1 315 0
+ 19258 006e 47F6FF70 		movw	r0, #32767
+ 19259 0072 FFF7FEFF 		bl	RTC_SetPrescaler
+ 315:rtc.c         **** 
+ 316:rtc.c         **** 		/* Wait until last write operation on RTC registers has finished */
+ 317:rtc.c         **** 		RTC_WaitForLastTask();
+ 19260              		.loc 1 318 0
+ 19261 0076 FFF7FEFF 		bl	RTC_WaitForLastTask
+ 318:rtc.c         **** 
+ 319:rtc.c         **** 		/* Set initial value */
+ 320:rtc.c         **** 		RTC_SetCounter( (uint32_t)((11*60+55)*60) ); // here: 1st January 2000 11:55:00
+ 19262              		.loc 1 321 0
+ 19263 007a 4AF29470 		movw	r0, #42900
+ 19264 007e FFF7FEFF 		bl	RTC_SetCounter
+ 321:rtc.c         **** 
+ 322:rtc.c         **** 		/* Wait until last write operation on RTC registers has finished */
+ 323:rtc.c         **** 		RTC_WaitForLastTask();
+ 19265              		.loc 1 324 0
+ 19266 0082 FFF7FEFF 		bl	RTC_WaitForLastTask
+ 324:rtc.c         **** 
+ 325:rtc.c         **** 		BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
+ 19267              		.loc 1 326 0
+ 19268 0086 0420     		movs	r0, #4
+ 19269 0088 4AF2A551 		movw	r1, #42405
+ 19270 008c FFF7FEFF 		bl	BKP_WriteBackupRegister
+ 326:rtc.c         **** 
+ 327:rtc.c         **** 		/* Lock access to BKP Domain */
+ 328:rtc.c         **** 		PWR_BackupAccessCmd(DISABLE);
+ 19271              		.loc 1 329 0
+ 19272 0090 0020     		movs	r0, #0
+ 19273 0092 FFF7FEFF 		bl	PWR_BackupAccessCmd
+ 19274 0096 01E0     		b	.L44
+ 19275              	.L42:
+ 329:rtc.c         **** 
+ 330:rtc.c         **** 	} else {
+ 331:rtc.c         **** 
+ 332:rtc.c         **** 		/* Wait for RTC registers synchronization */
+ 333:rtc.c         **** 		RTC_WaitForSynchro();
+ 19276              		.loc 1 334 0
+ 19277 0098 FFF7FEFF 		bl	RTC_WaitForSynchro
+ 19278              	.L44:
+ 334:rtc.c         **** 
+ 335:rtc.c         **** 	}
+ 336:rtc.c         **** 
+ 337:rtc.c         **** 	return 0;
+ 338:rtc.c         **** }
+ 19279              		.loc 1 339 0
+ 19280 009c 0020     		movs	r0, #0
+ 19281 009e 0EBD     		pop	{r1, r2, r3, pc}
+ 19282              	.LFE34:
+ 19284              		.section	.rodata.DaysInMonth,"a",%progbits
+ 19285              		.align	2
+ 19286              		.set	.LANCHOR0,. + 0
+ 19289              	DaysInMonth:
+ 19290 0000 1F       		.byte	31
+ 19291 0001 1D       		.byte	29
+ 19292 0002 1F       		.byte	31
+ 19293 0003 1E       		.byte	30
+ 19294 0004 1F       		.byte	31
+ 19295 0005 1E       		.byte	30
+ 19296 0006 1F       		.byte	31
+ 19297 0007 1F       		.byte	31
+ 19298 0008 1E       		.byte	30
+ 19299 0009 1F       		.byte	31
+ 19300 000a 1E       		.byte	30
+ 19301 000b 1F       		.byte	31
+ 19412              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 rtc.c
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18653  .text.isDST:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18657  .text.isDST:00000000 isDST
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18712  .text.counter_to_struct:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18716  .text.counter_to_struct:00000000 counter_to_struct
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18885  .text.counter_to_struct:000000c8 $d
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18889  .text.rtc_gettime:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:18894  .text.rtc_gettime:00000000 rtc_gettime
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19010  .text.rtc_gettime:00000060 $d
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19014  .text.rtc_settime:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19019  .text.rtc_settime:00000000 rtc_settime
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19183  .text.rtc_settime:000000e4 $d
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19189  .text.rtc_init:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19194  .text.rtc_init:00000000 rtc_init
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19285  .rodata.DaysInMonth:00000000 $d
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19289  .rodata.DaysInMonth:00000000 DaysInMonth
+C:\Users\ts\AppData\Local\Temp\ccihp7ra.s:19315  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RTC_GetCounter
+PWR_BackupAccessCmd
+RTC_WaitForLastTask
+RTC_SetCounter
+RCC_APB1PeriphClockCmd
+BKP_ReadBackupRegister
+BKP_DeInit
+RCC_LSEConfig
+RCC_GetFlagStatus
+RCC_RTCCLKConfig
+RCC_RTCCLKCmd
+RTC_WaitForSynchro
+RTC_SetPrescaler
+BKP_WriteBackupRegister

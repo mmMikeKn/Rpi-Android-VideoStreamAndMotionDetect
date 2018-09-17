@@ -1,0 +1,1309 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"TDC1304.c"
+  23              	.Ltext0:
+  24              		.file 1 "TDC1304.c"
+ 18453              		.align	1
+ 18454              		.global	isDataReadyTCD1304
+ 18455              		.thumb
+ 18456              		.thumb_func
+ 18458              	isDataReadyTCD1304:
+ 18459              	.LFB29:
+   0:TDC1304.c     **** #include "global.h"
+   1:TDC1304.c     **** 
+   2:TDC1304.c     **** 
+   3:TDC1304.c     **** static uint16_t bufferADC_DMA_TCD1304[TCD1304_BUFFER_SZ];
+   4:TDC1304.c     **** uint16_t dataTCD1304[TCD1304_BUFFER_SZ];
+   5:TDC1304.c     **** static bool isDataReady = FALSE;
+   6:TDC1304.c     **** static int cntOver = 0;
+   7:TDC1304.c     **** #define MAX_OVER 4
+   8:TDC1304.c     **** 
+   9:TDC1304.c     **** #define SATURATION_LEVEL_TCD1304 900 //Saturation output voltage VSAT 0.7..1.0 (4096/5 ~= 820)
+  10:TDC1304.c     **** #define AUTO_LEVEL_TCD1304 1100
+  11:TDC1304.c     **** #define DT_AUTO_INEGRATION 5
+  12:TDC1304.c     **** 
+  13:TDC1304.c     **** #define MASTER_CLOCK_PERIOD 72
+  14:TDC1304.c     **** 
+  15:TDC1304.c     **** #define CCR_ENABLE_Set          ((uint32_t)0x00000001)
+  16:TDC1304.c     **** #define CR2_DMA_Set                 ((uint32_t)0x00000100)
+  17:TDC1304.c     **** #define CR2_ADON_Set                ((uint32_t)0x00000001)
+  18:TDC1304.c     **** 
+  19:TDC1304.c     **** bool isDataReadyTCD1304() {
+ 18460              		.loc 1 20 0
+ 18461              		@ args = 0, pretend = 0, frame = 0
+ 18462              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18463              		@ link register save eliminated.
+ 18464              		.loc 1 20 0
+ 18465 0000 014B     		ldr	r3, .L2
+ 18466 0002 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+  20:TDC1304.c     **** 	return isDataReady;
+  21:TDC1304.c     **** }
+ 18467              		.loc 1 22 0
+ 18468 0004 7047     		bx	lr
+ 18469              	.L3:
+ 18470 0006 00BF     		.align	2
+ 18471              	.L2:
+ 18472 0008 00000000 		.word	.LANCHOR0
+ 18473              	.LFE29:
+ 18475              		.section	.text.setWaitDataReadyTCD1304,"ax",%progbits
+ 18476              		.align	1
+ 18477              		.global	setWaitDataReadyTCD1304
+ 18478              		.thumb
+ 18479              		.thumb_func
+ 18481              	setWaitDataReadyTCD1304:
+ 18482              	.LFB30:
+  22:TDC1304.c     **** 
+  23:TDC1304.c     **** void setWaitDataReadyTCD1304() {
+ 18483              		.loc 1 24 0
+ 18484              		@ args = 0, pretend = 0, frame = 0
+ 18485              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18486              		@ link register save eliminated.
+ 18487              	.LVL0:
+ 18488              		.loc 1 24 0
+ 18489 0000 064A     		ldr	r2, .L8
+ 18490 0002 0748     		ldr	r0, .L8+4
+ 18491              	.LVL1:
+ 18492              	.L5:
+ 18493              	.LBB8:
+  24:TDC1304.c     **** 	for(int i = 0; i < TCD1304_BUFFER_SZ; i++) dataTCD1304[i] = 0;
+ 18494              		.loc 1 25 0 discriminator 2
+ 18495 0004 0023     		movs	r3, #0
+ 18496 0006 22F8023F 		strh	r3, [r2, #2]!	@ movhi
+ 18497              	.LVL2:
+ 18498 000a 8242     		cmp	r2, r0
+ 18499 000c 1946     		mov	r1, r3	@ movhi
+ 18500 000e F9D1     		bne	.L5
+ 18501              	.LBE8:
+  25:TDC1304.c     **** 	cntOver = 0;
+ 18502              		.loc 1 26 0
+ 18503 0010 044A     		ldr	r2, .L8+8
+ 18504 0012 1360     		str	r3, [r2, #0]
+  26:TDC1304.c     **** 	isDataReady = FALSE;
+ 18505              		.loc 1 27 0
+ 18506 0014 044B     		ldr	r3, .L8+12
+ 18507 0016 1970     		strb	r1, [r3, #0]
+  27:TDC1304.c     **** }
+ 18508              		.loc 1 28 0
+ 18509 0018 7047     		bx	lr
+ 18510              	.L9:
+ 18511 001a 00BF     		.align	2
+ 18512              	.L8:
+ 18513 001c FEFFFFFF 		.word	dataTCD1304-2
+ 18514 0020 DA1C0000 		.word	dataTCD1304+7386
+ 18515 0024 00000000 		.word	.LANCHOR1
+ 18516 0028 00000000 		.word	.LANCHOR0
+ 18517              	.LFE30:
+ 18519              		.section	.text.init_ICG_TIM2_CH3,"ax",%progbits
+ 18520              		.align	1
+ 18521              		.global	init_ICG_TIM2_CH3
+ 18522              		.thumb
+ 18523              		.thumb_func
+ 18525              	init_ICG_TIM2_CH3:
+ 18526              	.LFB33:
+  28:TDC1304.c     **** 
+  29:TDC1304.c     **** inline void init_TCD1304_adc() {
+  30:TDC1304.c     **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  31:TDC1304.c     **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1|RCC_APB2Periph_AFIO, ENABLE);
+  32:TDC1304.c     **** 
+  33:TDC1304.c     **** 	//-------------------------------
+  34:TDC1304.c     **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  35:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  36:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+  37:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = OUT_TCD1304_PIN;
+  38:TDC1304.c     **** 	GPIO_Init(OUT_TCD1304_PORT, &GPIO_InitStructure);
+  39:TDC1304.c     **** 	//-------------------------------
+  40:TDC1304.c     **** 	// RCC_ADCCLKConfig(RCC_PCLK2_Div6);     //ADCCLK = PCLK2/6 = 12MHz
+  41:TDC1304.c     **** 	ADC_DeInit(ADC1);
+  42:TDC1304.c     **** 	ADC_InitTypeDef ADC_InitStructure;
+  43:TDC1304.c     **** 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+  44:TDC1304.c     **** 	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+  45:TDC1304.c     **** 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+  46:TDC1304.c     **** 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
+  47:TDC1304.c     **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  48:TDC1304.c     **** 	ADC_InitStructure.ADC_NbrOfChannel = 1;
+  49:TDC1304.c     **** 	ADC_Init(ADC1, &ADC_InitStructure);
+  50:TDC1304.c     **** 
+  51:TDC1304.c     **** 	ADC_RegularChannelConfig(ADC1, OUT_TCD1304_ADC1_CHANEL, 1, OUT_TCD1304_SAMPLE_TIME);
+  52:TDC1304.c     **** 	ADC_Cmd(ADC1, ENABLE);
+  53:TDC1304.c     **** 	ADC_ResetCalibration(ADC1);
+  54:TDC1304.c     **** 	while(ADC_GetResetCalibrationStatus(ADC1));
+  55:TDC1304.c     **** 	ADC_StartCalibration(ADC1);
+  56:TDC1304.c     **** 	while(ADC_GetCalibrationStatus(ADC1));
+  57:TDC1304.c     **** 	//-------------------------------
+  58:TDC1304.c     **** 
+  59:TDC1304.c     **** 	NVIC_InitTypeDef NVIC_InitStructure;
+  60:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn;
+  61:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  62:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+  63:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  64:TDC1304.c     **** 	NVIC_Init(&NVIC_InitStructure);
+  65:TDC1304.c     **** 
+  66:TDC1304.c     **** // TIM3 - ADC trigger
+  67:TDC1304.c     **** 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  68:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  69:TDC1304.c     **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+  70:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+  71:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 3;
+  72:TDC1304.c     **** 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+  73:TDC1304.c     **** 	TIM_ITRxExternalClockConfig(TIM3, TIM_TS_ITR3); // TIM4 (master)-> TIM3(slave) (Table 84. TIMx Int
+  74:TDC1304.c     **** 	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
+  75:TDC1304.c     **** 
+  76:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  77:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  78:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_SH;
+  79:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+  80:TDC1304.c     **** 	// TIM3_CH4 - SH
+  81:TDC1304.c     **** 	GPIO_PinRemapConfig(GPIO_FullRemap_TIM2, ENABLE);
+  82:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  83:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_SH;
+  84:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+  85:TDC1304.c     **** 
+  86:TDC1304.c     **** 	TIM_OCInitTypeDef  TIM_OCInitStructure;
+  87:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+  88:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  89:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
+  90:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 2;
+  91:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+  92:TDC1304.c     **** 	TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+  93:TDC1304.c     **** 	TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+  94:TDC1304.c     **** }
+  95:TDC1304.c     **** 
+  96:TDC1304.c     **** inline void initMCLK_TIM4_CH3() {
+  97:TDC1304.c     **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  98:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  99:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 100:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_MCLK;
+ 101:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 102:TDC1304.c     **** 	// Master Clock TIM4
+ 103:TDC1304.c     **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+ 104:TDC1304.c     **** 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+ 105:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 106:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+ 107:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = MASTER_CLOCK_PERIOD-1; // clock out = 1MÃö (0.8-2.4MHz 3.3v)
+ 108:TDC1304.c     **** 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+ 109:TDC1304.c     **** 	TIM_ARRPreloadConfig(TIM4, ENABLE);
+ 110:TDC1304.c     **** 
+ 111:TDC1304.c     **** 	// TIM4_CH3 - Master Clock
+ 112:TDC1304.c     **** 	TIM_OCInitTypeDef  TIM_OCInitStructure;
+ 113:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 114:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 115:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = MASTER_CLOCK_PERIOD/2; // 50%
+ 116:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 117:TDC1304.c     **** 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+ 118:TDC1304.c     **** 	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
+ 119:TDC1304.c     **** 	TIM_CtrlPWMOutputs(TIM4, ENABLE);
+ 120:TDC1304.c     **** 
+ 121:TDC1304.c     **** 	TIM_SelectOutputTrigger(TIM4, TIM_TRGOSource_Update);
+ 122:TDC1304.c     **** 	TIM_Cmd(TIM4, ENABLE);
+ 123:TDC1304.c     **** }
+ 124:TDC1304.c     **** 
+ 125:TDC1304.c     **** void init_ICG_TIM2_CH3() {
+ 18527              		.loc 1 126 0
+ 18528              		@ args = 0, pretend = 0, frame = 32
+ 18529              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18530 0000 30B5     		push	{r4, r5, lr}
+ 18531              	.LCFI0:
+ 126:TDC1304.c     **** 	GPIO_PinRemapConfig(GPIO_FullRemap_TIM2, ENABLE);
+ 18532              		.loc 1 127 0
+ 18533 0002 0121     		movs	r1, #1
+ 126:TDC1304.c     **** 	GPIO_PinRemapConfig(GPIO_FullRemap_TIM2, ENABLE);
+ 18534              		.loc 1 126 0
+ 18535 0004 89B0     		sub	sp, sp, #36
+ 18536              	.LCFI1:
+ 18537              		.loc 1 127 0
+ 18538 0006 2748     		ldr	r0, .L11
+ 18539 0008 FFF7FEFF 		bl	GPIO_PinRemapConfig
+ 127:TDC1304.c     **** 
+ 128:TDC1304.c     **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 129:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18540              		.loc 1 130 0
+ 18541 000c 0321     		movs	r1, #3
+ 18542 000e 8DF81E10 		strb	r1, [sp, #30]
+ 130:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18543              		.loc 1 131 0
+ 18544 0012 1531     		adds	r1, r1, #21
+ 131:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_ICG;
+ 18545              		.loc 1 132 0
+ 18546 0014 4FF48062 		mov	r2, #1024	@ movhi
+ 131:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_ICG;
+ 18547              		.loc 1 131 0
+ 18548 0018 8DF81F10 		strb	r1, [sp, #31]
+ 18549              		.loc 1 132 0
+ 18550 001c 08A9     		add	r1, sp, #32
+ 18551 001e 21F8042D 		strh	r2, [r1, #-4]!	@ movhi
+ 132:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18552              		.loc 1 133 0
+ 18553 0022 2148     		ldr	r0, .L11+4
+ 18554 0024 FFF7FEFF 		bl	GPIO_Init
+ 133:TDC1304.c     **** 	// TIM2
+ 134:TDC1304.c     **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+ 18555              		.loc 1 135 0
+ 18556 0028 0120     		movs	r0, #1
+ 18557 002a 0146     		mov	r1, r0
+ 135:TDC1304.c     **** 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+ 136:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18558              		.loc 1 137 0
+ 18559 002c 04AC     		add	r4, sp, #16
+ 135:TDC1304.c     **** 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+ 18560              		.loc 1 135 0
+ 18561 002e FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+ 18562              		.loc 1 137 0
+ 18563 0032 2046     		mov	r0, r4
+ 18564 0034 FFF7FEFF 		bl	TIM_TimeBaseStructInit
+ 137:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+ 138:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 4;
+ 18565              		.loc 1 139 0
+ 18566 0038 0420     		movs	r0, #4
+ 138:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 4;
+ 18567              		.loc 1 138 0
+ 18568 003a 0025     		movs	r5, #0
+ 18569              		.loc 1 139 0
+ 18570 003c ADF81400 		strh	r0, [sp, #20]	@ movhi
+ 139:TDC1304.c     **** 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+ 18571              		.loc 1 140 0
+ 18572 0040 2146     		mov	r1, r4
+ 18573 0042 4FF08040 		mov	r0, #1073741824
+ 138:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+ 18574              		.loc 1 138 0
+ 18575 0046 ADF81050 		strh	r5, [sp, #16]	@ movhi
+ 18576              		.loc 1 140 0
+ 18577 004a FFF7FEFF 		bl	TIM_TimeBaseInit
+ 140:TDC1304.c     **** 	TIM_ARRPreloadConfig(TIM2, ENABLE);
+ 18578              		.loc 1 141 0
+ 18579 004e 0121     		movs	r1, #1
+ 18580 0050 4FF08040 		mov	r0, #1073741824
+ 18581 0054 FFF7FEFF 		bl	TIM_ARRPreloadConfig
+ 141:TDC1304.c     **** 
+ 142:TDC1304.c     **** 	TIM_ITRxExternalClockConfig(TIM2, TIM_TS_ITR3); // TIM4 (master)-> TIM2(slave) (Table 84. TIMx Int
+ 18582              		.loc 1 143 0
+ 18583 0058 3021     		movs	r1, #48
+ 18584 005a 4FF08040 		mov	r0, #1073741824
+ 18585 005e FFF7FEFF 		bl	TIM_ITRxExternalClockConfig
+ 143:TDC1304.c     **** 	TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Single);
+ 18586              		.loc 1 144 0
+ 18587 0062 0821     		movs	r1, #8
+ 18588 0064 4FF08040 		mov	r0, #1073741824
+ 18589 0068 FFF7FEFF 		bl	TIM_SelectOnePulseMode
+ 144:TDC1304.c     **** 
+ 145:TDC1304.c     **** 	// TIM2_CH3
+ 146:TDC1304.c     **** 	TIM_OCInitTypeDef  TIM_OCInitStructure;
+ 147:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 148:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18590              		.loc 1 149 0
+ 18591 006c 0124     		movs	r4, #1
+ 148:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18592              		.loc 1 148 0
+ 18593 006e 7023     		movs	r3, #112
+ 149:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 1;
+ 150:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 151:TDC1304.c     **** 	TIM_OC3Init(TIM2, &TIM_OCInitStructure);
+ 18594              		.loc 1 152 0
+ 18595 0070 6946     		mov	r1, sp
+ 18596 0072 4FF08040 		mov	r0, #1073741824
+ 148:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 18597              		.loc 1 148 0
+ 18598 0076 ADF80030 		strh	r3, [sp, #0]	@ movhi
+ 149:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 1;
+ 18599              		.loc 1 149 0
+ 18600 007a ADF80240 		strh	r4, [sp, #2]	@ movhi
+ 150:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 1;
+ 18601              		.loc 1 150 0
+ 18602 007e ADF80640 		strh	r4, [sp, #6]	@ movhi
+ 151:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 18603              		.loc 1 151 0
+ 18604 0082 ADF80850 		strh	r5, [sp, #8]	@ movhi
+ 18605              		.loc 1 152 0
+ 18606 0086 FFF7FEFF 		bl	TIM_OC3Init
+ 152:TDC1304.c     **** 	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Disable);
+ 18607              		.loc 1 153 0
+ 18608 008a 2946     		mov	r1, r5
+ 18609 008c 4FF08040 		mov	r0, #1073741824
+ 18610 0090 FFF7FEFF 		bl	TIM_OC3PreloadConfig
+ 153:TDC1304.c     **** 	TIM_CtrlPWMOutputs(TIM2, ENABLE);
+ 18611              		.loc 1 154 0
+ 18612 0094 4FF08040 		mov	r0, #1073741824
+ 18613 0098 2146     		mov	r1, r4
+ 18614 009a FFF7FEFF 		bl	TIM_CtrlPWMOutputs
+ 154:TDC1304.c     **** }
+ 18615              		.loc 1 155 0
+ 18616 009e 09B0     		add	sp, sp, #36
+ 18617 00a0 30BD     		pop	{r4, r5, pc}
+ 18618              	.L12:
+ 18619 00a2 00BF     		.align	2
+ 18620              	.L11:
+ 18621 00a4 00031800 		.word	1573632
+ 18622 00a8 000C0140 		.word	1073810432
+ 18623              	.LFE33:
+ 18625              		.section	.text.initTCD1304,"ax",%progbits
+ 18626              		.align	1
+ 18627              		.global	initTCD1304
+ 18628              		.thumb
+ 18629              		.thumb_func
+ 18631              	initTCD1304:
+ 18632              	.LFB34:
+ 155:TDC1304.c     **** 
+ 156:TDC1304.c     **** 
+ 157:TDC1304.c     **** void initTCD1304() {
+ 18633              		.loc 1 158 0
+ 18634              		@ args = 0, pretend = 0, frame = 88
+ 18635              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18636 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 18637              	.LCFI2:
+ 158:TDC1304.c     **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+ 18638              		.loc 1 159 0
+ 18639 0002 0820     		movs	r0, #8
+ 158:TDC1304.c     **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+ 18640              		.loc 1 158 0
+ 18641 0004 97B0     		sub	sp, sp, #92
+ 18642              	.LCFI3:
+ 18643              		.loc 1 159 0
+ 18644 0006 0121     		movs	r1, #1
+ 18645 0008 FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+ 159:TDC1304.c     **** #ifdef ENABLE_DBG_PIN
+ 160:TDC1304.c     **** 	GPIO_InitTypeDef GPIO_InitStructure;
+ 161:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 162:TDC1304.c     **** 
+ 163:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ 164:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_DBG;
+ 18646              		.loc 1 165 0
+ 18647 000c 16A9     		add	r1, sp, #88
+ 18648 000e 4FF40070 		mov	r0, #512	@ movhi
+ 18649 0012 21F8040D 		strh	r0, [r1, #-4]!	@ movhi
+ 162:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18650              		.loc 1 162 0
+ 18651 0016 0327     		movs	r7, #3
+ 164:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ 18652              		.loc 1 164 0
+ 18653 0018 1026     		movs	r6, #16
+ 165:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 166:TDC1304.c     **** #endif
+ 167:TDC1304.c     **** 
+ 168:TDC1304.c     **** //--------
+ 169:TDC1304.c     **** 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+ 170:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18654              		.loc 1 171 0
+ 18655 001a 0FAC     		add	r4, sp, #60
+ 166:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18656              		.loc 1 166 0
+ 18657 001c 8C48     		ldr	r0, .L18
+ 162:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18658              		.loc 1 162 0
+ 18659 001e 8DF85670 		strb	r7, [sp, #86]
+ 164:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ 18660              		.loc 1 164 0
+ 18661 0022 8DF85760 		strb	r6, [sp, #87]
+ 166:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18662              		.loc 1 166 0
+ 18663 0026 0097     		str	r7, [sp, #0]
+ 18664 0028 FFF7FEFF 		bl	GPIO_Init
+ 18665              		.loc 1 171 0
+ 18666 002c 2046     		mov	r0, r4
+ 18667 002e FFF7FEFF 		bl	TIM_TimeBaseStructInit
+ 171:TDC1304.c     **** 
+ 172:TDC1304.c     **** 	// TIM1 - integration time
+ 173:TDC1304.c     **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
+ 18668              		.loc 1 174 0
+ 18669 0032 0121     		movs	r1, #1
+ 18670 0034 4FF40060 		mov	r0, #2048
+ 18671 0038 FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+ 174:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 7200-1;
+ 18672              		.loc 1 175 0
+ 18673 003c 41F61F41 		movw	r1, 7199	@ movhi
+ 175:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 200; // 20ms t(int) > 10ms
+ 18674              		.loc 1 176 0
+ 18675 0040 C825     		movs	r5, #200
+ 175:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 200; // 20ms t(int) > 10ms
+ 18676              		.loc 1 175 0
+ 18677 0042 ADF83C10 		strh	r1, [sp, #60]	@ movhi
+ 176:TDC1304.c     **** 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+ 18678              		.loc 1 177 0
+ 18679 0046 8348     		ldr	r0, .L18+4
+ 18680 0048 2146     		mov	r1, r4
+ 176:TDC1304.c     **** 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+ 18681              		.loc 1 176 0
+ 18682 004a ADF84050 		strh	r5, [sp, #64]	@ movhi
+ 18683              		.loc 1 177 0
+ 18684 004e FFF7FEFF 		bl	TIM_TimeBaseInit
+ 177:TDC1304.c     **** 
+ 178:TDC1304.c     **** 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+ 18685              		.loc 1 179 0
+ 18686 0052 4FF4E060 		mov	r0, #1792
+ 179:TDC1304.c     **** 	NVIC_InitTypeDef NVIC_InitStructure;
+ 180:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 18687              		.loc 1 181 0
+ 18688 0056 0124     		movs	r4, #1
+ 179:TDC1304.c     **** 	NVIC_InitTypeDef NVIC_InitStructure;
+ 18689              		.loc 1 179 0
+ 18690 0058 FFF7FEFF 		bl	NVIC_PriorityGroupConfig
+ 181:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+ 18691              		.loc 1 182 0
+ 18692 005c 0025     		movs	r5, #0
+ 182:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
+ 18693              		.loc 1 183 0
+ 18694 005e 1923     		movs	r3, #25
+ 183:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 184:TDC1304.c     **** 	NVIC_Init(&NVIC_InitStructure);
+ 18695              		.loc 1 185 0
+ 18696 0060 14A8     		add	r0, sp, #80
+ 183:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 18697              		.loc 1 183 0
+ 18698 0062 8DF85030 		strb	r3, [sp, #80]
+ 181:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 18699              		.loc 1 181 0
+ 18700 0066 8DF85340 		strb	r4, [sp, #83]
+ 182:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
+ 18701              		.loc 1 182 0
+ 18702 006a 8DF85150 		strb	r5, [sp, #81]
+ 184:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 18703              		.loc 1 184 0
+ 18704 006e 8DF85240 		strb	r4, [sp, #82]
+ 18705              		.loc 1 185 0
+ 18706 0072 FFF7FEFF 		bl	NVIC_Init
+ 185:TDC1304.c     **** 	TIM_ARRPreloadConfig(TIM1, ENABLE);
+ 18707              		.loc 1 186 0
+ 18708 0076 7748     		ldr	r0, .L18+4
+ 18709 0078 2146     		mov	r1, r4
+ 18710 007a FFF7FEFF 		bl	TIM_ARRPreloadConfig
+ 18711              	.LBB9:
+ 18712              	.LBB10:
+ 100:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18713              		.loc 1 100 0
+ 18714 007e 1826     		movs	r6, #24
+ 18715              	.LBE10:
+ 18716              	.LBE9:
+ 186:TDC1304.c     **** 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+ 18717              		.loc 1 187 0
+ 18718 0080 7448     		ldr	r0, .L18+4
+ 18719 0082 2146     		mov	r1, r4
+ 18720 0084 2246     		mov	r2, r4
+ 18721 0086 FFF7FEFF 		bl	TIM_ITConfig
+ 18722              	.LBB12:
+ 18723              	.LBB11:
+ 101:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_MCLK;
+ 18724              		.loc 1 101 0
+ 18725 008a 4FF4807C 		mov	ip, #256	@ movhi
+ 100:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18726              		.loc 1 100 0
+ 18727 008e 8DF84F60 		strb	r6, [sp, #79]
+ 101:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_MCLK;
+ 18728              		.loc 1 101 0
+ 18729 0092 16AE     		add	r6, sp, #88
+  99:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18730              		.loc 1 99 0
+ 18731 0094 009A     		ldr	r2, [sp, #0]
+ 101:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_MCLK;
+ 18732              		.loc 1 101 0
+ 18733 0096 26F80CCD 		strh	ip, [r6, #-12]!	@ movhi
+ 102:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18734              		.loc 1 102 0
+ 18735 009a 6D48     		ldr	r0, .L18
+ 18736 009c 3146     		mov	r1, r6
+  99:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18737              		.loc 1 99 0
+ 18738 009e 8DF84E20 		strb	r2, [sp, #78]
+ 106:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18739              		.loc 1 106 0
+ 18740 00a2 0CAF     		add	r7, sp, #48
+ 102:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18741              		.loc 1 102 0
+ 18742 00a4 FFF7FEFF 		bl	GPIO_Init
+ 104:TDC1304.c     **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+ 18743              		.loc 1 104 0
+ 18744 00a8 0420     		movs	r0, #4
+ 18745 00aa 2146     		mov	r1, r4
+ 18746 00ac FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+ 106:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18747              		.loc 1 106 0
+ 18748 00b0 3846     		mov	r0, r7
+ 18749 00b2 0197     		str	r7, [sp, #4]
+ 18750 00b4 FFF7FEFF 		bl	TIM_TimeBaseStructInit
+ 108:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = MASTER_CLOCK_PERIOD-1; // clock out = 1MÃö (0.8-2.4MHz 3.3v)
+ 18751              		.loc 1 108 0
+ 18752 00b8 4720     		movs	r0, #71
+ 18753 00ba ADF83400 		strh	r0, [sp, #52]	@ movhi
+ 109:TDC1304.c     **** 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+ 18754              		.loc 1 109 0
+ 18755 00be 0199     		ldr	r1, [sp, #4]
+ 18756 00c0 6548     		ldr	r0, .L18+8
+ 107:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+ 18757              		.loc 1 107 0
+ 18758 00c2 ADF83050 		strh	r5, [sp, #48]	@ movhi
+ 109:TDC1304.c     **** 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+ 18759              		.loc 1 109 0
+ 18760 00c6 FFF7FEFF 		bl	TIM_TimeBaseInit
+ 110:TDC1304.c     **** 	TIM_ARRPreloadConfig(TIM4, ENABLE);
+ 18761              		.loc 1 110 0
+ 18762 00ca 6348     		ldr	r0, .L18+8
+ 18763 00cc 2146     		mov	r1, r4
+ 18764 00ce FFF7FEFF 		bl	TIM_ARRPreloadConfig
+ 114:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 18765              		.loc 1 114 0
+ 18766 00d2 7021     		movs	r1, #112
+ 115:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18767              		.loc 1 115 0
+ 18768 00d4 2246     		mov	r2, r4	@ movhi
+ 116:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = MASTER_CLOCK_PERIOD/2; // 50%
+ 18769              		.loc 1 116 0
+ 18770 00d6 2423     		movs	r3, #36
+ 114:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 18771              		.loc 1 114 0
+ 18772 00d8 ADF82010 		strh	r1, [sp, #32]	@ movhi
+ 118:TDC1304.c     **** 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+ 18773              		.loc 1 118 0
+ 18774 00dc 5E48     		ldr	r0, .L18+8
+ 18775 00de 08A9     		add	r1, sp, #32
+ 116:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = MASTER_CLOCK_PERIOD/2; // 50%
+ 18776              		.loc 1 116 0
+ 18777 00e0 ADF82630 		strh	r3, [sp, #38]	@ movhi
+ 118:TDC1304.c     **** 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+ 18778              		.loc 1 118 0
+ 18779 00e4 0192     		str	r2, [sp, #4]
+ 115:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18780              		.loc 1 115 0
+ 18781 00e6 ADF82240 		strh	r4, [sp, #34]	@ movhi
+ 117:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 18782              		.loc 1 117 0
+ 18783 00ea ADF82850 		strh	r5, [sp, #40]	@ movhi
+ 118:TDC1304.c     **** 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+ 18784              		.loc 1 118 0
+ 18785 00ee FFF7FEFF 		bl	TIM_OC3Init
+ 119:TDC1304.c     **** 	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
+ 18786              		.loc 1 119 0
+ 18787 00f2 0821     		movs	r1, #8
+ 18788 00f4 5848     		ldr	r0, .L18+8
+ 18789 00f6 FFF7FEFF 		bl	TIM_OC3PreloadConfig
+ 120:TDC1304.c     **** 	TIM_CtrlPWMOutputs(TIM4, ENABLE);
+ 18790              		.loc 1 120 0
+ 18791 00fa 5748     		ldr	r0, .L18+8
+ 18792 00fc 2146     		mov	r1, r4
+ 18793 00fe FFF7FEFF 		bl	TIM_CtrlPWMOutputs
+ 122:TDC1304.c     **** 	TIM_SelectOutputTrigger(TIM4, TIM_TRGOSource_Update);
+ 18794              		.loc 1 122 0
+ 18795 0102 5548     		ldr	r0, .L18+8
+ 18796 0104 2021     		movs	r1, #32
+ 18797 0106 FFF7FEFF 		bl	TIM_SelectOutputTrigger
+ 123:TDC1304.c     **** 	TIM_Cmd(TIM4, ENABLE);
+ 18798              		.loc 1 123 0
+ 18799 010a 5348     		ldr	r0, .L18+8
+ 18800 010c 2146     		mov	r1, r4
+ 18801 010e FFF7FEFF 		bl	TIM_Cmd
+ 18802              	.LBE11:
+ 18803              	.LBE12:
+ 187:TDC1304.c     **** 
+ 188:TDC1304.c     **** //-------------------
+ 189:TDC1304.c     **** 	initMCLK_TIM4_CH3();
+ 190:TDC1304.c     **** 	init_ICG_TIM2_CH3();
+ 18804              		.loc 1 191 0
+ 18805 0112 FFF7FEFF 		bl	init_ICG_TIM2_CH3
+ 18806              	.LBB13:
+ 18807              	.LBB14:
+  31:TDC1304.c     **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+ 18808              		.loc 1 31 0
+ 18809 0116 2046     		mov	r0, r4
+ 18810 0118 2146     		mov	r1, r4
+ 18811 011a FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+  32:TDC1304.c     **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1|RCC_APB2Periph_AFIO, ENABLE);
+ 18812              		.loc 1 32 0
+ 18813 011e 40F20120 		movw	r0, #513
+ 18814 0122 2146     		mov	r1, r4
+ 18815 0124 FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+  36:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18816              		.loc 1 36 0
+ 18817 0128 DDF800C0 		ldr	ip, [sp, #0]
+  39:TDC1304.c     **** 	GPIO_Init(OUT_TCD1304_PORT, &GPIO_InitStructure);
+ 18818              		.loc 1 39 0
+ 18819 012c 3146     		mov	r1, r6
+ 18820 012e 4848     		ldr	r0, .L18
+  36:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18821              		.loc 1 36 0
+ 18822 0130 8DF84EC0 		strb	ip, [sp, #78]
+  37:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+ 18823              		.loc 1 37 0
+ 18824 0134 8DF84F50 		strb	r5, [sp, #79]
+  38:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = OUT_TCD1304_PIN;
+ 18825              		.loc 1 38 0
+ 18826 0138 ADF84C40 		strh	r4, [sp, #76]	@ movhi
+  39:TDC1304.c     **** 	GPIO_Init(OUT_TCD1304_PORT, &GPIO_InitStructure);
+ 18827              		.loc 1 39 0
+ 18828 013c FFF7FEFF 		bl	GPIO_Init
+  42:TDC1304.c     **** 	ADC_DeInit(ADC1);
+ 18829              		.loc 1 42 0
+ 18830 0140 4648     		ldr	r0, .L18+12
+ 18831 0142 FFF7FEFF 		bl	ADC_DeInit
+  49:TDC1304.c     **** 	ADC_InitStructure.ADC_NbrOfChannel = 1;
+ 18832              		.loc 1 49 0
+ 18833 0146 019A     		ldr	r2, [sp, #4]
+  47:TDC1304.c     **** 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
+ 18834              		.loc 1 47 0
+ 18835 0148 4FF40023 		mov	r3, #524288
+  50:TDC1304.c     **** 	ADC_Init(ADC1, &ADC_InitStructure);
+ 18836              		.loc 1 50 0
+ 18837 014c 4348     		ldr	r0, .L18+12
+ 18838 014e 03A9     		add	r1, sp, #12
+  47:TDC1304.c     **** 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
+ 18839              		.loc 1 47 0
+ 18840 0150 0593     		str	r3, [sp, #20]
+  49:TDC1304.c     **** 	ADC_InitStructure.ADC_NbrOfChannel = 1;
+ 18841              		.loc 1 49 0
+ 18842 0152 8DF81C20 		strb	r2, [sp, #28]
+  44:TDC1304.c     **** 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+ 18843              		.loc 1 44 0
+ 18844 0156 0395     		str	r5, [sp, #12]
+  45:TDC1304.c     **** 	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+ 18845              		.loc 1 45 0
+ 18846 0158 8DF81050 		strb	r5, [sp, #16]
+  46:TDC1304.c     **** 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+ 18847              		.loc 1 46 0
+ 18848 015c 8DF81150 		strb	r5, [sp, #17]
+  48:TDC1304.c     **** 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+ 18849              		.loc 1 48 0
+ 18850 0160 0695     		str	r5, [sp, #24]
+  50:TDC1304.c     **** 	ADC_Init(ADC1, &ADC_InitStructure);
+ 18851              		.loc 1 50 0
+ 18852 0162 FFF7FEFF 		bl	ADC_Init
+  52:TDC1304.c     **** 	ADC_RegularChannelConfig(ADC1, OUT_TCD1304_ADC1_CHANEL, 1, OUT_TCD1304_SAMPLE_TIME);
+ 18853              		.loc 1 52 0
+ 18854 0166 3D48     		ldr	r0, .L18+12
+ 18855 0168 0821     		movs	r1, #8
+ 18856 016a 2246     		mov	r2, r4
+ 18857 016c 0223     		movs	r3, #2
+ 18858 016e FFF7FEFF 		bl	ADC_RegularChannelConfig
+  53:TDC1304.c     **** 	ADC_Cmd(ADC1, ENABLE);
+ 18859              		.loc 1 53 0
+ 18860 0172 3A48     		ldr	r0, .L18+12
+ 18861 0174 2146     		mov	r1, r4
+ 18862 0176 FFF7FEFF 		bl	ADC_Cmd
+  54:TDC1304.c     **** 	ADC_ResetCalibration(ADC1);
+ 18863              		.loc 1 54 0
+ 18864 017a 3848     		ldr	r0, .L18+12
+ 18865 017c FFF7FEFF 		bl	ADC_ResetCalibration
+ 18866              	.L14:
+  55:TDC1304.c     **** 	while(ADC_GetResetCalibrationStatus(ADC1));
+ 18867              		.loc 1 55 0
+ 18868 0180 3648     		ldr	r0, .L18+12
+ 18869 0182 FFF7FEFF 		bl	ADC_GetResetCalibrationStatus
+ 18870 0186 0028     		cmp	r0, #0
+ 18871 0188 FAD1     		bne	.L14
+  56:TDC1304.c     **** 	ADC_StartCalibration(ADC1);
+ 18872              		.loc 1 56 0
+ 18873 018a 3448     		ldr	r0, .L18+12
+ 18874 018c FFF7FEFF 		bl	ADC_StartCalibration
+ 18875              	.L15:
+  57:TDC1304.c     **** 	while(ADC_GetCalibrationStatus(ADC1));
+ 18876              		.loc 1 57 0
+ 18877 0190 3248     		ldr	r0, .L18+12
+ 18878 0192 FFF7FEFF 		bl	ADC_GetCalibrationStatus
+ 18879 0196 0546     		mov	r5, r0
+ 18880 0198 0028     		cmp	r0, #0
+ 18881 019a F9D1     		bne	.L15
+  61:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn;
+ 18882              		.loc 1 61 0
+ 18883 019c 0B24     		movs	r4, #11
+  63:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+ 18884              		.loc 1 63 0
+ 18885 019e 0326     		movs	r6, #3
+  69:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18886              		.loc 1 69 0
+ 18887 01a0 0CAF     		add	r7, sp, #48
+  61:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn;
+ 18888              		.loc 1 61 0
+ 18889 01a2 8DF84840 		strb	r4, [sp, #72]
+  65:TDC1304.c     **** 	NVIC_Init(&NVIC_InitStructure);
+ 18890              		.loc 1 65 0
+ 18891 01a6 12A8     		add	r0, sp, #72
+  62:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 18892              		.loc 1 62 0
+ 18893 01a8 0124     		movs	r4, #1
+  63:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+ 18894              		.loc 1 63 0
+ 18895 01aa 8DF84A60 		strb	r6, [sp, #74]
+  62:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 18896              		.loc 1 62 0
+ 18897 01ae 8DF84940 		strb	r4, [sp, #73]
+  64:TDC1304.c     **** 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 18898              		.loc 1 64 0
+ 18899 01b2 8DF84B40 		strb	r4, [sp, #75]
+  65:TDC1304.c     **** 	NVIC_Init(&NVIC_InitStructure);
+ 18900              		.loc 1 65 0
+ 18901 01b6 FFF7FEFF 		bl	NVIC_Init
+  69:TDC1304.c     **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18902              		.loc 1 69 0
+ 18903 01ba 3846     		mov	r0, r7
+ 18904 01bc FFF7FEFF 		bl	TIM_TimeBaseStructInit
+  70:TDC1304.c     **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+ 18905              		.loc 1 70 0
+ 18906 01c0 0220     		movs	r0, #2
+ 18907 01c2 2146     		mov	r1, r4
+ 18908 01c4 FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+  73:TDC1304.c     **** 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+ 18909              		.loc 1 73 0
+ 18910 01c8 3946     		mov	r1, r7
+ 18911 01ca 2548     		ldr	r0, .L18+16
+  72:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Period = 3;
+ 18912              		.loc 1 72 0
+ 18913 01cc ADF83460 		strh	r6, [sp, #52]	@ movhi
+  71:TDC1304.c     **** 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+ 18914              		.loc 1 71 0
+ 18915 01d0 ADF83050 		strh	r5, [sp, #48]	@ movhi
+  73:TDC1304.c     **** 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+ 18916              		.loc 1 73 0
+ 18917 01d4 FFF7FEFF 		bl	TIM_TimeBaseInit
+  74:TDC1304.c     **** 	TIM_ITRxExternalClockConfig(TIM3, TIM_TS_ITR3); // TIM4 (master)-> TIM3(slave) (Table 84. TIMx Int
+ 18918              		.loc 1 74 0
+ 18919 01d8 3021     		movs	r1, #48
+ 18920 01da 2148     		ldr	r0, .L18+16
+ 18921 01dc FFF7FEFF 		bl	TIM_ITRxExternalClockConfig
+  75:TDC1304.c     **** 	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
+ 18922              		.loc 1 75 0
+ 18923 01e0 2021     		movs	r1, #32
+ 18924 01e2 1F48     		ldr	r0, .L18+16
+ 18925 01e4 FFF7FEFF 		bl	TIM_SelectOutputTrigger
+  77:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 18926              		.loc 1 77 0
+ 18927 01e8 8DF84E60 		strb	r6, [sp, #78]
+  79:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_SH;
+ 18928              		.loc 1 79 0
+ 18929 01ec 0220     		movs	r0, #2
+ 18930 01ee 16AE     		add	r6, sp, #88
+ 18931 01f0 26F80C0D 		strh	r0, [r6, #-12]!	@ movhi
+  78:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18932              		.loc 1 78 0
+ 18933 01f4 1827     		movs	r7, #24
+  80:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18934              		.loc 1 80 0
+ 18935 01f6 3146     		mov	r1, r6
+ 18936 01f8 1548     		ldr	r0, .L18
+  78:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18937              		.loc 1 78 0
+ 18938 01fa 8DF84F70 		strb	r7, [sp, #79]
+  80:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18939              		.loc 1 80 0
+ 18940 01fe FFF7FEFF 		bl	GPIO_Init
+  82:TDC1304.c     **** 	GPIO_PinRemapConfig(GPIO_FullRemap_TIM2, ENABLE);
+ 18941              		.loc 1 82 0
+ 18942 0202 2146     		mov	r1, r4
+ 18943 0204 1748     		ldr	r0, .L18+20
+ 18944 0206 FFF7FEFF 		bl	GPIO_PinRemapConfig
+  84:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Pin = PIN_SH;
+ 18945              		.loc 1 84 0
+ 18946 020a 0221     		movs	r1, #2
+ 18947 020c ADF84C10 		strh	r1, [sp, #76]	@ movhi
+  85:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18948              		.loc 1 85 0
+ 18949 0210 0F48     		ldr	r0, .L18
+ 18950 0212 3146     		mov	r1, r6
+  83:TDC1304.c     **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18951              		.loc 1 83 0
+ 18952 0214 8DF84F70 		strb	r7, [sp, #79]
+  85:TDC1304.c     **** 	GPIO_Init(PORT_TDC1304, &GPIO_InitStructure);
+ 18953              		.loc 1 85 0
+ 18954 0218 FFF7FEFF 		bl	GPIO_Init
+  88:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 18955              		.loc 1 88 0
+ 18956 021c 7023     		movs	r3, #112
+  91:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 2;
+ 18957              		.loc 1 91 0
+ 18958 021e 0222     		movs	r2, #2
+  93:TDC1304.c     **** 	TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+ 18959              		.loc 1 93 0
+ 18960 0220 08A9     		add	r1, sp, #32
+ 18961 0222 0F48     		ldr	r0, .L18+16
+  88:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+ 18962              		.loc 1 88 0
+ 18963 0224 ADF82030 		strh	r3, [sp, #32]	@ movhi
+  91:TDC1304.c     **** 	TIM_OCInitStructure.TIM_Pulse = 2;
+ 18964              		.loc 1 91 0
+ 18965 0228 ADF82620 		strh	r2, [sp, #38]	@ movhi
+  89:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18966              		.loc 1 89 0
+ 18967 022c ADF82240 		strh	r4, [sp, #34]	@ movhi
+  90:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
+ 18968              		.loc 1 90 0
+ 18969 0230 ADF82450 		strh	r5, [sp, #36]	@ movhi
+  92:TDC1304.c     **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 18970              		.loc 1 92 0
+ 18971 0234 ADF82850 		strh	r5, [sp, #40]	@ movhi
+  93:TDC1304.c     **** 	TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+ 18972              		.loc 1 93 0
+ 18973 0238 FFF7FEFF 		bl	TIM_OC4Init
+  94:TDC1304.c     **** 	TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+ 18974              		.loc 1 94 0
+ 18975 023c 0821     		movs	r1, #8
+ 18976 023e 0848     		ldr	r0, .L18+16
+ 18977 0240 FFF7FEFF 		bl	TIM_OC4PreloadConfig
+ 18978              	.LBE14:
+ 18979              	.LBE13:
+ 191:TDC1304.c     **** 	init_TCD1304_adc();
+ 192:TDC1304.c     ****  // start all
+ 193:TDC1304.c     **** 	TIM_Cmd(TIM1, ENABLE);
+ 18980              		.loc 1 194 0
+ 18981 0244 0348     		ldr	r0, .L18+4
+ 18982 0246 2146     		mov	r1, r4
+ 18983 0248 FFF7FEFF 		bl	TIM_Cmd
+ 194:TDC1304.c     **** }
+ 18984              		.loc 1 195 0
+ 18985 024c 17B0     		add	sp, sp, #92
+ 18986 024e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 18987              	.L19:
+ 18988              		.align	2
+ 18989              	.L18:
+ 18990 0250 000C0140 		.word	1073810432
+ 18991 0254 002C0140 		.word	1073818624
+ 18992 0258 00080040 		.word	1073743872
+ 18993 025c 00240140 		.word	1073816576
+ 18994 0260 00040040 		.word	1073742848
+ 18995 0264 00031800 		.word	1573632
+ 18996              	.LFE34:
+ 18998              		.section	.text.TIM1_UP_IRQHandler,"ax",%progbits
+ 18999              		.align	1
+ 19000              		.global	TIM1_UP_IRQHandler
+ 19001              		.thumb
+ 19002              		.thumb_func
+ 19004              	TIM1_UP_IRQHandler:
+ 19005              	.LFB36:
+ 195:TDC1304.c     **** 
+ 196:TDC1304.c     **** 
+ 197:TDC1304.c     **** inline static void init_TCD1304_ADCDMA() {
+ 198:TDC1304.c     **** 	DMA_InitTypeDef DMA_InitStructure;
+ 199:TDC1304.c     **** 	DMA_StructInit(&DMA_InitStructure);
+ 200:TDC1304.c     **** 	DMA_DeInit(DMA1_Channel1);
+ 201:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(((ADC_TypeDef*)ADC1_BASE)->DR);
+ 202:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)bufferADC_DMA_TCD1304;
+ 203:TDC1304.c     **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+ 204:TDC1304.c     **** 	DMA_InitStructure.DMA_BufferSize = TCD1304_BUFFER_SZ;
+ 205:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+ 206:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 207:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // 16 bit
+ 208:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; //16 bit
+ 209:TDC1304.c     **** 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+ 210:TDC1304.c     **** 	DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+ 211:TDC1304.c     **** 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+ 212:TDC1304.c     **** 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+ 213:TDC1304.c     **** 
+ 214:TDC1304.c     **** 	DMA1_Channel1->CCR |= CCR_ENABLE_Set; //DMA_Cmd(DMA1_Channel1, ENABLE);
+ 215:TDC1304.c     **** 	DMA1_Channel1->CCR |= DMA_IT_TC; //DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+ 216:TDC1304.c     **** 	ADC1->CR2 |= CR2_DMA_Set; //ADC_DMACmd(ADC1, ENABLE);
+ 217:TDC1304.c     **** 	ADC1->CR2 |= CR2_ADON_Set; //ADC_Cmd(ADC1, ENABLE);
+ 218:TDC1304.c     **** }
+ 219:TDC1304.c     **** 
+ 220:TDC1304.c     **** 
+ 221:TDC1304.c     **** void TIM1_UP_IRQHandler(void) {
+ 19006              		.loc 1 222 0
+ 19007              		@ args = 0, pretend = 0, frame = 48
+ 19008              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19009 0000 70B5     		push	{r4, r5, r6, lr}
+ 19010              	.LCFI4:
+ 19011 0002 8CB0     		sub	sp, sp, #48
+ 19012              	.LCFI5:
+ 19013              	.LBB15:
+ 19014              	.LBB18:
+ 201:TDC1304.c     **** 	DMA_DeInit(DMA1_Channel1);
+ 19015              		.loc 1 201 0
+ 19016 0004 274D     		ldr	r5, .L21
+ 19017              	.LBE18:
+ 19018              	.LBE15:
+ 222:TDC1304.c     **** 	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+ 19019              		.loc 1 223 0
+ 19020 0006 0121     		movs	r1, #1
+ 19021              	.LBB22:
+ 19022              	.LBB19:
+ 200:TDC1304.c     **** 	DMA_StructInit(&DMA_InitStructure);
+ 19023              		.loc 1 200 0
+ 19024 0008 01AE     		add	r6, sp, #4
+ 19025              	.LBE19:
+ 19026              	.LBE22:
+ 19027              		.loc 1 223 0
+ 19028 000a 2748     		ldr	r0, .L21+4
+ 19029 000c FFF7FEFF 		bl	TIM_ClearITPendingBit
+ 19030              	.LBB23:
+ 19031              	.LBB17:
+ 200:TDC1304.c     **** 	DMA_StructInit(&DMA_InitStructure);
+ 19032              		.loc 1 200 0
+ 19033 0010 3046     		mov	r0, r6
+ 19034 0012 FFF7FEFF 		bl	DMA_StructInit
+ 201:TDC1304.c     **** 	DMA_DeInit(DMA1_Channel1);
+ 19035              		.loc 1 201 0
+ 19036 0016 2846     		mov	r0, r5
+ 19037 0018 FFF7FEFF 		bl	DMA_DeInit
+ 203:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)bufferADC_DMA_TCD1304;
+ 19038              		.loc 1 203 0
+ 19039 001c 234C     		ldr	r4, .L21+8
+ 207:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 19040              		.loc 1 207 0
+ 19041 001e 8023     		movs	r3, #128
+ 208:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // 16 bit
+ 19042              		.loc 1 208 0
+ 19043 0020 D818     		adds	r0, r3, r3
+ 202:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(((ADC_TypeDef*)ADC1_BASE)->DR);
+ 19044              		.loc 1 202 0
+ 19045 0022 DFF88CC0 		ldr	ip, .L21+12
+ 205:TDC1304.c     **** 	DMA_InitStructure.DMA_BufferSize = TCD1304_BUFFER_SZ;
+ 19046              		.loc 1 205 0
+ 19047 0026 40F66E61 		movw	r1, #3694
+ 209:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; //16 bit
+ 19048              		.loc 1 209 0
+ 19049 002a 00F54072 		add	r2, r0, #768
+ 203:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)bufferADC_DMA_TCD1304;
+ 19050              		.loc 1 203 0
+ 19051 002e 0294     		str	r4, [sp, #8]
+ 205:TDC1304.c     **** 	DMA_InitStructure.DMA_BufferSize = TCD1304_BUFFER_SZ;
+ 19052              		.loc 1 205 0
+ 19053 0030 0491     		str	r1, [sp, #16]
+ 204:TDC1304.c     **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+ 19054              		.loc 1 204 0
+ 19055 0032 0024     		movs	r4, #0
+ 208:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // 16 bit
+ 19056              		.loc 1 208 0
+ 19057 0034 0790     		str	r0, [sp, #28]
+ 213:TDC1304.c     **** 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+ 19058              		.loc 1 213 0
+ 19059 0036 3146     		mov	r1, r6
+ 19060 0038 2846     		mov	r0, r5
+ 202:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(((ADC_TypeDef*)ADC1_BASE)->DR);
+ 19061              		.loc 1 202 0
+ 19062 003a CDF804C0 		str	ip, [sp, #4]
+ 204:TDC1304.c     **** 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+ 19063              		.loc 1 204 0
+ 19064 003e 0394     		str	r4, [sp, #12]
+ 206:TDC1304.c     **** 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+ 19065              		.loc 1 206 0
+ 19066 0040 0594     		str	r4, [sp, #20]
+ 207:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 19067              		.loc 1 207 0
+ 19068 0042 0693     		str	r3, [sp, #24]
+ 209:TDC1304.c     **** 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; //16 bit
+ 19069              		.loc 1 209 0
+ 19070 0044 0892     		str	r2, [sp, #32]
+ 210:TDC1304.c     **** 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+ 19071              		.loc 1 210 0
+ 19072 0046 0994     		str	r4, [sp, #36]
+ 211:TDC1304.c     **** 	DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+ 19073              		.loc 1 211 0
+ 19074 0048 0A94     		str	r4, [sp, #40]
+ 212:TDC1304.c     **** 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+ 19075              		.loc 1 212 0
+ 19076 004a 0B94     		str	r4, [sp, #44]
+ 213:TDC1304.c     **** 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+ 19077              		.loc 1 213 0
+ 19078 004c FFF7FEFF 		bl	DMA_Init
+ 215:TDC1304.c     **** 	DMA1_Channel1->CCR |= CCR_ENABLE_Set; //DMA_Cmd(DMA1_Channel1, ENABLE);
+ 19079              		.loc 1 215 0
+ 19080 0050 D5F800C0 		ldr	ip, [r5, #0]
+ 19081 0054 4CF00101 		orr	r1, ip, #1
+ 19082 0058 2960     		str	r1, [r5, #0]
+ 216:TDC1304.c     **** 	DMA1_Channel1->CCR |= DMA_IT_TC; //DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+ 19083              		.loc 1 216 0
+ 19084 005a 2B68     		ldr	r3, [r5, #0]
+ 19085 005c 43F00200 		orr	r0, r3, #2
+ 19086 0060 2860     		str	r0, [r5, #0]
+ 217:TDC1304.c     **** 	ADC1->CR2 |= CR2_DMA_Set; //ADC_DMACmd(ADC1, ENABLE);
+ 19087              		.loc 1 217 0
+ 19088 0062 1448     		ldr	r0, .L21+16
+ 19089              	.LBE17:
+ 19090              	.LBE23:
+ 223:TDC1304.c     **** 	init_TCD1304_ADCDMA();
+ 224:TDC1304.c     **** 
+ 225:TDC1304.c     **** #ifdef ENABLE_DBG_PIN
+ 226:TDC1304.c     **** 	PORT_TDC1304->BSRR = PIN_DBG;
+ 19091              		.loc 1 227 0
+ 19092 0064 144B     		ldr	r3, .L21+20
+ 19093              	.LBB24:
+ 19094              	.LBB20:
+ 217:TDC1304.c     **** 	ADC1->CR2 |= CR2_DMA_Set; //ADC_DMACmd(ADC1, ENABLE);
+ 19095              		.loc 1 217 0
+ 19096 0066 8268     		ldr	r2, [r0, #8]
+ 19097 0068 42F4807C 		orr	ip, r2, #256
+ 19098 006c C0F808C0 		str	ip, [r0, #8]
+ 218:TDC1304.c     **** 	ADC1->CR2 |= CR2_ADON_Set; //ADC_Cmd(ADC1, ENABLE);
+ 19099              		.loc 1 218 0
+ 19100 0070 8568     		ldr	r5, [r0, #8]
+ 19101              	.LBE20:
+ 19102              	.LBE24:
+ 19103              		.loc 1 227 0
+ 19104 0072 4FF40072 		mov	r2, #512
+ 19105              	.LBB25:
+ 19106              	.LBB16:
+ 218:TDC1304.c     **** 	ADC1->CR2 |= CR2_ADON_Set; //ADC_Cmd(ADC1, ENABLE);
+ 19107              		.loc 1 218 0
+ 19108 0076 45F00101 		orr	r1, r5, #1
+ 19109              	.LBE16:
+ 19110              	.LBE25:
+ 227:TDC1304.c     **** #endif
+ 228:TDC1304.c     **** 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+ 229:TDC1304.c     **** 	TIM3->CNT = 0; TIM2->CNT = 1;
+ 19111              		.loc 1 230 0
+ 19112 007a 104D     		ldr	r5, .L21+24
+ 19113              	.LBB26:
+ 19114              	.LBB21:
+ 218:TDC1304.c     **** 	ADC1->CR2 |= CR2_ADON_Set; //ADC_Cmd(ADC1, ENABLE);
+ 19115              		.loc 1 218 0
+ 19116 007c 8160     		str	r1, [r0, #8]
+ 19117              	.LBE21:
+ 19118              	.LBE26:
+ 227:TDC1304.c     **** #endif
+ 19119              		.loc 1 227 0
+ 19120 007e 1A61     		str	r2, [r3, #16]
+ 229:TDC1304.c     **** 	TIM3->CNT = 0; TIM2->CNT = 1;
+ 19121              		.loc 1 229 0
+ 19122 0080 0121     		movs	r1, #1
+ 19123 0082 FFF7FEFF 		bl	ADC_ExternalTrigConvCmd
+ 19124              		.loc 1 230 0
+ 19125 0086 AC84     		strh	r4, [r5, #36]	@ movhi
+ 19126 0088 4FF08040 		mov	r0, #1073741824
+ 19127 008c 0134     		adds	r4, r4, #1
+ 19128 008e 8484     		strh	r4, [r0, #36]	@ movhi
+ 230:TDC1304.c     **** 	TIM_Cmd(TIM2, ENABLE);
+ 19129              		.loc 1 231 0
+ 19130 0090 2146     		mov	r1, r4
+ 19131 0092 FFF7FEFF 		bl	TIM_Cmd
+ 231:TDC1304.c     **** 	TIM_Cmd(TIM3, ENABLE);
+ 19132              		.loc 1 232 0
+ 19133 0096 2846     		mov	r0, r5
+ 19134 0098 2146     		mov	r1, r4
+ 19135 009a FFF7FEFF 		bl	TIM_Cmd
+ 232:TDC1304.c     **** }
+ 19136              		.loc 1 233 0
+ 19137 009e 0CB0     		add	sp, sp, #48
+ 19138 00a0 70BD     		pop	{r4, r5, r6, pc}
+ 19139              	.L22:
+ 19140 00a2 00BF     		.align	2
+ 19141              	.L21:
+ 19142 00a4 08000240 		.word	1073872904
+ 19143 00a8 002C0140 		.word	1073818624
+ 19144 00ac 00000000 		.word	.LANCHOR2
+ 19145 00b0 4C240140 		.word	1073816652
+ 19146 00b4 00240140 		.word	1073816576
+ 19147 00b8 000C0140 		.word	1073810432
+ 19148 00bc 00040040 		.word	1073742848
+ 19149              	.LFE36:
+ 19151              		.section	.text.DMA1_Channel1_IRQHandler,"ax",%progbits
+ 19152              		.align	1
+ 19153              		.global	DMA1_Channel1_IRQHandler
+ 19154              		.thumb
+ 19155              		.thumb_func
+ 19157              	DMA1_Channel1_IRQHandler:
+ 19158              	.LFB37:
+ 233:TDC1304.c     **** 
+ 234:TDC1304.c     **** 
+ 235:TDC1304.c     **** void DMA1_Channel1_IRQHandler(void){
+ 19159              		.loc 1 236 0
+ 19160              		@ args = 0, pretend = 0, frame = 0
+ 19161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19162 0000 10B5     		push	{r4, lr}
+ 19163              	.LCFI6:
+ 236:TDC1304.c     **** 	if(DMA_GetITStatus(DMA1_IT_TC1)) {
+ 19164              		.loc 1 237 0
+ 19165 0002 0220     		movs	r0, #2
+ 19166 0004 FFF7FEFF 		bl	DMA_GetITStatus
+ 19167 0008 0028     		cmp	r0, #0
+ 19168 000a 40D0     		beq	.L23
+ 237:TDC1304.c     **** 		TIM_Cmd(TIM3, DISABLE);
+ 19169              		.loc 1 238 0
+ 19170 000c 2048     		ldr	r0, .L30
+ 19171 000e 0021     		movs	r1, #0
+ 19172 0010 FFF7FEFF 		bl	TIM_Cmd
+ 238:TDC1304.c     **** 		TIM_Cmd(TIM2, DISABLE);
+ 19173              		.loc 1 239 0
+ 19174 0014 0021     		movs	r1, #0
+ 19175 0016 4FF08040 		mov	r0, #1073741824
+ 19176 001a FFF7FEFF 		bl	TIM_Cmd
+ 239:TDC1304.c     **** 		DMA_ClearITPendingBit(DMA1_IT_TC1);
+ 19177              		.loc 1 240 0
+ 19178 001e 0220     		movs	r0, #2
+ 19179 0020 FFF7FEFF 		bl	DMA_ClearITPendingBit
+ 240:TDC1304.c     **** 		DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, DISABLE);
+ 19180              		.loc 1 241 0
+ 19181 0024 0022     		movs	r2, #0
+ 19182 0026 1B48     		ldr	r0, .L30+4
+ 19183 0028 0221     		movs	r1, #2
+ 19184 002a FFF7FEFF 		bl	DMA_ITConfig
+ 241:TDC1304.c     **** 		ADC_DMACmd(ADC1, DISABLE);
+ 19185              		.loc 1 242 0
+ 19186 002e 1A48     		ldr	r0, .L30+8
+ 19187 0030 0021     		movs	r1, #0
+ 19188 0032 FFF7FEFF 		bl	ADC_DMACmd
+ 242:TDC1304.c     **** 		ADC_Cmd(ADC1, DISABLE);
+ 19189              		.loc 1 243 0
+ 19190 0036 1848     		ldr	r0, .L30+8
+ 19191 0038 0021     		movs	r1, #0
+ 19192 003a FFF7FEFF 		bl	ADC_Cmd
+ 243:TDC1304.c     **** 
+ 244:TDC1304.c     **** 		if(!isDataReady) {
+ 19193              		.loc 1 245 0
+ 19194 003e 174B     		ldr	r3, .L30+12
+ 19195 0040 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 19196 0042 F3B9     		cbnz	r3, .L25
+ 19197              	.LBB27:
+ 245:TDC1304.c     **** 			for(int i = 0; i < TCD1304_BUFFER_SZ; i++) dataTCD1304[i] += bufferADC_DMA_TCD1304[i];
+ 19198              		.loc 1 246 0 discriminator 2
+ 19199 0044 164A     		ldr	r2, .L30+16
+ 19200 0046 1748     		ldr	r0, .L30+20
+ 19201 0048 41F6DC41 		movw	r1, #7388
+ 19202              	.L26:
+ 19203 004c 32F803E0 		ldrh	lr, [r2, r3]
+ 19204 0050 C45A     		ldrh	r4, [r0, r3]
+ 19205 0052 04EB0E0C 		add	ip, r4, lr
+ 19206 0056 22F803C0 		strh	ip, [r2, r3]	@ movhi
+ 19207              	.LVL3:
+ 19208 005a 0233     		adds	r3, r3, #2
+ 19209 005c 8B42     		cmp	r3, r1
+ 19210 005e F5D1     		bne	.L26
+ 19211              	.LBE27:
+ 246:TDC1304.c     **** 			cntOver++;
+ 19212              		.loc 1 247 0
+ 19213 0060 1149     		ldr	r1, .L30+24
+ 19214 0062 0868     		ldr	r0, [r1, #0]
+ 19215 0064 421C     		adds	r2, r0, #1
+ 247:TDC1304.c     **** 			if(cntOver >= MAX_OVER) {
+ 19216              		.loc 1 248 0
+ 19217 0066 032A     		cmp	r2, #3
+ 247:TDC1304.c     **** 			if(cntOver >= MAX_OVER) {
+ 19218              		.loc 1 247 0
+ 19219 0068 0A60     		str	r2, [r1, #0]
+ 19220              		.loc 1 248 0
+ 19221 006a 0ADD     		ble	.L25
+ 19222 006c 0C4A     		ldr	r2, .L30+16
+ 236:TDC1304.c     **** void DMA1_Channel1_IRQHandler(void){
+ 19223              		.loc 1 236 0
+ 19224 006e D318     		adds	r3, r2, r3
+ 19225              	.L27:
+ 19226              	.LBB28:
+ 248:TDC1304.c     **** 				for(int i = 0; i < TCD1304_BUFFER_SZ; i++) dataTCD1304[i] = dataTCD1304[i] / MAX_OVER;
+ 19227              		.loc 1 249 0 discriminator 2
+ 19228 0070 1088     		ldrh	r0, [r2, #0]
+ 19229 0072 8108     		lsrs	r1, r0, #2
+ 19230 0074 22F8021B 		strh	r1, [r2], #2	@ movhi
+ 19231              	.LVL4:
+ 19232 0078 9A42     		cmp	r2, r3
+ 19233 007a F9D1     		bne	.L27
+ 19234              	.LBE28:
+ 249:TDC1304.c     **** 				isDataReady = TRUE;
+ 19235              		.loc 1 250 0
+ 19236 007c 074B     		ldr	r3, .L30+12
+ 19237 007e 0122     		movs	r2, #1
+ 19238 0080 1A70     		strb	r2, [r3, #0]
+ 19239              	.LVL5:
+ 19240              	.L25:
+ 250:TDC1304.c     **** 			}
+ 251:TDC1304.c     **** 		}
+ 252:TDC1304.c     **** #ifdef ENABLE_DBG_PIN
+ 253:TDC1304.c     **** 		PORT_TDC1304->BRR = PIN_DBG;
+ 19241              		.loc 1 254 0
+ 19242 0082 DFF828E0 		ldr	lr, .L30+28
+ 19243 0086 4FF4007C 		mov	ip, #512
+ 19244 008a CEF814C0 		str	ip, [lr, #20]
+ 19245              	.L23:
+ 254:TDC1304.c     **** #endif
+ 255:TDC1304.c     **** 	}
+ 256:TDC1304.c     **** }
+ 19246              		.loc 1 257 0
+ 19247 008e 10BD     		pop	{r4, pc}
+ 19248              	.L31:
+ 19249              		.align	2
+ 19250              	.L30:
+ 19251 0090 00040040 		.word	1073742848
+ 19252 0094 08000240 		.word	1073872904
+ 19253 0098 00240140 		.word	1073816576
+ 19254 009c 00000000 		.word	.LANCHOR0
+ 19255 00a0 00000000 		.word	dataTCD1304
+ 19256 00a4 00000000 		.word	.LANCHOR2
+ 19257 00a8 00000000 		.word	.LANCHOR1
+ 19258 00ac 000C0140 		.word	1073810432
+ 19259              	.LFE37:
+ 19261              		.comm	dataTCD1304,7388,4
+ 19262              		.section	.bss.isDataReady,"aw",%nobits
+ 19263              		.set	.LANCHOR0,. + 0
+ 19266              	isDataReady:
+ 19267 0000 00       		.space	1
+ 19268              		.section	.bss.cntOver,"aw",%nobits
+ 19269              		.align	2
+ 19270              		.set	.LANCHOR1,. + 0
+ 19273              	cntOver:
+ 19274 0000 00000000 		.space	4
+ 19275              		.section	.bss.bufferADC_DMA_TCD1304,"aw",%nobits
+ 19276              		.align	2
+ 19277              		.set	.LANCHOR2,. + 0
+ 19280              	bufferADC_DMA_TCD1304:
+ 19281 0000 00000000 		.space	7388
+ 19281      00000000 
+ 19281      00000000 
+ 19281      00000000 
+ 19281      00000000 
+ 19402              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 TDC1304.c
+  d:\Temp\ccC5D7Nj.s:18453  .text.isDataReadyTCD1304:00000000 $t
+  d:\Temp\ccC5D7Nj.s:18458  .text.isDataReadyTCD1304:00000000 isDataReadyTCD1304
+  d:\Temp\ccC5D7Nj.s:18472  .text.isDataReadyTCD1304:00000008 $d
+  d:\Temp\ccC5D7Nj.s:18476  .text.setWaitDataReadyTCD1304:00000000 $t
+  d:\Temp\ccC5D7Nj.s:18481  .text.setWaitDataReadyTCD1304:00000000 setWaitDataReadyTCD1304
+  d:\Temp\ccC5D7Nj.s:18513  .text.setWaitDataReadyTCD1304:0000001c $d
+                            *COM*:00001cdc dataTCD1304
+  d:\Temp\ccC5D7Nj.s:18520  .text.init_ICG_TIM2_CH3:00000000 $t
+  d:\Temp\ccC5D7Nj.s:18525  .text.init_ICG_TIM2_CH3:00000000 init_ICG_TIM2_CH3
+  d:\Temp\ccC5D7Nj.s:18621  .text.init_ICG_TIM2_CH3:000000a4 $d
+  d:\Temp\ccC5D7Nj.s:18626  .text.initTCD1304:00000000 $t
+  d:\Temp\ccC5D7Nj.s:18631  .text.initTCD1304:00000000 initTCD1304
+  d:\Temp\ccC5D7Nj.s:18990  .text.initTCD1304:00000250 $d
+  d:\Temp\ccC5D7Nj.s:18999  .text.TIM1_UP_IRQHandler:00000000 $t
+  d:\Temp\ccC5D7Nj.s:19004  .text.TIM1_UP_IRQHandler:00000000 TIM1_UP_IRQHandler
+  d:\Temp\ccC5D7Nj.s:19142  .text.TIM1_UP_IRQHandler:000000a4 $d
+  d:\Temp\ccC5D7Nj.s:19152  .text.DMA1_Channel1_IRQHandler:00000000 $t
+  d:\Temp\ccC5D7Nj.s:19157  .text.DMA1_Channel1_IRQHandler:00000000 DMA1_Channel1_IRQHandler
+  d:\Temp\ccC5D7Nj.s:19251  .text.DMA1_Channel1_IRQHandler:00000090 $d
+  d:\Temp\ccC5D7Nj.s:19266  .bss.isDataReady:00000000 isDataReady
+  d:\Temp\ccC5D7Nj.s:19267  .bss.isDataReady:00000000 $d
+  d:\Temp\ccC5D7Nj.s:19269  .bss.cntOver:00000000 $d
+  d:\Temp\ccC5D7Nj.s:19273  .bss.cntOver:00000000 cntOver
+  d:\Temp\ccC5D7Nj.s:19276  .bss.bufferADC_DMA_TCD1304:00000000 $d
+  d:\Temp\ccC5D7Nj.s:19280  .bss.bufferADC_DMA_TCD1304:00000000 bufferADC_DMA_TCD1304
+  d:\Temp\ccC5D7Nj.s:19295  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+GPIO_PinRemapConfig
+GPIO_Init
+RCC_APB1PeriphClockCmd
+TIM_TimeBaseStructInit
+TIM_TimeBaseInit
+TIM_ARRPreloadConfig
+TIM_ITRxExternalClockConfig
+TIM_SelectOnePulseMode
+TIM_OC3Init
+TIM_OC3PreloadConfig
+TIM_CtrlPWMOutputs
+RCC_APB2PeriphClockCmd
+NVIC_PriorityGroupConfig
+NVIC_Init
+TIM_ITConfig
+TIM_SelectOutputTrigger
+TIM_Cmd
+RCC_AHBPeriphClockCmd
+ADC_DeInit
+ADC_Init
+ADC_RegularChannelConfig
+ADC_Cmd
+ADC_ResetCalibration
+ADC_GetResetCalibrationStatus
+ADC_StartCalibration
+ADC_GetCalibrationStatus
+TIM_OC4Init
+TIM_OC4PreloadConfig
+TIM_ClearITPendingBit
+DMA_StructInit
+DMA_DeInit
+DMA_Init
+ADC_ExternalTrigConvCmd
+DMA_GetITStatus
+DMA_ClearITPendingBit
+DMA_ITConfig
+ADC_DMACmd

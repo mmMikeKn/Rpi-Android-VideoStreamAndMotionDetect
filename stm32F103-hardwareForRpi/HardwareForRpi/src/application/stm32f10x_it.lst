@@ -1,0 +1,2001 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"stm32f10x_it.c"
+  23              	.Ltext0:
+  24              		.file 1 "stm32f10x_it.c"
+ 18721              		.align	1
+ 18722              		.global	NMIException
+ 18723              		.thumb
+ 18724              		.thumb_func
+ 18726              	NMIException:
+ 18727              	.LFB27:
+   0:stm32f10x_it.c **** /******************** (C) COPYRIGHT 2008 STMicroelectronics ********************
+   1:stm32f10x_it.c ****  * File Name          : stm32f10x_it.c
+   2:stm32f10x_it.c ****  * Author             : MCD Application Team
+   3:stm32f10x_it.c ****  * Version            : V2.2.1
+   4:stm32f10x_it.c ****  * Date               : 09/22/2008
+   5:stm32f10x_it.c ****  * Description        : Main Interrupt Service Routines.
+   6:stm32f10x_it.c ****  *                      This file provides template for all exceptions handler
+   7:stm32f10x_it.c ****  *                      and peripherals interrupt service routine.
+   8:stm32f10x_it.c ****  ********************************************************************************
+   9:stm32f10x_it.c ****  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  10:stm32f10x_it.c ****  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE TIME.
+  11:stm32f10x_it.c ****  * AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY DIRECT,
+  12:stm32f10x_it.c ****  * INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE
+  13:stm32f10x_it.c ****  * CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING
+  14:stm32f10x_it.c ****  * INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  15:stm32f10x_it.c ****  *******************************************************************************/
+  16:stm32f10x_it.c **** 
+  17:stm32f10x_it.c **** /* Includes ------------------------------------------------------------------*/
+  18:stm32f10x_it.c **** #include "stm32f10x_it.h"
+  19:stm32f10x_it.c **** #include <stm32f10x_usart.h>
+  20:stm32f10x_it.c **** 
+  21:stm32f10x_it.c **** #include "global.h"
+  22:stm32f10x_it.c **** 
+  23:stm32f10x_it.c **** /* Private typedef -----------------------------------------------------------*/
+  24:stm32f10x_it.c **** /* Private define ------------------------------------------------------------*/
+  25:stm32f10x_it.c **** /* Private macro -------------------------------------------------------------*/
+  26:stm32f10x_it.c **** /* Private variables ---------------------------------------------------------*/
+  27:stm32f10x_it.c **** /* Private function prototypes -----------------------------------------------*/
+  28:stm32f10x_it.c **** /* Private functions ---------------------------------------------------------*/
+  29:stm32f10x_it.c **** 
+  30:stm32f10x_it.c **** /*******************************************************************************
+  31:stm32f10x_it.c ****  * Function Name  : NMIException
+  32:stm32f10x_it.c ****  * Description    : This function handles NMI exception.
+  33:stm32f10x_it.c ****  * Input          : None
+  34:stm32f10x_it.c ****  * Output         : None
+  35:stm32f10x_it.c ****  * Return         : None
+  36:stm32f10x_it.c ****  *******************************************************************************/
+  37:stm32f10x_it.c **** void NMIException(void) {
+ 18728              		.loc 1 38 0
+ 18729              		@ args = 0, pretend = 0, frame = 0
+ 18730              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18731              		@ link register save eliminated.
+  38:stm32f10x_it.c **** }
+ 18732              		.loc 1 39 0
+ 18733 0000 7047     		bx	lr
+ 18734              	.LFE27:
+ 18736              		.section	.text.HardFaultException,"ax",%progbits
+ 18737              		.align	1
+ 18738              		.global	HardFaultException
+ 18739              		.thumb
+ 18740              		.thumb_func
+ 18742              	HardFaultException:
+ 18743              	.LFB28:
+  39:stm32f10x_it.c **** 
+  40:stm32f10x_it.c **** /*******************************************************************************
+  41:stm32f10x_it.c ****  * Function Name  : HardFaultException
+  42:stm32f10x_it.c ****  * Description    : This function handles Hard Fault exception.
+  43:stm32f10x_it.c ****  * Input          : None
+  44:stm32f10x_it.c ****  * Output         : None
+  45:stm32f10x_it.c ****  * Return         : None
+  46:stm32f10x_it.c ****  *******************************************************************************/
+  47:stm32f10x_it.c **** void HardFaultException(void) {
+ 18744              		.loc 1 48 0
+ 18745              		@ args = 0, pretend = 0, frame = 0
+ 18746              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18747              		@ link register save eliminated.
+ 18748              	.L3:
+  48:stm32f10x_it.c **** 	/* Go to infinite loop when Hard Fault exception occurs */
+  49:stm32f10x_it.c **** 	while (1) {
+  50:stm32f10x_it.c **** 		asm volatile ("nop");
+ 18749              		.loc 1 51 0 discriminator 1
+ 18750              	@ 51 "stm32f10x_it.c" 1
+ 18751 0000 00BF     		nop
+ 18752              	@ 0 "" 2
+ 18753              		.thumb
+ 18754 0002 FDE7     		b	.L3
+ 18755              	.LFE28:
+ 18757              		.section	.text.MemManageException,"ax",%progbits
+ 18758              		.align	1
+ 18759              		.global	MemManageException
+ 18760              		.thumb
+ 18761              		.thumb_func
+ 18763              	MemManageException:
+ 18764              	.LFB29:
+  51:stm32f10x_it.c **** 	}
+  52:stm32f10x_it.c **** }
+  53:stm32f10x_it.c **** 
+  54:stm32f10x_it.c **** /*******************************************************************************
+  55:stm32f10x_it.c ****  * Function Name  : MemManageException
+  56:stm32f10x_it.c ****  * Description    : This function handles Memory Manage exception.
+  57:stm32f10x_it.c ****  * Input          : None
+  58:stm32f10x_it.c ****  * Output         : None
+  59:stm32f10x_it.c ****  * Return         : None
+  60:stm32f10x_it.c ****  *******************************************************************************/
+  61:stm32f10x_it.c **** void MemManageException(void) {
+ 18765              		.loc 1 62 0
+ 18766              		@ args = 0, pretend = 0, frame = 0
+ 18767              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18768              		@ link register save eliminated.
+ 18769              	.L5:
+ 18770 0000 FEE7     		b	.L5
+ 18771              	.LFE29:
+ 18773              		.section	.text.BusFaultException,"ax",%progbits
+ 18774              		.align	1
+ 18775              		.global	BusFaultException
+ 18776              		.thumb
+ 18777              		.thumb_func
+ 18779              	BusFaultException:
+ 18780              	.LFB30:
+  62:stm32f10x_it.c **** 	/* Go to infinite loop when Memory Manage exception occurs */
+  63:stm32f10x_it.c **** 	while (1) {
+  64:stm32f10x_it.c **** 	}
+  65:stm32f10x_it.c **** }
+  66:stm32f10x_it.c **** 
+  67:stm32f10x_it.c **** /*******************************************************************************
+  68:stm32f10x_it.c ****  * Function Name  : BusFaultException
+  69:stm32f10x_it.c ****  * Description    : This function handles Bus Fault exception.
+  70:stm32f10x_it.c ****  * Input          : None
+  71:stm32f10x_it.c ****  * Output         : None
+  72:stm32f10x_it.c ****  * Return         : None
+  73:stm32f10x_it.c ****  *******************************************************************************/
+  74:stm32f10x_it.c **** void BusFaultException(void) {
+ 18781              		.loc 1 75 0
+ 18782              		@ args = 0, pretend = 0, frame = 0
+ 18783              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18784              		@ link register save eliminated.
+ 18785              	.L7:
+ 18786 0000 FEE7     		b	.L7
+ 18787              	.LFE30:
+ 18789              		.section	.text.UsageFaultException,"ax",%progbits
+ 18790              		.align	1
+ 18791              		.global	UsageFaultException
+ 18792              		.thumb
+ 18793              		.thumb_func
+ 18795              	UsageFaultException:
+ 18796              	.LFB31:
+  75:stm32f10x_it.c **** 	/* Go to infinite loop when Bus Fault exception occurs */
+  76:stm32f10x_it.c **** 	while (1) {
+  77:stm32f10x_it.c **** 	}
+  78:stm32f10x_it.c **** }
+  79:stm32f10x_it.c **** 
+  80:stm32f10x_it.c **** /*******************************************************************************
+  81:stm32f10x_it.c ****  * Function Name  : UsageFaultException
+  82:stm32f10x_it.c ****  * Description    : This function handles Usage Fault exception.
+  83:stm32f10x_it.c ****  * Input          : None
+  84:stm32f10x_it.c ****  * Output         : None
+  85:stm32f10x_it.c ****  * Return         : None
+  86:stm32f10x_it.c ****  *******************************************************************************/
+  87:stm32f10x_it.c **** void UsageFaultException(void) {
+ 18797              		.loc 1 88 0
+ 18798              		@ args = 0, pretend = 0, frame = 0
+ 18799              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18800              		@ link register save eliminated.
+ 18801              	.L9:
+ 18802 0000 FEE7     		b	.L9
+ 18803              	.LFE31:
+ 18805              		.section	.text.DebugMonitor,"ax",%progbits
+ 18806              		.align	1
+ 18807              		.global	DebugMonitor
+ 18808              		.thumb
+ 18809              		.thumb_func
+ 18811              	DebugMonitor:
+ 18812              	.LFB32:
+  88:stm32f10x_it.c **** 	/* Go to infinite loop when Usage Fault exception occurs */
+  89:stm32f10x_it.c **** 	while (1) {
+  90:stm32f10x_it.c **** 	}
+  91:stm32f10x_it.c **** }
+  92:stm32f10x_it.c **** 
+  93:stm32f10x_it.c **** /*******************************************************************************
+  94:stm32f10x_it.c ****  * Function Name  : DebugMonitor
+  95:stm32f10x_it.c ****  * Description    : This function handles Debug Monitor exception.
+  96:stm32f10x_it.c ****  * Input          : None
+  97:stm32f10x_it.c ****  * Output         : None
+  98:stm32f10x_it.c ****  * Return         : None
+  99:stm32f10x_it.c ****  *******************************************************************************/
+ 100:stm32f10x_it.c **** void DebugMonitor(void) {
+ 18813              		.loc 1 101 0
+ 18814              		@ args = 0, pretend = 0, frame = 0
+ 18815              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18816              		@ link register save eliminated.
+ 101:stm32f10x_it.c **** }
+ 18817              		.loc 1 102 0
+ 18818 0000 7047     		bx	lr
+ 18819              	.LFE32:
+ 18821              		.section	.text.SVCHandler,"ax",%progbits
+ 18822              		.align	1
+ 18823              		.global	SVCHandler
+ 18824              		.thumb
+ 18825              		.thumb_func
+ 18827              	SVCHandler:
+ 18828              	.LFB33:
+ 102:stm32f10x_it.c **** 
+ 103:stm32f10x_it.c **** /*******************************************************************************
+ 104:stm32f10x_it.c ****  * Function Name  : SVCHandler
+ 105:stm32f10x_it.c ****  * Description    : This function handles SVCall exception.
+ 106:stm32f10x_it.c ****  * Input          : None
+ 107:stm32f10x_it.c ****  * Output         : None
+ 108:stm32f10x_it.c ****  * Return         : None
+ 109:stm32f10x_it.c ****  *******************************************************************************/
+ 110:stm32f10x_it.c **** void SVCHandler(void) {
+ 18829              		.loc 1 111 0
+ 18830              		@ args = 0, pretend = 0, frame = 0
+ 18831              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18832              		@ link register save eliminated.
+ 111:stm32f10x_it.c **** }
+ 18833              		.loc 1 112 0
+ 18834 0000 7047     		bx	lr
+ 18835              	.LFE33:
+ 18837              		.section	.text.PendSVC,"ax",%progbits
+ 18838              		.align	1
+ 18839              		.global	PendSVC
+ 18840              		.thumb
+ 18841              		.thumb_func
+ 18843              	PendSVC:
+ 18844              	.LFB34:
+ 112:stm32f10x_it.c **** 
+ 113:stm32f10x_it.c **** /*******************************************************************************
+ 114:stm32f10x_it.c ****  * Function Name  : PendSVC
+ 115:stm32f10x_it.c ****  * Description    : This function handles PendSVC exception.
+ 116:stm32f10x_it.c ****  * Input          : None
+ 117:stm32f10x_it.c ****  * Output         : None
+ 118:stm32f10x_it.c ****  * Return         : None
+ 119:stm32f10x_it.c ****  *******************************************************************************/
+ 120:stm32f10x_it.c **** void PendSVC(void) {
+ 18845              		.loc 1 121 0
+ 18846              		@ args = 0, pretend = 0, frame = 0
+ 18847              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18848              		@ link register save eliminated.
+ 121:stm32f10x_it.c **** }
+ 18849              		.loc 1 122 0
+ 18850 0000 7047     		bx	lr
+ 18851              	.LFE34:
+ 18853              		.section	.text.SysTickHandler,"ax",%progbits
+ 18854              		.align	1
+ 18855              		.global	SysTickHandler
+ 18856              		.thumb
+ 18857              		.thumb_func
+ 18859              	SysTickHandler:
+ 18860              	.LFB35:
+ 122:stm32f10x_it.c **** 
+ 123:stm32f10x_it.c **** /*******************************************************************************
+ 124:stm32f10x_it.c ****  * Function Name  : SysTickHandler
+ 125:stm32f10x_it.c ****  * Description    : This function handles SysTick Handler.
+ 126:stm32f10x_it.c ****  * Input          : None
+ 127:stm32f10x_it.c ****  * Output         : None
+ 128:stm32f10x_it.c ****  * Return         : None
+ 129:stm32f10x_it.c ****  *******************************************************************************/
+ 130:stm32f10x_it.c **** volatile uint32_t _sysTicks = 0;
+ 131:stm32f10x_it.c **** 
+ 132:stm32f10x_it.c **** volatile uint32_t _pwm_timeout;
+ 133:stm32f10x_it.c **** volatile uint32_t _torch_timeout;
+ 134:stm32f10x_it.c **** 
+ 135:stm32f10x_it.c **** void SysTickHandler(void) {
+ 18861              		.loc 1 136 0
+ 18862              		@ args = 0, pretend = 0, frame = 0
+ 18863              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18864 0000 08B5     		push	{r3, lr}
+ 18865              	.LCFI0:
+ 136:stm32f10x_it.c **** 	_sysTicks++;
+ 18866              		.loc 1 137 0
+ 18867 0002 194B     		ldr	r3, .L19
+ 18868 0004 1968     		ldr	r1, [r3, #0]
+ 18869 0006 481C     		adds	r0, r1, #1
+ 18870 0008 1860     		str	r0, [r3, #0]
+ 137:stm32f10x_it.c **** 	if (_pwm_timeout > 0) {
+ 18871              		.loc 1 138 0
+ 18872 000a 184B     		ldr	r3, .L19+4
+ 18873 000c 1A68     		ldr	r2, [r3, #0]
+ 18874 000e 32B1     		cbz	r2, .L14
+ 138:stm32f10x_it.c **** 		_pwm_timeout--;
+ 18875              		.loc 1 139 0
+ 18876 0010 1968     		ldr	r1, [r3, #0]
+ 18877 0012 481E     		subs	r0, r1, #1
+ 18878 0014 1860     		str	r0, [r3, #0]
+ 139:stm32f10x_it.c **** 		if (_pwm_timeout == 0)
+ 18879              		.loc 1 140 0
+ 18880 0016 1A68     		ldr	r2, [r3, #0]
+ 18881 0018 0AB9     		cbnz	r2, .L14
+ 140:stm32f10x_it.c **** 			motors_PWM_off_by_timer();
+ 18882              		.loc 1 141 0
+ 18883 001a FFF7FEFF 		bl	motors_PWM_off_by_timer
+ 18884              	.L14:
+ 141:stm32f10x_it.c **** 	}
+ 142:stm32f10x_it.c **** 
+ 143:stm32f10x_it.c **** 	if (_torch_timeout > 0) {
+ 18885              		.loc 1 144 0
+ 18886 001e 144B     		ldr	r3, .L19+8
+ 18887 0020 1A68     		ldr	r2, [r3, #0]
+ 18888 0022 A2B1     		cbz	r2, .L15
+ 144:stm32f10x_it.c **** 		if (_torch_timeout == 1) {
+ 18889              		.loc 1 145 0
+ 18890 0024 D3F800C0 		ldr	ip, [r3, #0]
+ 18891 0028 BCF1010F 		cmp	ip, #1
+ 18892 002c 08D1     		bne	.L16
+ 145:stm32f10x_it.c **** #ifdef LED_ENABLE
+ 146:stm32f10x_it.c **** 			DBG_LED_PORT->BSRR = DBG_LED_PIN;
+ 18893              		.loc 1 147 0
+ 18894 002e 1149     		ldr	r1, .L19+12
+ 18895 0030 4FF40052 		mov	r2, #8192
+ 147:stm32f10x_it.c **** #endif
+ 148:stm32f10x_it.c **** 			GPIOA->BRR = GPIO_Pin_7;
+ 18896              		.loc 1 149 0
+ 18897 0034 A2F5FC50 		sub	r0, r2, #8064
+ 18898 0038 A1F50063 		sub	r3, r1, #2048
+ 147:stm32f10x_it.c **** #endif
+ 18899              		.loc 1 147 0
+ 18900 003c 0A61     		str	r2, [r1, #16]
+ 18901              		.loc 1 149 0
+ 18902 003e 5861     		str	r0, [r3, #20]
+ 18903              	.L16:
+ 149:stm32f10x_it.c **** 		}
+ 150:stm32f10x_it.c **** 		_torch_timeout--;
+ 18904              		.loc 1 151 0
+ 18905 0040 DFF82CC0 		ldr	ip, .L19+8
+ 18906 0044 DCF80030 		ldr	r3, [ip, #0]
+ 18907 0048 581E     		subs	r0, r3, #1
+ 18908 004a CCF80000 		str	r0, [ip, #0]
+ 18909              	.L15:
+ 151:stm32f10x_it.c **** 	}
+ 152:stm32f10x_it.c **** 
+ 153:stm32f10x_it.c **** 	if ((_sysTicks % 1000) == 0) {
+ 18910              		.loc 1 154 0
+ 18911 004e 064B     		ldr	r3, .L19
+ 18912 0050 4FF47A70 		mov	r0, #1000
+ 18913 0054 1A68     		ldr	r2, [r3, #0]
+ 18914 0056 B2FBF0FC 		udiv	ip, r2, r0
+ 18915 005a 00FB1C21 		mls	r1, r0, ip, r2
+ 18916 005e 09B9     		cbnz	r1, .L13
+ 154:stm32f10x_it.c **** 		battery_monitor_fix();
+ 18917              		.loc 1 155 0
+ 18918 0060 FFF7FEFF 		bl	battery_monitor_fix
+ 18919              	.L13:
+ 155:stm32f10x_it.c **** 	}
+ 156:stm32f10x_it.c **** }
+ 18920              		.loc 1 157 0
+ 18921 0064 08BD     		pop	{r3, pc}
+ 18922              	.L20:
+ 18923 0066 00BF     		.align	2
+ 18924              	.L19:
+ 18925 0068 00000000 		.word	.LANCHOR0
+ 18926 006c 00000000 		.word	_pwm_timeout
+ 18927 0070 00000000 		.word	_torch_timeout
+ 18928 0074 00100140 		.word	1073811456
+ 18929              	.LFE35:
+ 18931              		.section	.text.WWDG_IRQHandler,"ax",%progbits
+ 18932              		.align	1
+ 18933              		.global	WWDG_IRQHandler
+ 18934              		.thumb
+ 18935              		.thumb_func
+ 18937              	WWDG_IRQHandler:
+ 18938              	.LFB36:
+ 157:stm32f10x_it.c **** 
+ 158:stm32f10x_it.c **** /*******************************************************************************
+ 159:stm32f10x_it.c ****  * Function Name  : WWDG_IRQHandler
+ 160:stm32f10x_it.c ****  * Description    : This function handles WWDG interrupt request.
+ 161:stm32f10x_it.c ****  * Input          : None
+ 162:stm32f10x_it.c ****  * Output         : None
+ 163:stm32f10x_it.c ****  * Return         : None
+ 164:stm32f10x_it.c ****  *******************************************************************************/
+ 165:stm32f10x_it.c **** void WWDG_IRQHandler(void) {
+ 18939              		.loc 1 166 0
+ 18940              		@ args = 0, pretend = 0, frame = 0
+ 18941              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18942              		@ link register save eliminated.
+ 166:stm32f10x_it.c **** }
+ 18943              		.loc 1 167 0
+ 18944 0000 7047     		bx	lr
+ 18945              	.LFE36:
+ 18947              		.section	.text.PVD_IRQHandler,"ax",%progbits
+ 18948              		.align	1
+ 18949              		.global	PVD_IRQHandler
+ 18950              		.thumb
+ 18951              		.thumb_func
+ 18953              	PVD_IRQHandler:
+ 18954              	.LFB37:
+ 167:stm32f10x_it.c **** 
+ 168:stm32f10x_it.c **** /*******************************************************************************
+ 169:stm32f10x_it.c ****  * Function Name  : PVD_IRQHandler
+ 170:stm32f10x_it.c ****  * Description    : This function handles PVD interrupt request.
+ 171:stm32f10x_it.c ****  * Input          : None
+ 172:stm32f10x_it.c ****  * Output         : None
+ 173:stm32f10x_it.c ****  * Return         : None
+ 174:stm32f10x_it.c ****  *******************************************************************************/
+ 175:stm32f10x_it.c **** void PVD_IRQHandler(void) {
+ 18955              		.loc 1 176 0
+ 18956              		@ args = 0, pretend = 0, frame = 0
+ 18957              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18958              		@ link register save eliminated.
+ 176:stm32f10x_it.c **** }
+ 18959              		.loc 1 177 0
+ 18960 0000 7047     		bx	lr
+ 18961              	.LFE37:
+ 18963              		.section	.text.TAMPER_IRQHandler,"ax",%progbits
+ 18964              		.align	1
+ 18965              		.global	TAMPER_IRQHandler
+ 18966              		.thumb
+ 18967              		.thumb_func
+ 18969              	TAMPER_IRQHandler:
+ 18970              	.LFB38:
+ 177:stm32f10x_it.c **** 
+ 178:stm32f10x_it.c **** /*******************************************************************************
+ 179:stm32f10x_it.c ****  * Function Name  : TAMPER_IRQHandler
+ 180:stm32f10x_it.c ****  * Description    : This function handles Tamper interrupt request.
+ 181:stm32f10x_it.c ****  * Input          : None
+ 182:stm32f10x_it.c ****  * Output         : None
+ 183:stm32f10x_it.c ****  * Return         : None
+ 184:stm32f10x_it.c ****  *******************************************************************************/
+ 185:stm32f10x_it.c **** void TAMPER_IRQHandler(void) {
+ 18971              		.loc 1 186 0
+ 18972              		@ args = 0, pretend = 0, frame = 0
+ 18973              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18974              		@ link register save eliminated.
+ 186:stm32f10x_it.c **** }
+ 18975              		.loc 1 187 0
+ 18976 0000 7047     		bx	lr
+ 18977              	.LFE38:
+ 18979              		.section	.text.RTC_IRQHandler,"ax",%progbits
+ 18980              		.align	1
+ 18981              		.global	RTC_IRQHandler
+ 18982              		.thumb
+ 18983              		.thumb_func
+ 18985              	RTC_IRQHandler:
+ 18986              	.LFB39:
+ 187:stm32f10x_it.c **** 
+ 188:stm32f10x_it.c **** /*******************************************************************************
+ 189:stm32f10x_it.c ****  * Function Name  : RTC_IRQHandler
+ 190:stm32f10x_it.c ****  * Description    : This function handles RTC global interrupt request.
+ 191:stm32f10x_it.c ****  * Input          : None
+ 192:stm32f10x_it.c ****  * Output         : None
+ 193:stm32f10x_it.c ****  * Return         : None
+ 194:stm32f10x_it.c ****  *******************************************************************************/
+ 195:stm32f10x_it.c **** void RTC_IRQHandler(void) {
+ 18987              		.loc 1 196 0
+ 18988              		@ args = 0, pretend = 0, frame = 0
+ 18989              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18990              		@ link register save eliminated.
+ 196:stm32f10x_it.c **** }
+ 18991              		.loc 1 197 0
+ 18992 0000 7047     		bx	lr
+ 18993              	.LFE39:
+ 18995              		.section	.text.FLASH_IRQHandler,"ax",%progbits
+ 18996              		.align	1
+ 18997              		.global	FLASH_IRQHandler
+ 18998              		.thumb
+ 18999              		.thumb_func
+ 19001              	FLASH_IRQHandler:
+ 19002              	.LFB40:
+ 197:stm32f10x_it.c **** 
+ 198:stm32f10x_it.c **** /*******************************************************************************
+ 199:stm32f10x_it.c ****  * Function Name  : FLASH_IRQHandler
+ 200:stm32f10x_it.c ****  * Description    : This function handles Flash interrupt request.
+ 201:stm32f10x_it.c ****  * Input          : None
+ 202:stm32f10x_it.c ****  * Output         : None
+ 203:stm32f10x_it.c ****  * Return         : None
+ 204:stm32f10x_it.c ****  *******************************************************************************/
+ 205:stm32f10x_it.c **** void FLASH_IRQHandler(void) {
+ 19003              		.loc 1 206 0
+ 19004              		@ args = 0, pretend = 0, frame = 0
+ 19005              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19006              		@ link register save eliminated.
+ 206:stm32f10x_it.c **** }
+ 19007              		.loc 1 207 0
+ 19008 0000 7047     		bx	lr
+ 19009              	.LFE40:
+ 19011              		.section	.text.RCC_IRQHandler,"ax",%progbits
+ 19012              		.align	1
+ 19013              		.global	RCC_IRQHandler
+ 19014              		.thumb
+ 19015              		.thumb_func
+ 19017              	RCC_IRQHandler:
+ 19018              	.LFB41:
+ 207:stm32f10x_it.c **** 
+ 208:stm32f10x_it.c **** /*******************************************************************************
+ 209:stm32f10x_it.c ****  * Function Name  : RCC_IRQHandler
+ 210:stm32f10x_it.c ****  * Description    : This function handles RCC interrupt request.
+ 211:stm32f10x_it.c ****  * Input          : None
+ 212:stm32f10x_it.c ****  * Output         : None
+ 213:stm32f10x_it.c ****  * Return         : None
+ 214:stm32f10x_it.c ****  *******************************************************************************/
+ 215:stm32f10x_it.c **** void RCC_IRQHandler(void) {
+ 19019              		.loc 1 216 0
+ 19020              		@ args = 0, pretend = 0, frame = 0
+ 19021              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19022              		@ link register save eliminated.
+ 216:stm32f10x_it.c **** }
+ 19023              		.loc 1 217 0
+ 19024 0000 7047     		bx	lr
+ 19025              	.LFE41:
+ 19027              		.section	.text.EXTI0_IRQHandler,"ax",%progbits
+ 19028              		.align	1
+ 19029              		.global	EXTI0_IRQHandler
+ 19030              		.thumb
+ 19031              		.thumb_func
+ 19033              	EXTI0_IRQHandler:
+ 19034              	.LFB42:
+ 217:stm32f10x_it.c **** 
+ 218:stm32f10x_it.c **** /*******************************************************************************
+ 219:stm32f10x_it.c ****  * Function Name  : EXTI0_IRQHandler
+ 220:stm32f10x_it.c ****  * Description    : This function handles External interrupt Line 0 request.
+ 221:stm32f10x_it.c ****  * Input          : None
+ 222:stm32f10x_it.c ****  * Output         : None
+ 223:stm32f10x_it.c ****  * Return         : None
+ 224:stm32f10x_it.c ****  *******************************************************************************/
+ 225:stm32f10x_it.c **** void EXTI0_IRQHandler(void) {
+ 19035              		.loc 1 226 0
+ 19036              		@ args = 0, pretend = 0, frame = 0
+ 19037              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19038              		@ link register save eliminated.
+ 226:stm32f10x_it.c **** }
+ 19039              		.loc 1 227 0
+ 19040 0000 7047     		bx	lr
+ 19041              	.LFE42:
+ 19043              		.section	.text.EXTI1_IRQHandler,"ax",%progbits
+ 19044              		.align	1
+ 19045              		.global	EXTI1_IRQHandler
+ 19046              		.thumb
+ 19047              		.thumb_func
+ 19049              	EXTI1_IRQHandler:
+ 19050              	.LFB43:
+ 227:stm32f10x_it.c **** 
+ 228:stm32f10x_it.c **** /*******************************************************************************
+ 229:stm32f10x_it.c ****  * Function Name  : EXTI1_IRQHandler
+ 230:stm32f10x_it.c ****  * Description    : This function handles External interrupt Line 1 request.
+ 231:stm32f10x_it.c ****  * Input          : None
+ 232:stm32f10x_it.c ****  * Output         : None
+ 233:stm32f10x_it.c ****  * Return         : None
+ 234:stm32f10x_it.c ****  *******************************************************************************/
+ 235:stm32f10x_it.c **** void EXTI1_IRQHandler(void) {
+ 19051              		.loc 1 236 0
+ 19052              		@ args = 0, pretend = 0, frame = 0
+ 19053              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19054              		@ link register save eliminated.
+ 236:stm32f10x_it.c **** }
+ 19055              		.loc 1 237 0
+ 19056 0000 7047     		bx	lr
+ 19057              	.LFE43:
+ 19059              		.section	.text.EXTI2_IRQHandler,"ax",%progbits
+ 19060              		.align	1
+ 19061              		.global	EXTI2_IRQHandler
+ 19062              		.thumb
+ 19063              		.thumb_func
+ 19065              	EXTI2_IRQHandler:
+ 19066              	.LFB44:
+ 237:stm32f10x_it.c **** 
+ 238:stm32f10x_it.c **** /*******************************************************************************
+ 239:stm32f10x_it.c ****  * Function Name  : EXTI2_IRQHandler
+ 240:stm32f10x_it.c ****  * Description    : This function handles External interrupt Line 2 request.
+ 241:stm32f10x_it.c ****  * Input          : None
+ 242:stm32f10x_it.c ****  * Output         : None
+ 243:stm32f10x_it.c ****  * Return         : None
+ 244:stm32f10x_it.c ****  *******************************************************************************/
+ 245:stm32f10x_it.c **** void EXTI2_IRQHandler(void) {
+ 19067              		.loc 1 246 0
+ 19068              		@ args = 0, pretend = 0, frame = 0
+ 19069              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19070              		@ link register save eliminated.
+ 246:stm32f10x_it.c **** }
+ 19071              		.loc 1 247 0
+ 19072 0000 7047     		bx	lr
+ 19073              	.LFE44:
+ 19075              		.section	.text.EXTI3_IRQHandler,"ax",%progbits
+ 19076              		.align	1
+ 19077              		.global	EXTI3_IRQHandler
+ 19078              		.thumb
+ 19079              		.thumb_func
+ 19081              	EXTI3_IRQHandler:
+ 19082              	.LFB45:
+ 247:stm32f10x_it.c **** 
+ 248:stm32f10x_it.c **** /*******************************************************************************
+ 249:stm32f10x_it.c ****  * Function Name  : EXTI3_IRQHandler
+ 250:stm32f10x_it.c ****  * Description    : This function handles External interrupt Line 3 request.
+ 251:stm32f10x_it.c ****  * Input          : None
+ 252:stm32f10x_it.c ****  * Output         : None
+ 253:stm32f10x_it.c ****  * Return         : None
+ 254:stm32f10x_it.c ****  *******************************************************************************/
+ 255:stm32f10x_it.c **** void EXTI3_IRQHandler(void) {
+ 19083              		.loc 1 256 0
+ 19084              		@ args = 0, pretend = 0, frame = 0
+ 19085              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19086              		@ link register save eliminated.
+ 256:stm32f10x_it.c **** }
+ 19087              		.loc 1 257 0
+ 19088 0000 7047     		bx	lr
+ 19089              	.LFE45:
+ 19091              		.section	.text.EXTI4_IRQHandler,"ax",%progbits
+ 19092              		.align	1
+ 19093              		.global	EXTI4_IRQHandler
+ 19094              		.thumb
+ 19095              		.thumb_func
+ 19097              	EXTI4_IRQHandler:
+ 19098              	.LFB46:
+ 257:stm32f10x_it.c **** 
+ 258:stm32f10x_it.c **** /*******************************************************************************
+ 259:stm32f10x_it.c ****  * Function Name  : EXTI4_IRQHandler
+ 260:stm32f10x_it.c ****  * Description    : This function handles External interrupt Line 4 request.
+ 261:stm32f10x_it.c ****  * Input          : None
+ 262:stm32f10x_it.c ****  * Output         : None
+ 263:stm32f10x_it.c ****  * Return         : None
+ 264:stm32f10x_it.c ****  *******************************************************************************/
+ 265:stm32f10x_it.c **** 
+ 266:stm32f10x_it.c **** void EXTI4_IRQHandler(void) {
+ 19099              		.loc 1 267 0
+ 19100              		@ args = 0, pretend = 0, frame = 0
+ 19101              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19102              		@ link register save eliminated.
+ 267:stm32f10x_it.c **** }
+ 19103              		.loc 1 268 0
+ 19104 0000 7047     		bx	lr
+ 19105              	.LFE46:
+ 19107              		.section	.text.DMA1_Channel1_IRQHandler,"ax",%progbits
+ 19108              		.align	1
+ 19109              		.global	DMA1_Channel1_IRQHandler
+ 19110              		.thumb
+ 19111              		.thumb_func
+ 19113              	DMA1_Channel1_IRQHandler:
+ 19114              	.LFB47:
+ 268:stm32f10x_it.c **** 
+ 269:stm32f10x_it.c **** /*******************************************************************************
+ 270:stm32f10x_it.c ****  * Function Name  : DMA1_Channel1_IRQHandler
+ 271:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 1 interrupt request.
+ 272:stm32f10x_it.c ****  * Input          : None
+ 273:stm32f10x_it.c ****  * Output         : None
+ 274:stm32f10x_it.c ****  * Return         : None
+ 275:stm32f10x_it.c ****  *******************************************************************************/
+ 276:stm32f10x_it.c **** void DMA1_Channel1_IRQHandler(void) {
+ 19115              		.loc 1 277 0
+ 19116              		@ args = 0, pretend = 0, frame = 0
+ 19117              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19118              		@ link register save eliminated.
+ 277:stm32f10x_it.c **** }
+ 19119              		.loc 1 278 0
+ 19120 0000 7047     		bx	lr
+ 19121              	.LFE47:
+ 19123              		.section	.text.DMA1_Channel2_IRQHandler,"ax",%progbits
+ 19124              		.align	1
+ 19125              		.global	DMA1_Channel2_IRQHandler
+ 19126              		.thumb
+ 19127              		.thumb_func
+ 19129              	DMA1_Channel2_IRQHandler:
+ 19130              	.LFB48:
+ 278:stm32f10x_it.c **** 
+ 279:stm32f10x_it.c **** /*******************************************************************************
+ 280:stm32f10x_it.c ****  * Function Name  : DMA1_Channel2_IRQHandler
+ 281:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 2 interrupt request.
+ 282:stm32f10x_it.c ****  * Input          : None
+ 283:stm32f10x_it.c ****  * Output         : None
+ 284:stm32f10x_it.c ****  * Return         : None
+ 285:stm32f10x_it.c ****  *******************************************************************************/
+ 286:stm32f10x_it.c **** void DMA1_Channel2_IRQHandler(void) {
+ 19131              		.loc 1 287 0
+ 19132              		@ args = 0, pretend = 0, frame = 0
+ 19133              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19134              		@ link register save eliminated.
+ 287:stm32f10x_it.c **** }
+ 19135              		.loc 1 288 0
+ 19136 0000 7047     		bx	lr
+ 19137              	.LFE48:
+ 19139              		.section	.text.DMA1_Channel3_IRQHandler,"ax",%progbits
+ 19140              		.align	1
+ 19141              		.global	DMA1_Channel3_IRQHandler
+ 19142              		.thumb
+ 19143              		.thumb_func
+ 19145              	DMA1_Channel3_IRQHandler:
+ 19146              	.LFB49:
+ 288:stm32f10x_it.c **** 
+ 289:stm32f10x_it.c **** /*******************************************************************************
+ 290:stm32f10x_it.c ****  * Function Name  : DMA1_Channel3_IRQHandler
+ 291:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 3 interrupt request.
+ 292:stm32f10x_it.c ****  * Input          : None
+ 293:stm32f10x_it.c ****  * Output         : None
+ 294:stm32f10x_it.c ****  * Return         : None
+ 295:stm32f10x_it.c ****  *******************************************************************************/
+ 296:stm32f10x_it.c **** void DMA1_Channel3_IRQHandler(void) {
+ 19147              		.loc 1 297 0
+ 19148              		@ args = 0, pretend = 0, frame = 0
+ 19149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19150              		@ link register save eliminated.
+ 297:stm32f10x_it.c **** }
+ 19151              		.loc 1 298 0
+ 19152 0000 7047     		bx	lr
+ 19153              	.LFE49:
+ 19155              		.section	.text.DMA1_Channel4_IRQHandler,"ax",%progbits
+ 19156              		.align	1
+ 19157              		.global	DMA1_Channel4_IRQHandler
+ 19158              		.thumb
+ 19159              		.thumb_func
+ 19161              	DMA1_Channel4_IRQHandler:
+ 19162              	.LFB50:
+ 298:stm32f10x_it.c **** 
+ 299:stm32f10x_it.c **** /*******************************************************************************
+ 300:stm32f10x_it.c ****  * Function Name  : DMA1_Channel4_IRQHandler
+ 301:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 4 interrupt request.
+ 302:stm32f10x_it.c ****  * Input          : None
+ 303:stm32f10x_it.c ****  * Output         : None
+ 304:stm32f10x_it.c ****  * Return         : None
+ 305:stm32f10x_it.c ****  *******************************************************************************/
+ 306:stm32f10x_it.c **** void DMA1_Channel4_IRQHandler(void) {
+ 19163              		.loc 1 307 0
+ 19164              		@ args = 0, pretend = 0, frame = 0
+ 19165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19166              		@ link register save eliminated.
+ 307:stm32f10x_it.c **** }
+ 19167              		.loc 1 308 0
+ 19168 0000 7047     		bx	lr
+ 19169              	.LFE50:
+ 19171              		.section	.text.DMA1_Channel5_IRQHandler,"ax",%progbits
+ 19172              		.align	1
+ 19173              		.global	DMA1_Channel5_IRQHandler
+ 19174              		.thumb
+ 19175              		.thumb_func
+ 19177              	DMA1_Channel5_IRQHandler:
+ 19178              	.LFB51:
+ 308:stm32f10x_it.c **** 
+ 309:stm32f10x_it.c **** /*******************************************************************************
+ 310:stm32f10x_it.c ****  * Function Name  : DMA1_Channel5_IRQHandler
+ 311:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 5 interrupt request.
+ 312:stm32f10x_it.c ****  * Input          : None
+ 313:stm32f10x_it.c ****  * Output         : None
+ 314:stm32f10x_it.c ****  * Return         : None
+ 315:stm32f10x_it.c ****  *******************************************************************************/
+ 316:stm32f10x_it.c **** void DMA1_Channel5_IRQHandler(void) {
+ 19179              		.loc 1 317 0
+ 19180              		@ args = 0, pretend = 0, frame = 0
+ 19181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19182              		@ link register save eliminated.
+ 317:stm32f10x_it.c **** }
+ 19183              		.loc 1 318 0
+ 19184 0000 7047     		bx	lr
+ 19185              	.LFE51:
+ 19187              		.section	.text.DMA1_Channel6_IRQHandler,"ax",%progbits
+ 19188              		.align	1
+ 19189              		.global	DMA1_Channel6_IRQHandler
+ 19190              		.thumb
+ 19191              		.thumb_func
+ 19193              	DMA1_Channel6_IRQHandler:
+ 19194              	.LFB52:
+ 318:stm32f10x_it.c **** 
+ 319:stm32f10x_it.c **** /*******************************************************************************
+ 320:stm32f10x_it.c ****  * Function Name  : DMA1_Channel6_IRQHandler
+ 321:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 6 interrupt request.
+ 322:stm32f10x_it.c ****  * Input          : None
+ 323:stm32f10x_it.c ****  * Output         : None
+ 324:stm32f10x_it.c ****  * Return         : None
+ 325:stm32f10x_it.c ****  *******************************************************************************/
+ 326:stm32f10x_it.c **** void DMA1_Channel6_IRQHandler(void) {
+ 19195              		.loc 1 327 0
+ 19196              		@ args = 0, pretend = 0, frame = 0
+ 19197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19198              		@ link register save eliminated.
+ 327:stm32f10x_it.c **** }
+ 19199              		.loc 1 328 0
+ 19200 0000 7047     		bx	lr
+ 19201              	.LFE52:
+ 19203              		.section	.text.DMA1_Channel7_IRQHandler,"ax",%progbits
+ 19204              		.align	1
+ 19205              		.global	DMA1_Channel7_IRQHandler
+ 19206              		.thumb
+ 19207              		.thumb_func
+ 19209              	DMA1_Channel7_IRQHandler:
+ 19210              	.LFB53:
+ 328:stm32f10x_it.c **** 
+ 329:stm32f10x_it.c **** /*******************************************************************************
+ 330:stm32f10x_it.c ****  * Function Name  : DMA1_Channel7_IRQHandler
+ 331:stm32f10x_it.c ****  * Description    : This function handles DMA1 Channel 7 interrupt request.
+ 332:stm32f10x_it.c ****  * Input          : None
+ 333:stm32f10x_it.c ****  * Output         : None
+ 334:stm32f10x_it.c ****  * Return         : None
+ 335:stm32f10x_it.c ****  *******************************************************************************/
+ 336:stm32f10x_it.c **** void DMA1_Channel7_IRQHandler(void) {
+ 19211              		.loc 1 337 0
+ 19212              		@ args = 0, pretend = 0, frame = 0
+ 19213              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19214              		@ link register save eliminated.
+ 337:stm32f10x_it.c **** }
+ 19215              		.loc 1 338 0
+ 19216 0000 7047     		bx	lr
+ 19217              	.LFE53:
+ 19219              		.section	.text.ADC1_2_IRQHandler,"ax",%progbits
+ 19220              		.align	1
+ 19221              		.global	ADC1_2_IRQHandler
+ 19222              		.thumb
+ 19223              		.thumb_func
+ 19225              	ADC1_2_IRQHandler:
+ 19226              	.LFB54:
+ 338:stm32f10x_it.c **** 
+ 339:stm32f10x_it.c **** /*******************************************************************************
+ 340:stm32f10x_it.c ****  * Function Name  : ADC1_2_IRQHandler
+ 341:stm32f10x_it.c ****  * Description    : This function handles ADC1 and ADC2 global interrupts requests.
+ 342:stm32f10x_it.c ****  * Input          : None
+ 343:stm32f10x_it.c ****  * Output         : None
+ 344:stm32f10x_it.c ****  * Return         : None
+ 345:stm32f10x_it.c ****  *******************************************************************************/
+ 346:stm32f10x_it.c **** void ADC1_2_IRQHandler(void) {
+ 19227              		.loc 1 347 0
+ 19228              		@ args = 0, pretend = 0, frame = 0
+ 19229              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19230              		@ link register save eliminated.
+ 347:stm32f10x_it.c **** }
+ 19231              		.loc 1 348 0
+ 19232 0000 7047     		bx	lr
+ 19233              	.LFE54:
+ 19235              		.section	.text.USB_HP_CAN_TX_IRQHandler,"ax",%progbits
+ 19236              		.align	1
+ 19237              		.global	USB_HP_CAN_TX_IRQHandler
+ 19238              		.thumb
+ 19239              		.thumb_func
+ 19241              	USB_HP_CAN_TX_IRQHandler:
+ 19242              	.LFB55:
+ 348:stm32f10x_it.c **** 
+ 349:stm32f10x_it.c **** /*******************************************************************************
+ 350:stm32f10x_it.c ****  * Function Name  : USB_HP_CAN_TX_IRQHandler
+ 351:stm32f10x_it.c ****  * Description    : This function handles USB High Priority or CAN TX interrupts
+ 352:stm32f10x_it.c ****  *                  requests.
+ 353:stm32f10x_it.c ****  * Input          : None
+ 354:stm32f10x_it.c ****  * Output         : None
+ 355:stm32f10x_it.c ****  * Return         : None
+ 356:stm32f10x_it.c ****  *******************************************************************************/
+ 357:stm32f10x_it.c **** void USB_HP_CAN_TX_IRQHandler(void) {
+ 19243              		.loc 1 358 0
+ 19244              		@ args = 0, pretend = 0, frame = 0
+ 19245              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19246              		@ link register save eliminated.
+ 358:stm32f10x_it.c **** }
+ 19247              		.loc 1 359 0
+ 19248 0000 7047     		bx	lr
+ 19249              	.LFE55:
+ 19251              		.section	.text.USB_LP_CAN_RX0_IRQHandler,"ax",%progbits
+ 19252              		.align	1
+ 19253              		.global	USB_LP_CAN_RX0_IRQHandler
+ 19254              		.thumb
+ 19255              		.thumb_func
+ 19257              	USB_LP_CAN_RX0_IRQHandler:
+ 19258              	.LFB56:
+ 359:stm32f10x_it.c **** 
+ 360:stm32f10x_it.c **** /*******************************************************************************
+ 361:stm32f10x_it.c ****  * Function Name  : USB_LP_CAN_RX0_IRQHandler
+ 362:stm32f10x_it.c ****  * Description    : This function handles USB Low Priority or CAN RX0 interrupts
+ 363:stm32f10x_it.c ****  *                  requests.
+ 364:stm32f10x_it.c ****  * Input          : None
+ 365:stm32f10x_it.c ****  * Output         : None
+ 366:stm32f10x_it.c ****  * Return         : None
+ 367:stm32f10x_it.c ****  *******************************************************************************/
+ 368:stm32f10x_it.c **** void USB_LP_CAN_RX0_IRQHandler(void) {
+ 19259              		.loc 1 369 0
+ 19260              		@ args = 0, pretend = 0, frame = 0
+ 19261              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19262              		@ link register save eliminated.
+ 369:stm32f10x_it.c **** }
+ 19263              		.loc 1 370 0
+ 19264 0000 7047     		bx	lr
+ 19265              	.LFE56:
+ 19267              		.section	.text.CAN_RX1_IRQHandler,"ax",%progbits
+ 19268              		.align	1
+ 19269              		.global	CAN_RX1_IRQHandler
+ 19270              		.thumb
+ 19271              		.thumb_func
+ 19273              	CAN_RX1_IRQHandler:
+ 19274              	.LFB57:
+ 370:stm32f10x_it.c **** 
+ 371:stm32f10x_it.c **** /*******************************************************************************
+ 372:stm32f10x_it.c ****  * Function Name  : CAN_RX1_IRQHandler
+ 373:stm32f10x_it.c ****  * Description    : This function handles CAN RX1 interrupt request.
+ 374:stm32f10x_it.c ****  * Input          : None
+ 375:stm32f10x_it.c ****  * Output         : None
+ 376:stm32f10x_it.c ****  * Return         : None
+ 377:stm32f10x_it.c ****  *******************************************************************************/
+ 378:stm32f10x_it.c **** void CAN_RX1_IRQHandler(void) {
+ 19275              		.loc 1 379 0
+ 19276              		@ args = 0, pretend = 0, frame = 0
+ 19277              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19278              		@ link register save eliminated.
+ 379:stm32f10x_it.c **** }
+ 19279              		.loc 1 380 0
+ 19280 0000 7047     		bx	lr
+ 19281              	.LFE57:
+ 19283              		.section	.text.CAN_SCE_IRQHandler,"ax",%progbits
+ 19284              		.align	1
+ 19285              		.global	CAN_SCE_IRQHandler
+ 19286              		.thumb
+ 19287              		.thumb_func
+ 19289              	CAN_SCE_IRQHandler:
+ 19290              	.LFB58:
+ 380:stm32f10x_it.c **** 
+ 381:stm32f10x_it.c **** /*******************************************************************************
+ 382:stm32f10x_it.c ****  * Function Name  : CAN_SCE_IRQHandler
+ 383:stm32f10x_it.c ****  * Description    : This function handles CAN SCE interrupt request.
+ 384:stm32f10x_it.c ****  * Input          : None
+ 385:stm32f10x_it.c ****  * Output         : None
+ 386:stm32f10x_it.c ****  * Return         : None
+ 387:stm32f10x_it.c ****  *******************************************************************************/
+ 388:stm32f10x_it.c **** void CAN_SCE_IRQHandler(void) {
+ 19291              		.loc 1 389 0
+ 19292              		@ args = 0, pretend = 0, frame = 0
+ 19293              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19294              		@ link register save eliminated.
+ 389:stm32f10x_it.c **** }
+ 19295              		.loc 1 390 0
+ 19296 0000 7047     		bx	lr
+ 19297              	.LFE58:
+ 19299              		.section	.text.EXTI9_5_IRQHandler,"ax",%progbits
+ 19300              		.align	1
+ 19301              		.global	EXTI9_5_IRQHandler
+ 19302              		.thumb
+ 19303              		.thumb_func
+ 19305              	EXTI9_5_IRQHandler:
+ 19306              	.LFB59:
+ 390:stm32f10x_it.c **** 
+ 391:stm32f10x_it.c **** /*******************************************************************************
+ 392:stm32f10x_it.c ****  * Function Name  : EXTI9_5_IRQHandler
+ 393:stm32f10x_it.c ****  * Description    : This function handles External lines 9 to 5 interrupt request.
+ 394:stm32f10x_it.c ****  * Input          : None
+ 395:stm32f10x_it.c ****  * Output         : None
+ 396:stm32f10x_it.c ****  * Return         : None
+ 397:stm32f10x_it.c ****  *******************************************************************************/
+ 398:stm32f10x_it.c **** void EXTI9_5_IRQHandler(void) {
+ 19307              		.loc 1 399 0
+ 19308              		@ args = 0, pretend = 0, frame = 0
+ 19309              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19310              		@ link register save eliminated.
+ 399:stm32f10x_it.c **** }
+ 19311              		.loc 1 400 0
+ 19312 0000 7047     		bx	lr
+ 19313              	.LFE59:
+ 19315              		.section	.text.TIM1_BRK_IRQHandler,"ax",%progbits
+ 19316              		.align	1
+ 19317              		.global	TIM1_BRK_IRQHandler
+ 19318              		.thumb
+ 19319              		.thumb_func
+ 19321              	TIM1_BRK_IRQHandler:
+ 19322              	.LFB60:
+ 400:stm32f10x_it.c **** 
+ 401:stm32f10x_it.c **** /*******************************************************************************
+ 402:stm32f10x_it.c ****  * Function Name  : TIM1_BRK_IRQHandler
+ 403:stm32f10x_it.c ****  * Description    : This function handles TIM1 Break interrupt request.
+ 404:stm32f10x_it.c ****  * Input          : None
+ 405:stm32f10x_it.c ****  * Output         : None
+ 406:stm32f10x_it.c ****  * Return         : None
+ 407:stm32f10x_it.c ****  *******************************************************************************/
+ 408:stm32f10x_it.c **** void TIM1_BRK_IRQHandler(void) {
+ 19323              		.loc 1 409 0
+ 19324              		@ args = 0, pretend = 0, frame = 0
+ 19325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19326              		@ link register save eliminated.
+ 409:stm32f10x_it.c **** }
+ 19327              		.loc 1 410 0
+ 19328 0000 7047     		bx	lr
+ 19329              	.LFE60:
+ 19331              		.section	.text.TIM1_UP_IRQHandler,"ax",%progbits
+ 19332              		.align	1
+ 19333              		.global	TIM1_UP_IRQHandler
+ 19334              		.thumb
+ 19335              		.thumb_func
+ 19337              	TIM1_UP_IRQHandler:
+ 19338              	.LFB61:
+ 410:stm32f10x_it.c **** 
+ 411:stm32f10x_it.c **** /*******************************************************************************
+ 412:stm32f10x_it.c ****  * Function Name  : TIM1_UP_IRQHandler
+ 413:stm32f10x_it.c ****  * Description    : This function handles TIM1 overflow and update interrupt
+ 414:stm32f10x_it.c ****  *                  request.
+ 415:stm32f10x_it.c ****  * Input          : None
+ 416:stm32f10x_it.c ****  * Output         : None
+ 417:stm32f10x_it.c ****  * Return         : None
+ 418:stm32f10x_it.c ****  *******************************************************************************/
+ 419:stm32f10x_it.c **** void TIM1_UP_IRQHandler(void) {
+ 19339              		.loc 1 420 0
+ 19340              		@ args = 0, pretend = 0, frame = 0
+ 19341              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19342              		@ link register save eliminated.
+ 420:stm32f10x_it.c **** }
+ 19343              		.loc 1 421 0
+ 19344 0000 7047     		bx	lr
+ 19345              	.LFE61:
+ 19347              		.section	.text.TIM1_TRG_COM_IRQHandler,"ax",%progbits
+ 19348              		.align	1
+ 19349              		.global	TIM1_TRG_COM_IRQHandler
+ 19350              		.thumb
+ 19351              		.thumb_func
+ 19353              	TIM1_TRG_COM_IRQHandler:
+ 19354              	.LFB62:
+ 421:stm32f10x_it.c **** 
+ 422:stm32f10x_it.c **** /*******************************************************************************
+ 423:stm32f10x_it.c ****  * Function Name  : TIM1_TRG_COM_IRQHandler
+ 424:stm32f10x_it.c ****  * Description    : This function handles TIM1 Trigger and commutation interrupts
+ 425:stm32f10x_it.c ****  *                  requests.
+ 426:stm32f10x_it.c ****  * Input          : None
+ 427:stm32f10x_it.c ****  * Output         : None
+ 428:stm32f10x_it.c ****  * Return         : None
+ 429:stm32f10x_it.c ****  *******************************************************************************/
+ 430:stm32f10x_it.c **** void TIM1_TRG_COM_IRQHandler(void) {
+ 19355              		.loc 1 431 0
+ 19356              		@ args = 0, pretend = 0, frame = 0
+ 19357              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19358              		@ link register save eliminated.
+ 431:stm32f10x_it.c **** }
+ 19359              		.loc 1 432 0
+ 19360 0000 7047     		bx	lr
+ 19361              	.LFE62:
+ 19363              		.section	.text.TIM1_CC_IRQHandler,"ax",%progbits
+ 19364              		.align	1
+ 19365              		.global	TIM1_CC_IRQHandler
+ 19366              		.thumb
+ 19367              		.thumb_func
+ 19369              	TIM1_CC_IRQHandler:
+ 19370              	.LFB63:
+ 432:stm32f10x_it.c **** 
+ 433:stm32f10x_it.c **** /*******************************************************************************
+ 434:stm32f10x_it.c ****  * Function Name  : TIM1_CC_IRQHandler
+ 435:stm32f10x_it.c ****  * Description    : This function handles TIM1 capture compare interrupt request.
+ 436:stm32f10x_it.c ****  * Input          : None
+ 437:stm32f10x_it.c ****  * Output         : None
+ 438:stm32f10x_it.c ****  * Return         : None
+ 439:stm32f10x_it.c ****  *******************************************************************************/
+ 440:stm32f10x_it.c **** void TIM1_CC_IRQHandler(void) {
+ 19371              		.loc 1 441 0
+ 19372              		@ args = 0, pretend = 0, frame = 0
+ 19373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19374              		@ link register save eliminated.
+ 441:stm32f10x_it.c **** }
+ 19375              		.loc 1 442 0
+ 19376 0000 7047     		bx	lr
+ 19377              	.LFE63:
+ 19379              		.section	.text.TIM2_IRQHandler,"ax",%progbits
+ 19380              		.align	1
+ 19381              		.global	TIM2_IRQHandler
+ 19382              		.thumb
+ 19383              		.thumb_func
+ 19385              	TIM2_IRQHandler:
+ 19386              	.LFB64:
+ 442:stm32f10x_it.c **** 
+ 443:stm32f10x_it.c **** /*******************************************************************************
+ 444:stm32f10x_it.c ****  * Function Name  : TIM2_IRQHandler
+ 445:stm32f10x_it.c ****  * Description    : This function handles TIM2 global interrupt request.
+ 446:stm32f10x_it.c ****  * Input          : None
+ 447:stm32f10x_it.c ****  * Output         : None
+ 448:stm32f10x_it.c ****  * Return         : None
+ 449:stm32f10x_it.c ****  *******************************************************************************/
+ 450:stm32f10x_it.c **** void TIM2_IRQHandler(void) {
+ 19387              		.loc 1 451 0
+ 19388              		@ args = 0, pretend = 0, frame = 0
+ 19389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19390              		@ link register save eliminated.
+ 451:stm32f10x_it.c **** }
+ 19391              		.loc 1 452 0
+ 19392 0000 7047     		bx	lr
+ 19393              	.LFE64:
+ 19395              		.section	.text.TIM3_IRQHandler,"ax",%progbits
+ 19396              		.align	1
+ 19397              		.global	TIM3_IRQHandler
+ 19398              		.thumb
+ 19399              		.thumb_func
+ 19401              	TIM3_IRQHandler:
+ 19402              	.LFB65:
+ 452:stm32f10x_it.c **** 
+ 453:stm32f10x_it.c **** /*******************************************************************************
+ 454:stm32f10x_it.c ****  * Function Name  : TIM3_IRQHandler
+ 455:stm32f10x_it.c ****  * Description    : This function handles TIM3 global interrupt request.
+ 456:stm32f10x_it.c ****  * Input          : None
+ 457:stm32f10x_it.c ****  * Output         : None
+ 458:stm32f10x_it.c ****  * Return         : None
+ 459:stm32f10x_it.c ****  *******************************************************************************/
+ 460:stm32f10x_it.c **** void TIM3_IRQHandler(void) {
+ 19403              		.loc 1 461 0
+ 19404              		@ args = 0, pretend = 0, frame = 0
+ 19405              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19406              		@ link register save eliminated.
+ 461:stm32f10x_it.c **** }
+ 19407              		.loc 1 462 0
+ 19408 0000 7047     		bx	lr
+ 19409              	.LFE65:
+ 19411              		.section	.text.TIM4_IRQHandler,"ax",%progbits
+ 19412              		.align	1
+ 19413              		.global	TIM4_IRQHandler
+ 19414              		.thumb
+ 19415              		.thumb_func
+ 19417              	TIM4_IRQHandler:
+ 19418              	.LFB66:
+ 462:stm32f10x_it.c **** /*******************************************************************************
+ 463:stm32f10x_it.c ****  * Function Name  : TIM4_IRQHandler
+ 464:stm32f10x_it.c ****  * Description    : This function handles TIM4 global interrupt request.
+ 465:stm32f10x_it.c ****  * Input          : None
+ 466:stm32f10x_it.c ****  * Output         : None
+ 467:stm32f10x_it.c ****  * Return         : None
+ 468:stm32f10x_it.c ****  *******************************************************************************/
+ 469:stm32f10x_it.c **** void TIM4_IRQHandler(void) {
+ 19419              		.loc 1 470 0
+ 19420              		@ args = 0, pretend = 0, frame = 0
+ 19421              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19422              		@ link register save eliminated.
+ 470:stm32f10x_it.c **** }
+ 19423              		.loc 1 471 0
+ 19424 0000 7047     		bx	lr
+ 19425              	.LFE66:
+ 19427              		.section	.text.I2C1_EV_IRQHandler,"ax",%progbits
+ 19428              		.align	1
+ 19429              		.global	I2C1_EV_IRQHandler
+ 19430              		.thumb
+ 19431              		.thumb_func
+ 19433              	I2C1_EV_IRQHandler:
+ 19434              	.LFB67:
+ 471:stm32f10x_it.c **** 
+ 472:stm32f10x_it.c **** /*******************************************************************************
+ 473:stm32f10x_it.c ****  * Function Name  : I2C1_EV_IRQHandler
+ 474:stm32f10x_it.c ****  * Description    : This function handles I2C1 Event interrupt request.
+ 475:stm32f10x_it.c ****  * Input          : None
+ 476:stm32f10x_it.c ****  * Output         : None
+ 477:stm32f10x_it.c ****  * Return         : None
+ 478:stm32f10x_it.c ****  *******************************************************************************/
+ 479:stm32f10x_it.c **** void I2C1_EV_IRQHandler(void) {
+ 19435              		.loc 1 480 0
+ 19436              		@ args = 0, pretend = 0, frame = 0
+ 19437              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19438              		@ link register save eliminated.
+ 480:stm32f10x_it.c **** }
+ 19439              		.loc 1 481 0
+ 19440 0000 7047     		bx	lr
+ 19441              	.LFE67:
+ 19443              		.section	.text.I2C1_ER_IRQHandler,"ax",%progbits
+ 19444              		.align	1
+ 19445              		.global	I2C1_ER_IRQHandler
+ 19446              		.thumb
+ 19447              		.thumb_func
+ 19449              	I2C1_ER_IRQHandler:
+ 19450              	.LFB68:
+ 481:stm32f10x_it.c **** 
+ 482:stm32f10x_it.c **** /*******************************************************************************
+ 483:stm32f10x_it.c ****  * Function Name  : I2C1_ER_IRQHandler
+ 484:stm32f10x_it.c ****  * Description    : This function handles I2C1 Error interrupt request.
+ 485:stm32f10x_it.c ****  * Input          : None
+ 486:stm32f10x_it.c ****  * Output         : None
+ 487:stm32f10x_it.c ****  * Return         : None
+ 488:stm32f10x_it.c ****  *******************************************************************************/
+ 489:stm32f10x_it.c **** void I2C1_ER_IRQHandler(void) {
+ 19451              		.loc 1 490 0
+ 19452              		@ args = 0, pretend = 0, frame = 0
+ 19453              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19454              		@ link register save eliminated.
+ 490:stm32f10x_it.c **** }
+ 19455              		.loc 1 491 0
+ 19456 0000 7047     		bx	lr
+ 19457              	.LFE68:
+ 19459              		.section	.text.I2C2_EV_IRQHandler,"ax",%progbits
+ 19460              		.align	1
+ 19461              		.global	I2C2_EV_IRQHandler
+ 19462              		.thumb
+ 19463              		.thumb_func
+ 19465              	I2C2_EV_IRQHandler:
+ 19466              	.LFB69:
+ 491:stm32f10x_it.c **** 
+ 492:stm32f10x_it.c **** /*******************************************************************************
+ 493:stm32f10x_it.c ****  * Function Name  : I2C2_EV_IRQHandler
+ 494:stm32f10x_it.c ****  * Description    : This function handles I2C2 Event interrupt request.
+ 495:stm32f10x_it.c ****  * Input          : None
+ 496:stm32f10x_it.c ****  * Output         : None
+ 497:stm32f10x_it.c ****  * Return         : None
+ 498:stm32f10x_it.c ****  *******************************************************************************/
+ 499:stm32f10x_it.c **** void I2C2_EV_IRQHandler(void) {
+ 19467              		.loc 1 500 0
+ 19468              		@ args = 0, pretend = 0, frame = 0
+ 19469              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19470              		@ link register save eliminated.
+ 500:stm32f10x_it.c **** }
+ 19471              		.loc 1 501 0
+ 19472 0000 7047     		bx	lr
+ 19473              	.LFE69:
+ 19475              		.section	.text.I2C2_ER_IRQHandler,"ax",%progbits
+ 19476              		.align	1
+ 19477              		.global	I2C2_ER_IRQHandler
+ 19478              		.thumb
+ 19479              		.thumb_func
+ 19481              	I2C2_ER_IRQHandler:
+ 19482              	.LFB70:
+ 501:stm32f10x_it.c **** 
+ 502:stm32f10x_it.c **** /*******************************************************************************
+ 503:stm32f10x_it.c ****  * Function Name  : I2C2_ER_IRQHandler
+ 504:stm32f10x_it.c ****  * Description    : This function handles I2C2 Error interrupt request.
+ 505:stm32f10x_it.c ****  * Input          : None
+ 506:stm32f10x_it.c ****  * Output         : None
+ 507:stm32f10x_it.c ****  * Return         : None
+ 508:stm32f10x_it.c ****  *******************************************************************************/
+ 509:stm32f10x_it.c **** void I2C2_ER_IRQHandler(void) {
+ 19483              		.loc 1 510 0
+ 19484              		@ args = 0, pretend = 0, frame = 0
+ 19485              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19486              		@ link register save eliminated.
+ 510:stm32f10x_it.c **** }
+ 19487              		.loc 1 511 0
+ 19488 0000 7047     		bx	lr
+ 19489              	.LFE70:
+ 19491              		.section	.text.SPI1_IRQHandler,"ax",%progbits
+ 19492              		.align	1
+ 19493              		.global	SPI1_IRQHandler
+ 19494              		.thumb
+ 19495              		.thumb_func
+ 19497              	SPI1_IRQHandler:
+ 19498              	.LFB71:
+ 511:stm32f10x_it.c **** 
+ 512:stm32f10x_it.c **** /*******************************************************************************
+ 513:stm32f10x_it.c ****  * Function Name  : SPI1_IRQHandler
+ 514:stm32f10x_it.c ****  * Description    : This function handles SPI1 global interrupt request.
+ 515:stm32f10x_it.c ****  * Input          : None
+ 516:stm32f10x_it.c ****  * Output         : None
+ 517:stm32f10x_it.c ****  * Return         : None
+ 518:stm32f10x_it.c ****  *******************************************************************************/
+ 519:stm32f10x_it.c **** 
+ 520:stm32f10x_it.c **** void SPI1_IRQHandler(void) {
+ 19499              		.loc 1 521 0
+ 19500              		@ args = 0, pretend = 0, frame = 0
+ 19501              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19502              		@ link register save eliminated.
+ 521:stm32f10x_it.c **** }
+ 19503              		.loc 1 522 0
+ 19504 0000 7047     		bx	lr
+ 19505              	.LFE71:
+ 19507              		.section	.text.USART1_IRQHandler,"ax",%progbits
+ 19508              		.align	1
+ 19509              		.global	USART1_IRQHandler
+ 19510              		.thumb
+ 19511              		.thumb_func
+ 19513              	USART1_IRQHandler:
+ 19514              	.LFB72:
+ 522:stm32f10x_it.c **** 
+ 523:stm32f10x_it.c **** /*******************************************************************************
+ 524:stm32f10x_it.c ****  * Function Name  : SPI2_IRQHandler
+ 525:stm32f10x_it.c ****  * Description    : This function handles SPI2 global interrupt request.
+ 526:stm32f10x_it.c ****  * Input          : None
+ 527:stm32f10x_it.c ****  * Output         : None
+ 528:stm32f10x_it.c ****  * Return         : None
+ 529:stm32f10x_it.c ****  *******************************************************************************/
+ 530:stm32f10x_it.c **** //void SPI2_IRQHandler(void) {}
+ 531:stm32f10x_it.c **** 
+ 532:stm32f10x_it.c **** /*******************************************************************************
+ 533:stm32f10x_it.c ****  * Function Name  : USART1_IRQHandler
+ 534:stm32f10x_it.c ****  * Description    : This function handles USART1 global interrupt request.
+ 535:stm32f10x_it.c ****  * Input          : None
+ 536:stm32f10x_it.c ****  * Output         : None
+ 537:stm32f10x_it.c ****  * Return         : None
+ 538:stm32f10x_it.c ****  *******************************************************************************/
+ 539:stm32f10x_it.c **** void USART1_IRQHandler(void) {
+ 19515              		.loc 1 540 0
+ 19516              		@ args = 0, pretend = 0, frame = 0
+ 19517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19518 0000 08B5     		push	{r3, lr}
+ 19519              	.LCFI1:
+ 540:stm32f10x_it.c **** #ifdef USART1_ENABLE
+ 541:stm32f10x_it.c **** 	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+ 19520              		.loc 1 542 0
+ 19521 0002 0A48     		ldr	r0, .L60
+ 19522 0004 40F22551 		movw	r1, #1317
+ 19523 0008 FFF7FEFF 		bl	USART_GetITStatus
+ 19524 000c 28B1     		cbz	r0, .L58
+ 542:stm32f10x_it.c **** 		USART1_IT_RxReady_exec(USART_ReceiveData(USART1));
+ 19525              		.loc 1 543 0
+ 19526 000e 0748     		ldr	r0, .L60
+ 19527 0010 FFF7FEFF 		bl	USART_ReceiveData
+ 19528 0014 C0B2     		uxtb	r0, r0
+ 19529 0016 FFF7FEFF 		bl	USART1_IT_RxReady_exec
+ 19530              	.L58:
+ 543:stm32f10x_it.c **** 	}
+ 544:stm32f10x_it.c **** 	if (USART_GetITStatus(USART1, USART_IT_TXE) != RESET) {
+ 19531              		.loc 1 545 0
+ 19532 001a 0448     		ldr	r0, .L60
+ 19533 001c 40F22771 		movw	r1, #1831
+ 19534 0020 FFF7FEFF 		bl	USART_GetITStatus
+ 19535 0024 08B1     		cbz	r0, .L57
+ 545:stm32f10x_it.c **** 		USART1_IT_TxReady_exec();
+ 19536              		.loc 1 546 0
+ 19537 0026 FFF7FEFF 		bl	USART1_IT_TxReady_exec
+ 19538              	.L57:
+ 546:stm32f10x_it.c **** 	}
+ 547:stm32f10x_it.c **** #endif
+ 548:stm32f10x_it.c **** }
+ 19539              		.loc 1 549 0
+ 19540 002a 08BD     		pop	{r3, pc}
+ 19541              	.L61:
+ 19542              		.align	2
+ 19543              	.L60:
+ 19544 002c 00380140 		.word	1073821696
+ 19545              	.LFE72:
+ 19547              		.section	.text.USART2_IRQHandler,"ax",%progbits
+ 19548              		.align	1
+ 19549              		.global	USART2_IRQHandler
+ 19550              		.thumb
+ 19551              		.thumb_func
+ 19553              	USART2_IRQHandler:
+ 19554              	.LFB73:
+ 549:stm32f10x_it.c **** 
+ 550:stm32f10x_it.c **** /*******************************************************************************
+ 551:stm32f10x_it.c ****  * Function Name  : USART2_IRQHandler
+ 552:stm32f10x_it.c ****  * Description    : This function handles USART2 global interrupt request.
+ 553:stm32f10x_it.c ****  * Input          : None
+ 554:stm32f10x_it.c ****  * Output         : None
+ 555:stm32f10x_it.c ****  * Return         : None
+ 556:stm32f10x_it.c ****  *******************************************************************************/
+ 557:stm32f10x_it.c **** void USART2_IRQHandler(void) {
+ 19555              		.loc 1 558 0
+ 19556              		@ args = 0, pretend = 0, frame = 0
+ 19557              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19558              		@ link register save eliminated.
+ 558:stm32f10x_it.c **** #ifdef USART2_ENABLE
+ 559:stm32f10x_it.c **** 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) {
+ 560:stm32f10x_it.c **** 		USART2_IT_RxReady_exec(USART_ReceiveData(USART2));
+ 561:stm32f10x_it.c **** 	}
+ 562:stm32f10x_it.c **** 	if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET) {
+ 563:stm32f10x_it.c **** 		USART2_IT_TxReady_exec();
+ 564:stm32f10x_it.c **** 	}
+ 565:stm32f10x_it.c **** #endif
+ 566:stm32f10x_it.c **** }
+ 19559              		.loc 1 567 0
+ 19560 0000 7047     		bx	lr
+ 19561              	.LFE73:
+ 19563              		.section	.text.USART3_IRQHandler,"ax",%progbits
+ 19564              		.align	1
+ 19565              		.global	USART3_IRQHandler
+ 19566              		.thumb
+ 19567              		.thumb_func
+ 19569              	USART3_IRQHandler:
+ 19570              	.LFB74:
+ 567:stm32f10x_it.c **** 
+ 568:stm32f10x_it.c **** /*******************************************************************************
+ 569:stm32f10x_it.c ****  * Function Name  : USART3_IRQHandler
+ 570:stm32f10x_it.c ****  * Description    : This function handles USART3 global interrupt request.
+ 571:stm32f10x_it.c ****  * Input          : None
+ 572:stm32f10x_it.c ****  * Output         : None
+ 573:stm32f10x_it.c ****  * Return         : None
+ 574:stm32f10x_it.c ****  *******************************************************************************/
+ 575:stm32f10x_it.c **** void USART3_IRQHandler(void) {
+ 19571              		.loc 1 576 0
+ 19572              		@ args = 0, pretend = 0, frame = 0
+ 19573              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19574              		@ link register save eliminated.
+ 576:stm32f10x_it.c **** }
+ 19575              		.loc 1 577 0
+ 19576 0000 7047     		bx	lr
+ 19577              	.LFE74:
+ 19579              		.section	.text.EXTI15_10_IRQHandler,"ax",%progbits
+ 19580              		.align	1
+ 19581              		.global	EXTI15_10_IRQHandler
+ 19582              		.thumb
+ 19583              		.thumb_func
+ 19585              	EXTI15_10_IRQHandler:
+ 19586              	.LFB75:
+ 577:stm32f10x_it.c **** 
+ 578:stm32f10x_it.c **** /*******************************************************************************
+ 579:stm32f10x_it.c ****  * Function Name  : EXTI15_10_IRQHandler
+ 580:stm32f10x_it.c ****  * Description    : This function handles External lines 15 to 10 interrupt request.
+ 581:stm32f10x_it.c ****  * Input          : None
+ 582:stm32f10x_it.c ****  * Output         : None
+ 583:stm32f10x_it.c ****  * Return         : None
+ 584:stm32f10x_it.c ****  *******************************************************************************/
+ 585:stm32f10x_it.c **** void EXTI15_10_IRQHandler(void) {
+ 19587              		.loc 1 586 0
+ 19588              		@ args = 0, pretend = 0, frame = 0
+ 19589              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19590              		@ link register save eliminated.
+ 586:stm32f10x_it.c **** }
+ 19591              		.loc 1 587 0
+ 19592 0000 7047     		bx	lr
+ 19593              	.LFE75:
+ 19595              		.section	.text.RTCAlarm_IRQHandler,"ax",%progbits
+ 19596              		.align	1
+ 19597              		.global	RTCAlarm_IRQHandler
+ 19598              		.thumb
+ 19599              		.thumb_func
+ 19601              	RTCAlarm_IRQHandler:
+ 19602              	.LFB76:
+ 587:stm32f10x_it.c **** 
+ 588:stm32f10x_it.c **** /*******************************************************************************
+ 589:stm32f10x_it.c ****  * Function Name  : RTCAlarm_IRQHandler
+ 590:stm32f10x_it.c ****  * Description    : This function handles RTC Alarm interrupt request.
+ 591:stm32f10x_it.c ****  * Input          : None
+ 592:stm32f10x_it.c ****  * Output         : None
+ 593:stm32f10x_it.c ****  * Return         : None
+ 594:stm32f10x_it.c ****  *******************************************************************************/
+ 595:stm32f10x_it.c **** void RTCAlarm_IRQHandler(void) {
+ 19603              		.loc 1 596 0
+ 19604              		@ args = 0, pretend = 0, frame = 0
+ 19605              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19606              		@ link register save eliminated.
+ 596:stm32f10x_it.c **** }
+ 19607              		.loc 1 597 0
+ 19608 0000 7047     		bx	lr
+ 19609              	.LFE76:
+ 19611              		.section	.text.USBWakeUp_IRQHandler,"ax",%progbits
+ 19612              		.align	1
+ 19613              		.global	USBWakeUp_IRQHandler
+ 19614              		.thumb
+ 19615              		.thumb_func
+ 19617              	USBWakeUp_IRQHandler:
+ 19618              	.LFB77:
+ 597:stm32f10x_it.c **** 
+ 598:stm32f10x_it.c **** /*******************************************************************************
+ 599:stm32f10x_it.c ****  * Function Name  : USBWakeUp_IRQHandler
+ 600:stm32f10x_it.c ****  * Description    : This function handles USB WakeUp interrupt request.
+ 601:stm32f10x_it.c ****  * Input          : None
+ 602:stm32f10x_it.c ****  * Output         : None
+ 603:stm32f10x_it.c ****  * Return         : None
+ 604:stm32f10x_it.c ****  *******************************************************************************/
+ 605:stm32f10x_it.c **** void USBWakeUp_IRQHandler(void) {
+ 19619              		.loc 1 606 0
+ 19620              		@ args = 0, pretend = 0, frame = 0
+ 19621              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19622              		@ link register save eliminated.
+ 606:stm32f10x_it.c **** }
+ 19623              		.loc 1 607 0
+ 19624 0000 7047     		bx	lr
+ 19625              	.LFE77:
+ 19627              		.section	.text.TIM8_BRK_IRQHandler,"ax",%progbits
+ 19628              		.align	1
+ 19629              		.global	TIM8_BRK_IRQHandler
+ 19630              		.thumb
+ 19631              		.thumb_func
+ 19633              	TIM8_BRK_IRQHandler:
+ 19634              	.LFB78:
+ 607:stm32f10x_it.c **** /*******************************************************************************
+ 608:stm32f10x_it.c ****  * Function Name  : TIM8_BRK_IRQHandler
+ 609:stm32f10x_it.c ****  * Description    : This function handles TIM8 Break interrupt request.
+ 610:stm32f10x_it.c ****  * Input          : None
+ 611:stm32f10x_it.c ****  * Output         : None
+ 612:stm32f10x_it.c ****  * Return         : None
+ 613:stm32f10x_it.c ****  *******************************************************************************/
+ 614:stm32f10x_it.c **** void TIM8_BRK_IRQHandler(void) {
+ 19635              		.loc 1 615 0
+ 19636              		@ args = 0, pretend = 0, frame = 0
+ 19637              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19638              		@ link register save eliminated.
+ 615:stm32f10x_it.c **** }
+ 19639              		.loc 1 616 0
+ 19640 0000 7047     		bx	lr
+ 19641              	.LFE78:
+ 19643              		.section	.text.TIM8_UP_IRQHandler,"ax",%progbits
+ 19644              		.align	1
+ 19645              		.global	TIM8_UP_IRQHandler
+ 19646              		.thumb
+ 19647              		.thumb_func
+ 19649              	TIM8_UP_IRQHandler:
+ 19650              	.LFB79:
+ 616:stm32f10x_it.c **** 
+ 617:stm32f10x_it.c **** /*******************************************************************************
+ 618:stm32f10x_it.c ****  * Function Name  : TIM8_UP_IRQHandler
+ 619:stm32f10x_it.c ****  * Description    : This function handles TIM8 overflow and update interrupt
+ 620:stm32f10x_it.c ****  *                  request.
+ 621:stm32f10x_it.c ****  * Input          : None
+ 622:stm32f10x_it.c ****  * Output         : None
+ 623:stm32f10x_it.c ****  * Return         : None
+ 624:stm32f10x_it.c ****  *******************************************************************************/
+ 625:stm32f10x_it.c **** void TIM8_UP_IRQHandler(void) {
+ 19651              		.loc 1 626 0
+ 19652              		@ args = 0, pretend = 0, frame = 0
+ 19653              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19654              		@ link register save eliminated.
+ 626:stm32f10x_it.c **** }
+ 19655              		.loc 1 627 0
+ 19656 0000 7047     		bx	lr
+ 19657              	.LFE79:
+ 19659              		.section	.text.TIM8_TRG_COM_IRQHandler,"ax",%progbits
+ 19660              		.align	1
+ 19661              		.global	TIM8_TRG_COM_IRQHandler
+ 19662              		.thumb
+ 19663              		.thumb_func
+ 19665              	TIM8_TRG_COM_IRQHandler:
+ 19666              	.LFB80:
+ 627:stm32f10x_it.c **** 
+ 628:stm32f10x_it.c **** /*******************************************************************************
+ 629:stm32f10x_it.c ****  * Function Name  : TIM8_TRG_COM_IRQHandler
+ 630:stm32f10x_it.c ****  * Description    : This function handles TIM8 Trigger and commutation interrupts
+ 631:stm32f10x_it.c ****  *                  requests.
+ 632:stm32f10x_it.c ****  * Input          : None
+ 633:stm32f10x_it.c ****  * Output         : None
+ 634:stm32f10x_it.c ****  * Return         : None
+ 635:stm32f10x_it.c ****  *******************************************************************************/
+ 636:stm32f10x_it.c **** void TIM8_TRG_COM_IRQHandler(void) {
+ 19667              		.loc 1 637 0
+ 19668              		@ args = 0, pretend = 0, frame = 0
+ 19669              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19670              		@ link register save eliminated.
+ 637:stm32f10x_it.c **** }
+ 19671              		.loc 1 638 0
+ 19672 0000 7047     		bx	lr
+ 19673              	.LFE80:
+ 19675              		.section	.text.TIM8_CC_IRQHandler,"ax",%progbits
+ 19676              		.align	1
+ 19677              		.global	TIM8_CC_IRQHandler
+ 19678              		.thumb
+ 19679              		.thumb_func
+ 19681              	TIM8_CC_IRQHandler:
+ 19682              	.LFB81:
+ 638:stm32f10x_it.c **** 
+ 639:stm32f10x_it.c **** /*******************************************************************************
+ 640:stm32f10x_it.c ****  * Function Name  : TIM8_CC_IRQHandler
+ 641:stm32f10x_it.c ****  * Description    : This function handles TIM8 capture compare interrupt request.
+ 642:stm32f10x_it.c ****  * Input          : None
+ 643:stm32f10x_it.c ****  * Output         : None
+ 644:stm32f10x_it.c ****  * Return         : None
+ 645:stm32f10x_it.c ****  *******************************************************************************/
+ 646:stm32f10x_it.c **** void TIM8_CC_IRQHandler(void) {
+ 19683              		.loc 1 647 0
+ 19684              		@ args = 0, pretend = 0, frame = 0
+ 19685              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19686              		@ link register save eliminated.
+ 647:stm32f10x_it.c **** }
+ 19687              		.loc 1 648 0
+ 19688 0000 7047     		bx	lr
+ 19689              	.LFE81:
+ 19691              		.section	.text.ADC3_IRQHandler,"ax",%progbits
+ 19692              		.align	1
+ 19693              		.global	ADC3_IRQHandler
+ 19694              		.thumb
+ 19695              		.thumb_func
+ 19697              	ADC3_IRQHandler:
+ 19698              	.LFB82:
+ 648:stm32f10x_it.c **** 
+ 649:stm32f10x_it.c **** /*******************************************************************************
+ 650:stm32f10x_it.c ****  * Function Name  : ADC3_IRQHandler
+ 651:stm32f10x_it.c ****  * Description    : This function handles ADC3 global interrupt request.
+ 652:stm32f10x_it.c ****  * Input          : None
+ 653:stm32f10x_it.c ****  * Output         : None
+ 654:stm32f10x_it.c ****  * Return         : None
+ 655:stm32f10x_it.c ****  *******************************************************************************/
+ 656:stm32f10x_it.c **** void ADC3_IRQHandler(void) {
+ 19699              		.loc 1 657 0
+ 19700              		@ args = 0, pretend = 0, frame = 0
+ 19701              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19702              		@ link register save eliminated.
+ 657:stm32f10x_it.c **** }
+ 19703              		.loc 1 658 0
+ 19704 0000 7047     		bx	lr
+ 19705              	.LFE82:
+ 19707              		.section	.text.FSMC_IRQHandler,"ax",%progbits
+ 19708              		.align	1
+ 19709              		.global	FSMC_IRQHandler
+ 19710              		.thumb
+ 19711              		.thumb_func
+ 19713              	FSMC_IRQHandler:
+ 19714              	.LFB83:
+ 658:stm32f10x_it.c **** 
+ 659:stm32f10x_it.c **** /*******************************************************************************
+ 660:stm32f10x_it.c ****  * Function Name  : FSMC_IRQHandler
+ 661:stm32f10x_it.c ****  * Description    : This function handles FSMC global interrupt request.
+ 662:stm32f10x_it.c ****  * Input          : None
+ 663:stm32f10x_it.c ****  * Output         : None
+ 664:stm32f10x_it.c ****  * Return         : None
+ 665:stm32f10x_it.c ****  *******************************************************************************/
+ 666:stm32f10x_it.c **** void FSMC_IRQHandler(void) {
+ 19715              		.loc 1 667 0
+ 19716              		@ args = 0, pretend = 0, frame = 0
+ 19717              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19718              		@ link register save eliminated.
+ 667:stm32f10x_it.c **** }
+ 19719              		.loc 1 668 0
+ 19720 0000 7047     		bx	lr
+ 19721              	.LFE83:
+ 19723              		.section	.text.SDIO_IRQHandler,"ax",%progbits
+ 19724              		.align	1
+ 19725              		.global	SDIO_IRQHandler
+ 19726              		.thumb
+ 19727              		.thumb_func
+ 19729              	SDIO_IRQHandler:
+ 19730              	.LFB84:
+ 668:stm32f10x_it.c **** 
+ 669:stm32f10x_it.c **** /*******************************************************************************
+ 670:stm32f10x_it.c ****  * Function Name  : SDIO_IRQHandler
+ 671:stm32f10x_it.c ****  * Description    : This function handles SDIO global interrupt request.
+ 672:stm32f10x_it.c ****  * Input          : None
+ 673:stm32f10x_it.c ****  * Output         : None
+ 674:stm32f10x_it.c ****  * Return         : None
+ 675:stm32f10x_it.c ****  *******************************************************************************/
+ 676:stm32f10x_it.c **** // перенесена в модуль sdio.cpp
+ 677:stm32f10x_it.c **** 
+ 678:stm32f10x_it.c **** void SDIO_IRQHandler(void) {
+ 19731              		.loc 1 679 0
+ 19732              		@ args = 0, pretend = 0, frame = 0
+ 19733              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19734              		@ link register save eliminated.
+ 679:stm32f10x_it.c **** 
+ 680:stm32f10x_it.c **** }
+ 19735              		.loc 1 681 0
+ 19736 0000 7047     		bx	lr
+ 19737              	.LFE84:
+ 19739              		.section	.text.TIM5_IRQHandler,"ax",%progbits
+ 19740              		.align	1
+ 19741              		.global	TIM5_IRQHandler
+ 19742              		.thumb
+ 19743              		.thumb_func
+ 19745              	TIM5_IRQHandler:
+ 19746              	.LFB85:
+ 681:stm32f10x_it.c **** /*******************************************************************************
+ 682:stm32f10x_it.c ****  * Function Name  : TIM5_IRQHandler
+ 683:stm32f10x_it.c ****  * Description    : This function handles TIM5 global interrupt request.
+ 684:stm32f10x_it.c ****  * Input          : None
+ 685:stm32f10x_it.c ****  * Output         : None
+ 686:stm32f10x_it.c ****  * Return         : None
+ 687:stm32f10x_it.c ****  *******************************************************************************/
+ 688:stm32f10x_it.c **** void TIM5_IRQHandler(void) {
+ 19747              		.loc 1 689 0
+ 19748              		@ args = 0, pretend = 0, frame = 0
+ 19749              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19750              		@ link register save eliminated.
+ 689:stm32f10x_it.c **** }
+ 19751              		.loc 1 690 0
+ 19752 0000 7047     		bx	lr
+ 19753              	.LFE85:
+ 19755              		.section	.text.SPI3_IRQHandler,"ax",%progbits
+ 19756              		.align	1
+ 19757              		.global	SPI3_IRQHandler
+ 19758              		.thumb
+ 19759              		.thumb_func
+ 19761              	SPI3_IRQHandler:
+ 19762              	.LFB86:
+ 690:stm32f10x_it.c **** 
+ 691:stm32f10x_it.c **** /*******************************************************************************
+ 692:stm32f10x_it.c ****  * Function Name  : SPI3_IRQHandler
+ 693:stm32f10x_it.c ****  * Description    : This function handles SPI3 global interrupt request.
+ 694:stm32f10x_it.c ****  * Input          : None
+ 695:stm32f10x_it.c ****  * Output         : None
+ 696:stm32f10x_it.c ****  * Return         : None
+ 697:stm32f10x_it.c ****  *******************************************************************************/
+ 698:stm32f10x_it.c **** void SPI3_IRQHandler(void) {
+ 19763              		.loc 1 699 0
+ 19764              		@ args = 0, pretend = 0, frame = 0
+ 19765              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19766              		@ link register save eliminated.
+ 699:stm32f10x_it.c **** }
+ 19767              		.loc 1 700 0
+ 19768 0000 7047     		bx	lr
+ 19769              	.LFE86:
+ 19771              		.section	.text.UART4_IRQHandler,"ax",%progbits
+ 19772              		.align	1
+ 19773              		.global	UART4_IRQHandler
+ 19774              		.thumb
+ 19775              		.thumb_func
+ 19777              	UART4_IRQHandler:
+ 19778              	.LFB87:
+ 700:stm32f10x_it.c **** 
+ 701:stm32f10x_it.c **** /*******************************************************************************
+ 702:stm32f10x_it.c ****  * Function Name  : UART4_IRQHandler
+ 703:stm32f10x_it.c ****  * Description    : This function handles UART4 global interrupt request.
+ 704:stm32f10x_it.c ****  * Input          : None
+ 705:stm32f10x_it.c ****  * Output         : None
+ 706:stm32f10x_it.c ****  * Return         : None
+ 707:stm32f10x_it.c ****  *******************************************************************************/
+ 708:stm32f10x_it.c **** void UART4_IRQHandler(void) {
+ 19779              		.loc 1 709 0
+ 19780              		@ args = 0, pretend = 0, frame = 0
+ 19781              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19782              		@ link register save eliminated.
+ 709:stm32f10x_it.c **** }
+ 19783              		.loc 1 710 0
+ 19784 0000 7047     		bx	lr
+ 19785              	.LFE87:
+ 19787              		.section	.text.UART5_IRQHandler,"ax",%progbits
+ 19788              		.align	1
+ 19789              		.global	UART5_IRQHandler
+ 19790              		.thumb
+ 19791              		.thumb_func
+ 19793              	UART5_IRQHandler:
+ 19794              	.LFB88:
+ 710:stm32f10x_it.c **** 
+ 711:stm32f10x_it.c **** /*******************************************************************************
+ 712:stm32f10x_it.c ****  * Function Name  : UART5_IRQHandler
+ 713:stm32f10x_it.c ****  * Description    : This function handles UART5 global interrupt request.
+ 714:stm32f10x_it.c ****  * Input          : None
+ 715:stm32f10x_it.c ****  * Output         : None
+ 716:stm32f10x_it.c ****  * Return         : None
+ 717:stm32f10x_it.c ****  *******************************************************************************/
+ 718:stm32f10x_it.c **** void UART5_IRQHandler(void) {
+ 19795              		.loc 1 719 0
+ 19796              		@ args = 0, pretend = 0, frame = 0
+ 19797              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19798              		@ link register save eliminated.
+ 719:stm32f10x_it.c **** }
+ 19799              		.loc 1 720 0
+ 19800 0000 7047     		bx	lr
+ 19801              	.LFE88:
+ 19803              		.section	.text.TIM6_IRQHandler,"ax",%progbits
+ 19804              		.align	1
+ 19805              		.global	TIM6_IRQHandler
+ 19806              		.thumb
+ 19807              		.thumb_func
+ 19809              	TIM6_IRQHandler:
+ 19810              	.LFB89:
+ 720:stm32f10x_it.c **** 
+ 721:stm32f10x_it.c **** /*******************************************************************************
+ 722:stm32f10x_it.c ****  * Function Name  : TIM6_IRQHandler
+ 723:stm32f10x_it.c ****  * Description    : This function handles TIM6 global interrupt request.
+ 724:stm32f10x_it.c ****  * Input          : None
+ 725:stm32f10x_it.c ****  * Output         : None
+ 726:stm32f10x_it.c ****  * Return         : None
+ 727:stm32f10x_it.c ****  *******************************************************************************/
+ 728:stm32f10x_it.c **** void TIM6_IRQHandler(void) {
+ 19811              		.loc 1 729 0
+ 19812              		@ args = 0, pretend = 0, frame = 0
+ 19813              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19814              		@ link register save eliminated.
+ 729:stm32f10x_it.c **** }
+ 19815              		.loc 1 730 0
+ 19816 0000 7047     		bx	lr
+ 19817              	.LFE89:
+ 19819              		.section	.text.TIM7_IRQHandler,"ax",%progbits
+ 19820              		.align	1
+ 19821              		.global	TIM7_IRQHandler
+ 19822              		.thumb
+ 19823              		.thumb_func
+ 19825              	TIM7_IRQHandler:
+ 19826              	.LFB90:
+ 730:stm32f10x_it.c **** 
+ 731:stm32f10x_it.c **** /*******************************************************************************
+ 732:stm32f10x_it.c ****  * Function Name  : TIM7_IRQHandler
+ 733:stm32f10x_it.c ****  * Description    : This function handles TIM7 global interrupt request.
+ 734:stm32f10x_it.c ****  * Input          : None
+ 735:stm32f10x_it.c ****  * Output         : None
+ 736:stm32f10x_it.c ****  * Return         : None
+ 737:stm32f10x_it.c ****  *******************************************************************************/
+ 738:stm32f10x_it.c **** void TIM7_IRQHandler(void) {
+ 19827              		.loc 1 739 0
+ 19828              		@ args = 0, pretend = 0, frame = 0
+ 19829              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19830              		@ link register save eliminated.
+ 739:stm32f10x_it.c **** }
+ 19831              		.loc 1 740 0
+ 19832 0000 7047     		bx	lr
+ 19833              	.LFE90:
+ 19835              		.section	.text.DMA2_Channel1_IRQHandler,"ax",%progbits
+ 19836              		.align	1
+ 19837              		.global	DMA2_Channel1_IRQHandler
+ 19838              		.thumb
+ 19839              		.thumb_func
+ 19841              	DMA2_Channel1_IRQHandler:
+ 19842              	.LFB91:
+ 740:stm32f10x_it.c **** 
+ 741:stm32f10x_it.c **** /*******************************************************************************
+ 742:stm32f10x_it.c ****  * Function Name  : DMA2_Channel1_IRQHandler
+ 743:stm32f10x_it.c ****  * Description    : This function handles DMA2 Channel 1 interrupt request.
+ 744:stm32f10x_it.c ****  * Input          : None
+ 745:stm32f10x_it.c ****  * Output         : None
+ 746:stm32f10x_it.c ****  * Return         : None
+ 747:stm32f10x_it.c ****  *******************************************************************************/
+ 748:stm32f10x_it.c **** void DMA2_Channel1_IRQHandler(void) {
+ 19843              		.loc 1 749 0
+ 19844              		@ args = 0, pretend = 0, frame = 0
+ 19845              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19846              		@ link register save eliminated.
+ 749:stm32f10x_it.c **** }
+ 19847              		.loc 1 750 0
+ 19848 0000 7047     		bx	lr
+ 19849              	.LFE91:
+ 19851              		.section	.text.DMA2_Channel2_IRQHandler,"ax",%progbits
+ 19852              		.align	1
+ 19853              		.global	DMA2_Channel2_IRQHandler
+ 19854              		.thumb
+ 19855              		.thumb_func
+ 19857              	DMA2_Channel2_IRQHandler:
+ 19858              	.LFB92:
+ 750:stm32f10x_it.c **** 
+ 751:stm32f10x_it.c **** /*******************************************************************************
+ 752:stm32f10x_it.c ****  * Function Name  : DMA2_Channel2_IRQHandler
+ 753:stm32f10x_it.c ****  * Description    : This function handles DMA2 Channel 2 interrupt request.
+ 754:stm32f10x_it.c ****  * Input          : None
+ 755:stm32f10x_it.c ****  * Output         : None
+ 756:stm32f10x_it.c ****  * Return         : None
+ 757:stm32f10x_it.c ****  *******************************************************************************/
+ 758:stm32f10x_it.c **** void DMA2_Channel2_IRQHandler(void) {
+ 19859              		.loc 1 759 0
+ 19860              		@ args = 0, pretend = 0, frame = 0
+ 19861              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19862              		@ link register save eliminated.
+ 759:stm32f10x_it.c **** }
+ 19863              		.loc 1 760 0
+ 19864 0000 7047     		bx	lr
+ 19865              	.LFE92:
+ 19867              		.section	.text.DMA2_Channel3_IRQHandler,"ax",%progbits
+ 19868              		.align	1
+ 19869              		.global	DMA2_Channel3_IRQHandler
+ 19870              		.thumb
+ 19871              		.thumb_func
+ 19873              	DMA2_Channel3_IRQHandler:
+ 19874              	.LFB93:
+ 760:stm32f10x_it.c **** 
+ 761:stm32f10x_it.c **** /*******************************************************************************
+ 762:stm32f10x_it.c ****  * Function Name  : DMA2_Channel3_IRQHandler
+ 763:stm32f10x_it.c ****  * Description    : This function handles DMA2 Channel 3 interrupt request.
+ 764:stm32f10x_it.c ****  * Input          : None
+ 765:stm32f10x_it.c ****  * Output         : None
+ 766:stm32f10x_it.c ****  * Return         : None
+ 767:stm32f10x_it.c ****  *******************************************************************************/
+ 768:stm32f10x_it.c **** void DMA2_Channel3_IRQHandler(void) {
+ 19875              		.loc 1 769 0
+ 19876              		@ args = 0, pretend = 0, frame = 0
+ 19877              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19878              		@ link register save eliminated.
+ 769:stm32f10x_it.c **** }
+ 19879              		.loc 1 770 0
+ 19880 0000 7047     		bx	lr
+ 19881              	.LFE93:
+ 19883              		.section	.text.DMA2_Channel4_5_IRQHandler,"ax",%progbits
+ 19884              		.align	1
+ 19885              		.global	DMA2_Channel4_5_IRQHandler
+ 19886              		.thumb
+ 19887              		.thumb_func
+ 19889              	DMA2_Channel4_5_IRQHandler:
+ 19890              	.LFB94:
+ 770:stm32f10x_it.c **** 
+ 771:stm32f10x_it.c **** /*******************************************************************************
+ 772:stm32f10x_it.c ****  * Function Name  : DMA2_Channel4_5_IRQHandler
+ 773:stm32f10x_it.c ****  * Description    : This function handles DMA2 Channel 4 and DMA2 Channel 5
+ 774:stm32f10x_it.c ****  *                  interrupt request.
+ 775:stm32f10x_it.c ****  * Input          : None
+ 776:stm32f10x_it.c ****  * Output         : None
+ 777:stm32f10x_it.c ****  * Return         : None
+ 778:stm32f10x_it.c ****  *******************************************************************************/
+ 779:stm32f10x_it.c **** void DMA2_Channel4_5_IRQHandler(void) {
+ 19891              		.loc 1 780 0
+ 19892              		@ args = 0, pretend = 0, frame = 0
+ 19893              		@ frame_needed = 0, uses_anonymous_args = 0
+ 19894              		@ link register save eliminated.
+ 780:stm32f10x_it.c **** }
+ 19895              		.loc 1 781 0
+ 19896 0000 7047     		bx	lr
+ 19897              	.LFE94:
+ 19899              		.global	_sysTicks
+ 19900              		.comm	_pwm_timeout,4,4
+ 19901              		.comm	_torch_timeout,4,4
+ 19902              		.section	.bss._sysTicks,"aw",%nobits
+ 19903              		.align	2
+ 19904              		.set	.LANCHOR0,. + 0
+ 19907              	_sysTicks:
+ 19908 0000 00000000 		.space	4
+ 20485              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f10x_it.c
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18721  .text.NMIException:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18726  .text.NMIException:00000000 NMIException
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18737  .text.HardFaultException:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18742  .text.HardFaultException:00000000 HardFaultException
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18758  .text.MemManageException:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18763  .text.MemManageException:00000000 MemManageException
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18774  .text.BusFaultException:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18779  .text.BusFaultException:00000000 BusFaultException
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18790  .text.UsageFaultException:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18795  .text.UsageFaultException:00000000 UsageFaultException
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18806  .text.DebugMonitor:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18811  .text.DebugMonitor:00000000 DebugMonitor
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18822  .text.SVCHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18827  .text.SVCHandler:00000000 SVCHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18838  .text.PendSVC:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18843  .text.PendSVC:00000000 PendSVC
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18854  .text.SysTickHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18859  .text.SysTickHandler:00000000 SysTickHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18925  .text.SysTickHandler:00000068 $d
+                            *COM*:00000004 _pwm_timeout
+                            *COM*:00000004 _torch_timeout
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18932  .text.WWDG_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18937  .text.WWDG_IRQHandler:00000000 WWDG_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18948  .text.PVD_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18953  .text.PVD_IRQHandler:00000000 PVD_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18964  .text.TAMPER_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18969  .text.TAMPER_IRQHandler:00000000 TAMPER_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18980  .text.RTC_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18985  .text.RTC_IRQHandler:00000000 RTC_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:18996  .text.FLASH_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19001  .text.FLASH_IRQHandler:00000000 FLASH_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19012  .text.RCC_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19017  .text.RCC_IRQHandler:00000000 RCC_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19028  .text.EXTI0_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19033  .text.EXTI0_IRQHandler:00000000 EXTI0_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19044  .text.EXTI1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19049  .text.EXTI1_IRQHandler:00000000 EXTI1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19060  .text.EXTI2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19065  .text.EXTI2_IRQHandler:00000000 EXTI2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19076  .text.EXTI3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19081  .text.EXTI3_IRQHandler:00000000 EXTI3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19092  .text.EXTI4_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19097  .text.EXTI4_IRQHandler:00000000 EXTI4_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19108  .text.DMA1_Channel1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19113  .text.DMA1_Channel1_IRQHandler:00000000 DMA1_Channel1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19124  .text.DMA1_Channel2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19129  .text.DMA1_Channel2_IRQHandler:00000000 DMA1_Channel2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19140  .text.DMA1_Channel3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19145  .text.DMA1_Channel3_IRQHandler:00000000 DMA1_Channel3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19156  .text.DMA1_Channel4_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19161  .text.DMA1_Channel4_IRQHandler:00000000 DMA1_Channel4_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19172  .text.DMA1_Channel5_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19177  .text.DMA1_Channel5_IRQHandler:00000000 DMA1_Channel5_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19188  .text.DMA1_Channel6_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19193  .text.DMA1_Channel6_IRQHandler:00000000 DMA1_Channel6_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19204  .text.DMA1_Channel7_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19209  .text.DMA1_Channel7_IRQHandler:00000000 DMA1_Channel7_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19220  .text.ADC1_2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19225  .text.ADC1_2_IRQHandler:00000000 ADC1_2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19236  .text.USB_HP_CAN_TX_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19241  .text.USB_HP_CAN_TX_IRQHandler:00000000 USB_HP_CAN_TX_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19252  .text.USB_LP_CAN_RX0_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19257  .text.USB_LP_CAN_RX0_IRQHandler:00000000 USB_LP_CAN_RX0_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19268  .text.CAN_RX1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19273  .text.CAN_RX1_IRQHandler:00000000 CAN_RX1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19284  .text.CAN_SCE_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19289  .text.CAN_SCE_IRQHandler:00000000 CAN_SCE_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19300  .text.EXTI9_5_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19305  .text.EXTI9_5_IRQHandler:00000000 EXTI9_5_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19316  .text.TIM1_BRK_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19321  .text.TIM1_BRK_IRQHandler:00000000 TIM1_BRK_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19332  .text.TIM1_UP_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19337  .text.TIM1_UP_IRQHandler:00000000 TIM1_UP_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19348  .text.TIM1_TRG_COM_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19353  .text.TIM1_TRG_COM_IRQHandler:00000000 TIM1_TRG_COM_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19364  .text.TIM1_CC_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19369  .text.TIM1_CC_IRQHandler:00000000 TIM1_CC_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19380  .text.TIM2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19385  .text.TIM2_IRQHandler:00000000 TIM2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19396  .text.TIM3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19401  .text.TIM3_IRQHandler:00000000 TIM3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19412  .text.TIM4_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19417  .text.TIM4_IRQHandler:00000000 TIM4_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19428  .text.I2C1_EV_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19433  .text.I2C1_EV_IRQHandler:00000000 I2C1_EV_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19444  .text.I2C1_ER_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19449  .text.I2C1_ER_IRQHandler:00000000 I2C1_ER_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19460  .text.I2C2_EV_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19465  .text.I2C2_EV_IRQHandler:00000000 I2C2_EV_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19476  .text.I2C2_ER_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19481  .text.I2C2_ER_IRQHandler:00000000 I2C2_ER_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19492  .text.SPI1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19497  .text.SPI1_IRQHandler:00000000 SPI1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19508  .text.USART1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19513  .text.USART1_IRQHandler:00000000 USART1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19544  .text.USART1_IRQHandler:0000002c $d
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19548  .text.USART2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19553  .text.USART2_IRQHandler:00000000 USART2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19564  .text.USART3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19569  .text.USART3_IRQHandler:00000000 USART3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19580  .text.EXTI15_10_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19585  .text.EXTI15_10_IRQHandler:00000000 EXTI15_10_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19596  .text.RTCAlarm_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19601  .text.RTCAlarm_IRQHandler:00000000 RTCAlarm_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19612  .text.USBWakeUp_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19617  .text.USBWakeUp_IRQHandler:00000000 USBWakeUp_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19628  .text.TIM8_BRK_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19633  .text.TIM8_BRK_IRQHandler:00000000 TIM8_BRK_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19644  .text.TIM8_UP_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19649  .text.TIM8_UP_IRQHandler:00000000 TIM8_UP_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19660  .text.TIM8_TRG_COM_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19665  .text.TIM8_TRG_COM_IRQHandler:00000000 TIM8_TRG_COM_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19676  .text.TIM8_CC_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19681  .text.TIM8_CC_IRQHandler:00000000 TIM8_CC_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19692  .text.ADC3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19697  .text.ADC3_IRQHandler:00000000 ADC3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19708  .text.FSMC_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19713  .text.FSMC_IRQHandler:00000000 FSMC_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19724  .text.SDIO_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19729  .text.SDIO_IRQHandler:00000000 SDIO_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19740  .text.TIM5_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19745  .text.TIM5_IRQHandler:00000000 TIM5_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19756  .text.SPI3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19761  .text.SPI3_IRQHandler:00000000 SPI3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19772  .text.UART4_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19777  .text.UART4_IRQHandler:00000000 UART4_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19788  .text.UART5_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19793  .text.UART5_IRQHandler:00000000 UART5_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19804  .text.TIM6_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19809  .text.TIM6_IRQHandler:00000000 TIM6_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19820  .text.TIM7_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19825  .text.TIM7_IRQHandler:00000000 TIM7_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19836  .text.DMA2_Channel1_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19841  .text.DMA2_Channel1_IRQHandler:00000000 DMA2_Channel1_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19852  .text.DMA2_Channel2_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19857  .text.DMA2_Channel2_IRQHandler:00000000 DMA2_Channel2_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19868  .text.DMA2_Channel3_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19873  .text.DMA2_Channel3_IRQHandler:00000000 DMA2_Channel3_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19884  .text.DMA2_Channel4_5_IRQHandler:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19889  .text.DMA2_Channel4_5_IRQHandler:00000000 DMA2_Channel4_5_IRQHandler
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19907  .bss._sysTicks:00000000 _sysTicks
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19903  .bss._sysTicks:00000000 $d
+C:\Users\ts\AppData\Local\Temp\ccITHHPx.s:19922  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+motors_PWM_off_by_timer
+battery_monitor_fix
+USART_GetITStatus
+USART_ReceiveData
+USART1_IT_RxReady_exec
+USART1_IT_TxReady_exec

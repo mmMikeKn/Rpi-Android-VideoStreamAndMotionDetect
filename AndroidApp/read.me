@@ -1,0 +1,4 @@
+For test:
+ raspivid -n -ih -t 0 -rot 0 -w 640 -h 360 -fps 24 -b 1000000 -o - | nc -lk4 5001
+ raspivid -n -ih -t 0 -rot 0 -w 960 -h 540 -fps 24 -b 1000000 -o - | nc -lk4 5001
+ raspivid -n -ih -t 0 -rot 0 -w 1920 -h 1080 -fps 24 -b 1000000 -o - | nc -lk4 5001

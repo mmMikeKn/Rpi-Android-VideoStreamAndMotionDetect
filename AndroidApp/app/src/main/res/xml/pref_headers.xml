@@ -1,0 +1,23 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="home.mm.vcontroller.SettingsActivity$NetworkPreferenceFragment"
+        android:icon="@drawable/ic_ip_network_settings"
+        android:title="@string/pref_header_NetworkSettings" />
+
+    <header
+        android:fragment="home.mm.vcontroller.SettingsActivity$CameraPreferenceFragment"
+        android:icon="@drawable/ic_video_settings"
+        android:title="@string/pref_header_VideoSettings" />
+
+    <header
+        android:fragment="home.mm.vcontroller.SettingsActivity$MotionPreferenceFragment"
+        android:icon="@drawable/ic_check_motion_settings"
+        android:title="@string/pref_header_motion_pulling_settings" />
+
+    <header
+        android:fragment="home.mm.vcontroller.SettingsActivity$ExternalSpiPreferenceFragment"
+        android:icon="@drawable/ic_controller_settings"
+        android:title="@string/pref_header_external_spi_settings" />
+
+</preference-headers>

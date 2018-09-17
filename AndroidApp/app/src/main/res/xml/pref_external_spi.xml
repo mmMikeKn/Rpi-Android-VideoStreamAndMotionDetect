@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/cfg_hasExternalControllerSPI"
+        android:title="@string/pref_title_hasExternalControllerSPI" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:dependency="@string/cfg_hasExternalControllerSPI"
+        android:key="@string/cfg_checkExternalControllerBatteryVoltage"
+        android:title="@string/pref_title_checkExternalControllerBatteryVoltage" />
+
+    <EditTextPreference
+        android:key="@string/cfg_externalControllerBatteryVoltageAlarmLevel"
+        android:dependency="@string/cfg_checkExternalControllerBatteryVoltage"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_externalControllerBatteryVoltageAlarmLevel" />
+
+</PreferenceScreen>

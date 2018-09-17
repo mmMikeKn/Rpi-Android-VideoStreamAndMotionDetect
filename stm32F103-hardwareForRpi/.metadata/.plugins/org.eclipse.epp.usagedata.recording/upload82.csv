@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+java.vm.vendor,sysinfo,,,"Oracle Corporation",1534504572979
+java.vm.version,sysinfo,,,"25.131-b11",1534504572979
+started,bundle,org.eclipse.compare,3.5.0.I20090514-0808,"org.eclipse.compare",1534504577490
+executed,command,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.edit.opendecl",1534504578535
+opened,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534504578629
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534504578645
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.copy",1534504584417
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.lineEnd",1534504587006
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504587973
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504588145
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504588317
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504588506
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504588709
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504588896
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordPrevious",1534504589067
+executed,command,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.edit.text.goto.wordNext",1534504589442
+executed,command,org.eclipse.ui,3.5.1.M20090902-1000,"org.eclipse.ui.edit.copy",1534504590896
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534504592471
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534504866693
+activated,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534504869002
+closed,editor,org.eclipse.cdt.ui,5.1.1.200909110608,"org.eclipse.cdt.ui.editor.CEditor",1534504869002
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534504874228
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534504875273
+closed,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534504875382
+stopped,bundle,org.eclipse.jsch.ui,1.1.200.I20090430-0408,"org.eclipse.jsch.ui",1534504875522

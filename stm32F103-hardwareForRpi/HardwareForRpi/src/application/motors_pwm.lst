@@ -1,0 +1,437 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 18, 4
+  12              		.thumb
+  13              		.file	"motors_pwm.c"
+  23              	.Ltext0:
+  24              		.file 1 "motors_pwm.c"
+ 18424              		.align	1
+ 18425              		.global	motors_PWM_init
+ 18426              		.thumb
+ 18427              		.thumb_func
+ 18429              	motors_PWM_init:
+ 18430              	.LFB27:
+   0:motors_pwm.c  **** #include "global.h"
+   1:motors_pwm.c  **** 
+   2:motors_pwm.c  **** void motors_PWM_init() {
+ 18431              		.loc 1 3 0
+ 18432              		@ args = 0, pretend = 0, frame = 32
+ 18433              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18434 0000 70B5     		push	{r4, r5, r6, lr}
+ 18435              	.LCFI0:
+   3:motors_pwm.c  **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+ 18436              		.loc 1 4 0
+ 18437 0002 0120     		movs	r0, #1
+   3:motors_pwm.c  **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+ 18438              		.loc 1 3 0
+ 18439 0004 88B0     		sub	sp, sp, #32
+ 18440              	.LCFI1:
+ 18441              		.loc 1 4 0
+ 18442 0006 0146     		mov	r1, r0
+ 18443 0008 FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+   4:motors_pwm.c  **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+ 18444              		.loc 1 5 0
+ 18445 000c 0120     		movs	r0, #1
+   5:motors_pwm.c  **** 
+   6:motors_pwm.c  **** 	// PWM car motors
+   7:motors_pwm.c  **** 	// left: PA1 - TIM2_CH2, PA6 (L298N in1,in3), PA5 (L298N in2,in4)
+   8:motors_pwm.c  **** 	// right: PA2 - TIM2_CH3, PA3 (L298N in1,in3), PA4 (L298N in2,in4)
+   9:motors_pwm.c  **** 	// ---------
+  10:motors_pwm.c  **** 
+  11:motors_pwm.c  **** 	GPIO_InitTypeDef GPIO_InitStructure;
+  12:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  13:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  14:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;
+ 18446              		.loc 1 15 0
+ 18447 000e 08AC     		add	r4, sp, #32
+ 18448 0010 0625     		movs	r5, #6
+   5:motors_pwm.c  **** 
+ 18449              		.loc 1 5 0
+ 18450 0012 0146     		mov	r1, r0
+  15:motors_pwm.c  **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 18451              		.loc 1 16 0
+ 18452 0014 334E     		ldr	r6, .L2
+   5:motors_pwm.c  **** 
+ 18453              		.loc 1 5 0
+ 18454 0016 FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+  15:motors_pwm.c  **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 18455              		.loc 1 15 0
+ 18456 001a 24F8045D 		strh	r5, [r4, #-4]!	@ movhi
+  13:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+ 18457              		.loc 1 13 0
+ 18458 001e 0223     		movs	r3, #2
+ 18459 0020 8DF81E30 		strb	r3, [sp, #30]
+ 18460              		.loc 1 16 0
+ 18461 0024 3046     		mov	r0, r6
+  14:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18462              		.loc 1 14 0
+ 18463 0026 1633     		adds	r3, r3, #22
+ 18464              		.loc 1 16 0
+ 18465 0028 2146     		mov	r1, r4
+  14:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ 18466              		.loc 1 14 0
+ 18467 002a 8DF81F30 		strb	r3, [sp, #31]
+ 18468              		.loc 1 16 0
+ 18469 002e FFF7FEFF 		bl	GPIO_Init
+  16:motors_pwm.c  **** 
+  17:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  18:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5
+ 18470              		.loc 1 19 0
+ 18471 0032 7821     		movs	r1, #120
+  18:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5
+ 18472              		.loc 1 18 0
+ 18473 0034 1022     		movs	r2, #16
+ 18474              		.loc 1 19 0
+ 18475 0036 ADF81C10 		strh	r1, [sp, #28]	@ movhi
+  19:motors_pwm.c  **** 			| GPIO_Pin_6;
+  20:motors_pwm.c  **** 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+ 18476              		.loc 1 21 0
+ 18477 003a 3046     		mov	r0, r6
+ 18478 003c 2146     		mov	r1, r4
+  21:motors_pwm.c  **** 
+  22:motors_pwm.c  **** 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+  23:motors_pwm.c  **** 
+  24:motors_pwm.c  **** 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+ 18479              		.loc 1 25 0
+ 18480 003e 04AE     		add	r6, sp, #16
+  18:motors_pwm.c  **** 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ 18481              		.loc 1 18 0
+ 18482 0040 8DF81F20 		strb	r2, [sp, #31]
+  21:motors_pwm.c  **** 
+ 18483              		.loc 1 21 0
+ 18484 0044 FFF7FEFF 		bl	GPIO_Init
+ 18485              		.loc 1 25 0
+ 18486 0048 3046     		mov	r0, r6
+ 18487 004a FFF7FEFF 		bl	TIM_TimeBaseStructInit
+  25:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_Period = MOTOR_PWM_FREQ;
+ 18488              		.loc 1 26 0
+ 18489 004e 4FF4B470 		mov	r0, #360	@ movhi
+  26:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_Prescaler = 6;
+  27:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+ 18490              		.loc 1 28 0
+ 18491 0052 0024     		movs	r4, #0
+  28:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  29:motors_pwm.c  **** 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+ 18492              		.loc 1 30 0
+ 18493 0054 3146     		mov	r1, r6
+  26:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_Prescaler = 6;
+ 18494              		.loc 1 26 0
+ 18495 0056 ADF81400 		strh	r0, [sp, #20]	@ movhi
+ 18496              		.loc 1 30 0
+ 18497 005a 4FF08040 		mov	r0, #1073741824
+  27:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_Prescaler = 6;
+ 18498              		.loc 1 27 0
+ 18499 005e ADF81050 		strh	r5, [sp, #16]	@ movhi
+  28:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+ 18500              		.loc 1 28 0
+ 18501 0062 ADF81640 		strh	r4, [sp, #22]	@ movhi
+  29:motors_pwm.c  **** 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+ 18502              		.loc 1 29 0
+ 18503 0066 ADF81240 		strh	r4, [sp, #18]	@ movhi
+ 18504              		.loc 1 30 0
+ 18505 006a FFF7FEFF 		bl	TIM_TimeBaseInit
+  30:motors_pwm.c  **** 
+  31:motors_pwm.c  **** 	TIM_OCInitTypeDef TIM_OCInitStructure;
+  32:motors_pwm.c  **** 	TIM_OCStructInit(&TIM_OCInitStructure);
+ 18506              		.loc 1 33 0
+ 18507 006e 6846     		mov	r0, sp
+ 18508 0070 FFF7FEFF 		bl	TIM_OCStructInit
+  33:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  34:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18509              		.loc 1 35 0
+ 18510 0074 0126     		movs	r6, #1
+  34:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+ 18511              		.loc 1 34 0
+ 18512 0076 6023     		movs	r3, #96
+  35:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_Pulse = 0;
+  36:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+  37:motors_pwm.c  **** 
+  38:motors_pwm.c  **** 	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+ 18513              		.loc 1 39 0
+ 18514 0078 6946     		mov	r1, sp
+ 18515 007a 4FF08040 		mov	r0, #1073741824
+  34:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+ 18516              		.loc 1 34 0
+ 18517 007e ADF80030 		strh	r3, [sp, #0]	@ movhi
+  35:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_Pulse = 0;
+ 18518              		.loc 1 35 0
+ 18519 0082 ADF80260 		strh	r6, [sp, #2]	@ movhi
+  36:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_Pulse = 0;
+ 18520              		.loc 1 36 0
+ 18521 0086 ADF80640 		strh	r4, [sp, #6]	@ movhi
+  37:motors_pwm.c  **** 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+ 18522              		.loc 1 37 0
+ 18523 008a ADF80840 		strh	r4, [sp, #8]	@ movhi
+ 18524              		.loc 1 39 0
+ 18525 008e FFF7FEFF 		bl	TIM_OC2Init
+  39:motors_pwm.c  **** 	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);
+ 18526              		.loc 1 40 0
+ 18527 0092 0821     		movs	r1, #8
+ 18528 0094 4FF08040 		mov	r0, #1073741824
+ 18529 0098 FFF7FEFF 		bl	TIM_OC2PreloadConfig
+  40:motors_pwm.c  **** 	TIM_CCxCmd(TIM2, TIM_Channel_2, TIM_CCx_Disable);
+ 18530              		.loc 1 41 0
+ 18531 009c 2246     		mov	r2, r4
+ 18532 009e 0421     		movs	r1, #4
+ 18533 00a0 4FF08040 		mov	r0, #1073741824
+ 18534 00a4 FFF7FEFF 		bl	TIM_CCxCmd
+  41:motors_pwm.c  **** 
+  42:motors_pwm.c  **** 	TIM_OC3Init(TIM2, &TIM_OCInitStructure);
+ 18535              		.loc 1 43 0
+ 18536 00a8 6946     		mov	r1, sp
+ 18537 00aa 4FF08040 		mov	r0, #1073741824
+ 18538 00ae FFF7FEFF 		bl	TIM_OC3Init
+  43:motors_pwm.c  **** 	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);
+ 18539              		.loc 1 44 0
+ 18540 00b2 0821     		movs	r1, #8
+ 18541 00b4 4FF08040 		mov	r0, #1073741824
+ 18542 00b8 FFF7FEFF 		bl	TIM_OC3PreloadConfig
+  44:motors_pwm.c  **** 	TIM_CCxCmd(TIM2, TIM_Channel_3, TIM_CCx_Disable);
+ 18543              		.loc 1 45 0
+ 18544 00bc 0821     		movs	r1, #8
+ 18545 00be 2246     		mov	r2, r4
+ 18546 00c0 4FF08040 		mov	r0, #1073741824
+ 18547 00c4 FFF7FEFF 		bl	TIM_CCxCmd
+  45:motors_pwm.c  **** 
+  46:motors_pwm.c  **** 	TIM_ARRPreloadConfig(TIM2, ENABLE);
+ 18548              		.loc 1 47 0
+ 18549 00c8 3146     		mov	r1, r6
+ 18550 00ca 4FF08040 		mov	r0, #1073741824
+ 18551 00ce FFF7FEFF 		bl	TIM_ARRPreloadConfig
+  47:motors_pwm.c  **** 	TIM_Cmd(TIM2, ENABLE);
+ 18552              		.loc 1 48 0
+ 18553 00d2 4FF08040 		mov	r0, #1073741824
+ 18554 00d6 3146     		mov	r1, r6
+  33:motors_pwm.c  **** 	TIM_OCStructInit(&TIM_OCInitStructure);
+ 18555              		.loc 1 33 0
+ 18556 00d8 6D46     		mov	r5, sp
+ 18557              		.loc 1 48 0
+ 18558 00da FFF7FEFF 		bl	TIM_Cmd
+  48:motors_pwm.c  **** }
+ 18559              		.loc 1 49 0
+ 18560 00de 08B0     		add	sp, sp, #32
+ 18561 00e0 70BD     		pop	{r4, r5, r6, pc}
+ 18562              	.L3:
+ 18563 00e2 00BF     		.align	2
+ 18564              	.L2:
+ 18565 00e4 00080140 		.word	1073809408
+ 18566              	.LFE27:
+ 18568              		.section	.text.motors_PWM_set,"ax",%progbits
+ 18569              		.align	1
+ 18570              		.global	motors_PWM_set
+ 18571              		.thumb
+ 18572              		.thumb_func
+ 18574              	motors_PWM_set:
+ 18575              	.LFB29:
+  49:motors_pwm.c  **** 
+  50:motors_pwm.c  **** void motors_PWM_off_by_timer() {
+  51:motors_pwm.c  **** 	for (int i = 0; i < 2; i++)
+  52:motors_pwm.c  **** 		motors_PWM_set(i, 0); // off
+  53:motors_pwm.c  **** }
+  54:motors_pwm.c  **** 
+  55:motors_pwm.c  **** void motors_PWM_set(unsigned char channel, signed char val) {
+ 18576              		.loc 1 56 0
+ 18577              		@ args = 0, pretend = 0, frame = 0
+ 18578              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18579              	.LVL0:
+  56:motors_pwm.c  **** 	// value = -100..0..100
+  57:motors_pwm.c  **** 	int v = val >= 0 ? val : -val;
+  58:motors_pwm.c  **** 	int pwm = MOTOR_PWM_FREQ * (int) v / 100;
+  59:motors_pwm.c  **** 	unsigned char in = 0;
+  60:motors_pwm.c  **** 
+  61:motors_pwm.c  **** 	if (channel > 2)
+ 18580              		.loc 1 62 0
+ 18581 0000 0228     		cmp	r0, #2
+  56:motors_pwm.c  **** 	// value = -100..0..100
+ 18582              		.loc 1 56 0
+ 18583 0002 38B5     		push	{r3, r4, r5, lr}
+ 18584              	.LCFI2:
+  56:motors_pwm.c  **** 	// value = -100..0..100
+ 18585              		.loc 1 56 0
+ 18586 0004 0A46     		mov	r2, r1
+ 18587 0006 0546     		mov	r5, r0
+ 18588              		.loc 1 62 0
+ 18589 0008 42D8     		bhi	.L4
+  59:motors_pwm.c  **** 	int pwm = MOTOR_PWM_FREQ * (int) v / 100;
+ 18590              		.loc 1 59 0
+ 18591 000a 81EAE170 		eor	r0, r1, r1, asr #31
+ 18592 000e A0EBE170 		sub	r0, r0, r1, asr #31
+ 18593              	.LVL1:
+ 18594 0012 4FF4B471 		mov	r1, #360
+ 18595              	.LVL2:
+ 18596 0016 4143     		muls	r1, r0, r1
+ 18597 0018 6423     		movs	r3, #100
+ 18598 001a 91FBF3F1 		sdiv	r1, r1, r3
+  60:motors_pwm.c  **** 	unsigned char in = 0;
+ 18599              		.loc 1 60 0
+ 18600 001e D40F     		lsrs	r4, r2, #31
+ 18601              	.LVL3:
+  62:motors_pwm.c  **** 		return;
+  63:motors_pwm.c  **** 
+  64:motors_pwm.c  **** 	if (val < 0)
+  65:motors_pwm.c  **** 		in = !in;
+  66:motors_pwm.c  **** 
+  67:motors_pwm.c  **** 	if (channel == 0) {
+ 18602              		.loc 1 68 0
+ 18603 0020 CDB9     		cbnz	r5, .L6
+  68:motors_pwm.c  **** 		if (val == 0)
+ 18604              		.loc 1 69 0
+ 18605 0022 1AB9     		cbnz	r2, .L7
+  69:motors_pwm.c  **** 			TIM_CCxCmd(TIM2, TIM_Channel_2, TIM_CCx_Disable);
+ 18606              		.loc 1 70 0
+ 18607 0024 4FF08040 		mov	r0, #1073741824
+ 18608 0028 0421     		movs	r1, #4
+ 18609 002a 08E0     		b	.L11
+ 18610              	.L7:
+  70:motors_pwm.c  **** 		else {
+  71:motors_pwm.c  **** 			TIM_SetCompare2(TIM2, pwm);
+ 18611              		.loc 1 72 0
+ 18612 002c 89B2     		uxth	r1, r1
+ 18613 002e 4FF08040 		mov	r0, #1073741824
+ 18614 0032 FFF7FEFF 		bl	TIM_SetCompare2
+  72:motors_pwm.c  **** 			TIM_CCxCmd(TIM2, TIM_Channel_2, TIM_CCx_Enable);
+ 18615              		.loc 1 73 0
+ 18616 0036 4FF08040 		mov	r0, #1073741824
+ 18617 003a 0421     		movs	r1, #4
+ 18618 003c 0122     		movs	r2, #1
+ 18619              	.L11:
+ 18620 003e FFF7FEFF 		bl	TIM_CCxCmd
+  73:motors_pwm.c  **** 		}
+  74:motors_pwm.c  **** 		GPIO_WriteBit(GPIOA, GPIO_Pin_6, in);
+ 18621              		.loc 1 75 0
+ 18622 0042 1448     		ldr	r0, .L15
+ 18623 0044 4021     		movs	r1, #64
+ 18624 0046 2246     		mov	r2, r4
+ 18625 0048 FFF7FEFF 		bl	GPIO_WriteBit
+  75:motors_pwm.c  **** 		GPIO_WriteBit(GPIOA, GPIO_Pin_5, !in);
+ 18626              		.loc 1 76 0
+ 18627 004c 84F00102 		eor	r2, r4, #1
+ 18628 0050 1048     		ldr	r0, .L15
+ 18629 0052 2021     		movs	r1, #32
+ 18630 0054 1AE0     		b	.L13
+ 18631              	.L6:
+  76:motors_pwm.c  **** 	} else if (channel == 1) {
+ 18632              		.loc 1 77 0
+ 18633 0056 012D     		cmp	r5, #1
+ 18634 0058 1AD1     		bne	.L4
+  77:motors_pwm.c  **** 		if (val == 0)
+ 18635              		.loc 1 78 0
+ 18636 005a 1AB9     		cbnz	r2, .L9
+  78:motors_pwm.c  **** 			TIM_CCxCmd(TIM2, TIM_Channel_3, TIM_CCx_Disable);
+ 18637              		.loc 1 79 0
+ 18638 005c 4FF08040 		mov	r0, #1073741824
+ 18639 0060 0821     		movs	r1, #8
+ 18640 0062 08E0     		b	.L12
+ 18641              	.L9:
+  79:motors_pwm.c  **** 		else {
+  80:motors_pwm.c  **** 			TIM_SetCompare3(TIM2, pwm);
+ 18642              		.loc 1 81 0
+ 18643 0064 89B2     		uxth	r1, r1
+ 18644 0066 4FF08040 		mov	r0, #1073741824
+ 18645 006a FFF7FEFF 		bl	TIM_SetCompare3
+  81:motors_pwm.c  **** 			TIM_CCxCmd(TIM2, TIM_Channel_3, TIM_CCx_Enable);
+ 18646              		.loc 1 82 0
+ 18647 006e 4FF08040 		mov	r0, #1073741824
+ 18648 0072 0821     		movs	r1, #8
+ 18649 0074 2A46     		mov	r2, r5
+ 18650              	.L12:
+ 18651 0076 FFF7FEFF 		bl	TIM_CCxCmd
+  82:motors_pwm.c  **** 		}
+  83:motors_pwm.c  **** 		GPIO_WriteBit(GPIOA, GPIO_Pin_3, in);
+ 18652              		.loc 1 84 0
+ 18653 007a 0648     		ldr	r0, .L15
+ 18654 007c 0821     		movs	r1, #8
+ 18655 007e 2246     		mov	r2, r4
+ 18656 0080 FFF7FEFF 		bl	GPIO_WriteBit
+  84:motors_pwm.c  **** 		GPIO_WriteBit(GPIOA, GPIO_Pin_4, !in);
+ 18657              		.loc 1 85 0
+ 18658 0084 0348     		ldr	r0, .L15
+ 18659 0086 84F00102 		eor	r2, r4, #1
+ 18660 008a 1021     		movs	r1, #16
+ 18661              	.L13:
+ 18662 008c FFF7FEFF 		bl	GPIO_WriteBit
+ 18663              	.LVL4:
+ 18664              	.L4:
+  85:motors_pwm.c  **** 	}
+  86:motors_pwm.c  **** }
+ 18665              		.loc 1 87 0
+ 18666 0090 38BD     		pop	{r3, r4, r5, pc}
+ 18667              	.L16:
+ 18668 0092 00BF     		.align	2
+ 18669              	.L15:
+ 18670 0094 00080140 		.word	1073809408
+ 18671              	.LFE29:
+ 18673              		.section	.text.motors_PWM_off_by_timer,"ax",%progbits
+ 18674              		.align	1
+ 18675              		.global	motors_PWM_off_by_timer
+ 18676              		.thumb
+ 18677              		.thumb_func
+ 18679              	motors_PWM_off_by_timer:
+ 18680              	.LFB28:
+  51:motors_pwm.c  **** void motors_PWM_off_by_timer() {
+ 18681              		.loc 1 51 0
+ 18682              		@ args = 0, pretend = 0, frame = 0
+ 18683              		@ frame_needed = 0, uses_anonymous_args = 0
+ 18684              	.LVL5:
+ 18685              	.LBB2:
+  53:motors_pwm.c  **** 		motors_PWM_set(i, 0); // off
+ 18686              		.loc 1 53 0
+ 18687 0000 0020     		movs	r0, #0
+ 18688 0002 0146     		mov	r1, r0
+ 18689              	.LBE2:
+  51:motors_pwm.c  **** void motors_PWM_off_by_timer() {
+ 18690              		.loc 1 51 0
+ 18691 0004 08B5     		push	{r3, lr}
+ 18692              	.LCFI3:
+ 18693              	.LBB3:
+  53:motors_pwm.c  **** 		motors_PWM_set(i, 0); // off
+ 18694              		.loc 1 53 0
+ 18695 0006 FFF7FEFF 		bl	motors_PWM_set
+ 18696              	.LVL6:
+ 18697 000a 0120     		movs	r0, #1
+ 18698 000c 0021     		movs	r1, #0
+ 18699 000e FFF7FEFF 		bl	motors_PWM_set
+ 18700              	.LVL7:
+ 18701              	.LBE3:
+  54:motors_pwm.c  **** }
+ 18702              		.loc 1 54 0
+ 18703 0012 08BD     		pop	{r3, pc}
+ 18704              	.LFE28:
+ 18782              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 motors_pwm.c
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18424  .text.motors_PWM_init:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18429  .text.motors_PWM_init:00000000 motors_PWM_init
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18565  .text.motors_PWM_init:000000e4 $d
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18569  .text.motors_PWM_set:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18574  .text.motors_PWM_set:00000000 motors_PWM_set
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18670  .text.motors_PWM_set:00000094 $d
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18674  .text.motors_PWM_off_by_timer:00000000 $t
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18679  .text.motors_PWM_off_by_timer:00000000 motors_PWM_off_by_timer
+C:\Users\ts\AppData\Local\Temp\ccXbZTEe.s:18719  .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RCC_APB2PeriphClockCmd
+RCC_APB1PeriphClockCmd
+GPIO_Init
+TIM_TimeBaseStructInit
+TIM_TimeBaseInit
+TIM_OCStructInit
+TIM_OC2Init
+TIM_OC2PreloadConfig
+TIM_CCxCmd
+TIM_OC3Init
+TIM_OC3PreloadConfig
+TIM_ARRPreloadConfig
+TIM_Cmd
+TIM_SetCompare2
+GPIO_WriteBit
+TIM_SetCompare3

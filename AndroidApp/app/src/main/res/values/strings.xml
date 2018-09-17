@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">MM RPI Video</string>
+    <string name="scanning_network">Scanning network</string>
+    <string name="try_to_reconnecting">Try to reconnecting</string>
+    <string name="toast_connect_info">Connected to %s:%d</string>
+    <string name="snapshot">snapshot</string>
+    <string name="configure">configure</string>
+    <string name="reboot">reboot</string>
+    <string name="host_reboot_cmd">Host reboot command</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_header_NetworkSettings">Network settings</string>
+    <string name="pref_header_VideoSettings">Video camera settings</string>
+
+    <string name="pref_title_isInternalScan">Use private Wifi network</string>
+    <string name="pref_title_internalHost">private Wifi network host</string>
+    <string name="pref_title_externalHost">Internet URL</string>
+    <string name="pref_title_tcpIpPort">Host TCP/IP port number</string>
+    <string name="pref_title_connectTimeout">Host connection timeout</string>
+    <string name="pref_title_password">password</string>
+
+    <string name="pref_title_cam_quality">camera quality (0, 10..40)</string>
+    <string name="pref_hint_cam_quality">10..40, 0 - \"reasonable quality\", 10 is extremely hight quality, 40 is extremely low</string>
+    <string name="pref_title_cam_fps">camera frame rate</string>
+    <string name="pref_title_cam_bitrate">Camera stream bitrate</string>
+    <string name="pref_title_cam_vDivider">Camera resolution</string>
+    <string name="pref_title_motionSnapshotFileMask">Motion snapshot file (date/time) mask</string>
+    <string name="pref_title_startCheckMotionService">Start polling motion state</string>
+    <string name="pref_title_vibrateMotionNotification">Use vibration in notification</string>
+    <string name="pref_title_loadMotionSnapshot">Download and save motion jpg snapshot</string>
+    <string name="pref_title_motion_notification_ringtone">Motion notification ringtone</string>
+
+    <string name="cfg_connectTimeout">connectTimeout</string>
+    <string name="cfg_tcpIpPort">tcpIpPort</string>
+    <string name="cfg_isInternalNetwork">isInternalNetwork</string>
+    <string name="cfg_internalHost">internalHost</string>
+    <string name="cfg_externalHost">externalHost</string>
+    <string name="cfg_password">password</string>
+
+    <string name="cfg_cam_quality">vQuality</string>
+    <string name="cfg_cam_divider">vDivider</string>
+    <string name="cfg_cam_fps">vFps</string>
+    <string name="cfg_cam_bitrate">vBitrate</string>
+    <string name="cfg_cam_vDivider">resolutionDiv</string>
+
+    <string name="cfg_startCheckMotionService">startCheckMotionService</string>
+    <string name="cfg_motionSnapshotFileMask">motionSnapshotFileMask</string>
+    <string name="cfg_vibrateMotionNotification">vibrateMotionNotification</string>
+    <string name="cfg_loadMotionSnapshot">loadMotionSnapshot</string>
+    <string name="cfg_notifications_ringtone">notificationsRingtone</string>
+    <string name="cfg_motionCheckPollingDt">motionCheckPollingDt</string>
+    <string name="pref_title_motionCheckPollingDt">Polling period (sec)</string>
+    <string name="cfg_hasNotificationsSound">hasNotificationsSound</string>
+    <string name="pref_title_hasNotificationsSound">Notification ringtone</string>
+    <string name="cfg_motionThresholdValue">motionThresholdValue</string>
+    <string name="pref_title_motionThresholdValue">Motion threshold value of vectors magnitude</string>
+    <string name="cfg_motionThresholdCnt">motionThresholdCnt</string>
+    <string name="pref_title_motionThresholdCnt">Motion threshold vectors number</string>
+    <string name="collapse_all_notifications">clear</string>
+    <string name="prior_notification">prior</string>
+    <string name="after_notification">after</string>
+    <string name="pref_header_motion_pulling_settings">Motion pulling notifications</string>
+    <string name="pref_header_external_spi_settings">External SPI controller</string>
+    <string name="cfg_hasExternalControllerSPI">hasExternalControllerSPI</string>
+    <string name="pref_title_hasExternalControllerSPI">Use external controller SPI interface</string>
+    <string name="cfg_checkExternalControllerBatteryVoltage">checkExternalControllerBatteryVoltage</string>
+    <string name="pref_title_checkExternalControllerBatteryVoltage">Request battery voltage level</string>
+    <string name="cfg_externalControllerBatteryVoltageAlarmLevel">externalControllerBatteryVoltageAlarmLevel</string>
+    <string name="pref_title_externalControllerBatteryVoltageAlarmLevel">Battery voltage alarm level</string>
+    <string name="cfg_snapshotColorless">snapshotColorless</string>
+    <string name="pref_title_snapshotColorless">Colorless snapshots</string>
+    <string name="cfg_modeSnapshot">modeSnapshot</string>
+    <string name="pref_modeSnapshot">Snapshot mode</string>
+    <string name="cfg_motionNoiseFilter">motionNoiseFilter</string>
+    <string name="pref_title_motionNoiseFilter">Filter for horizontal or vertical vectors</string>
+    <string name="cfg_motionThresholdSAD">motionThresholdSAD</string>
+    <string name="pref_title_motionThresholdSAD">Theshold SAD value</string>
+    <string name="cfg_vISO">vISO</string>
+    <string name="pref_title_vISO">camera ISO (0- auto)</string>
+    <string name="cfg_motionSnapshotDt">motionSnapshotDt</string>
+    <string name="pref_title_motionSnapshotDt">minimum delta (sec) between two snapshots</string>
+    <string name="cfg_motionDetectTimeWindow">motionDetectTimeWindow</string>
+    <string name="pref_title_motionDetectTimeWindow">repeated motion event time window (sec)</string>
+    <string name="cfg_motionNumberInTimeWindow">motionNumberInTimeWindow</string>
+    <string name="pref_title_motionNumberInTimeWindow">minimum number of motion event in time window (for noise suppress and generate alarm event)</string>
+    <string name="close_network">close network</string>
+
+</resources>

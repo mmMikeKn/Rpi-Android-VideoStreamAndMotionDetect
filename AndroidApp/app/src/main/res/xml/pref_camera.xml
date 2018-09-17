@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:inputType="numberDecimal"
+        android:key="@string/cfg_cam_quality"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:hint="@string/pref_hint_cam_quality"
+        android:title="@string/pref_title_cam_quality" />
+
+    <EditTextPreference
+        android:key="@string/cfg_cam_fps"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_cam_fps" />
+
+    <EditTextPreference
+        android:key="@string/cfg_vISO"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_vISO" />
+
+    <EditTextPreference
+        android:key="@string/cfg_cam_bitrate"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_cam_bitrate" />
+
+
+    <ListPreference
+        android:key="@string/cfg_cam_vDivider"
+        android:title="@string/pref_title_cam_vDivider"
+        android:defaultValue="2"
+        />
+</PreferenceScreen>

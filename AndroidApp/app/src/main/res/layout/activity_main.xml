@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ccf1ee"
+    tools:context=".MainActivity">
+
+    <TextureView
+        android:id="@+id/cameraView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textViewProcessMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="10dp"
+        android:background="@drawable/msg_background"
+        android:padding="10dp"
+        android:textColor="#ffee00"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/buttonNetworkScanner"
+        style="@style/MyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewProcessMsg"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:soundEffectsEnabled="true"
+        android:text="@string/scanning_network"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/buttonReConnect"
+        style="@style/MyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textViewProcessMsg"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:soundEffectsEnabled="true"
+        android:text="@string/try_to_reconnecting"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        android:id="@+id/connectProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <ImageButton
+        android:id="@+id/imageButtonSnapshot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:contentDescription="@string/snapshot"
+        android:scaleType="centerInside"
+        android:soundEffectsEnabled="true"
+        android:src="@drawable/ic_camera_snapshot" />
+
+    <TextView
+        android:id="@+id/textViewTraffic"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageButtonSnapshot"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="3dp"
+        android:layout_toEndOf="@+id/imageButtonSnapshot"
+        android:text=""
+        android:background="#81929904"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/imageButtonConfigure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@null"
+        android:contentDescription="@string/configure"
+        android:src="@drawable/ic_configure" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioButtonSteering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:checked="false"
+            android:drawableEnd="@drawable/ic_steering" />
+
+        <RadioButton
+            android:id="@+id/radioButtonMoveCameraMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:checked="false"
+            android:drawableEnd="@drawable/ic_move_camera_mode" />
+
+        <RadioButton
+            android:id="@+id/radioButtonEmptyScreenMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:checked="true"
+            android:drawableEnd="@drawable/ic_empty_screen_mode" />
+    </RadioGroup>
+
+    <View
+        android:id="@+id/viewSteeringLeft"
+        android:layout_width="32dp"
+        android:layout_height="230dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="53dp"
+        android:layout_toEndOf="@+id/imageButtonSnapshot"
+        android:background="@drawable/shape_vertical" />
+
+    <View
+        android:id="@+id/viewSteeringRight"
+        android:layout_width="32dp"
+        android:layout_height="230dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="53dp"
+        android:layout_toStartOf="@+id/imageButtonConfigure"
+        android:background="@drawable/shape_vertical" />
+
+    <View
+        android:id="@+id/viewCamMoveHorizontal"
+        android:layout_width="274dp"
+        android:layout_height="32dp"
+        android:layout_below="@+id/buttonNetworkScanner"
+        android:layout_toEndOf="@+id/imageButtonSnapshot"
+        android:background="@drawable/shape_horizontal" />
+
+    <View
+        android:id="@+id/viewCamMoveVertical"
+        android:layout_width="32dp"
+        android:layout_height="233dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="70dp"
+        android:layout_toStartOf="@+id/imageButtonConfigure"
+        android:background="@drawable/shape_vertical" />
+
+    <ToggleButton
+        android:id="@+id/toggleButtonVideoRecord"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/selector_video_recorder_button"
+        android:checked="false"
+        android:padding="5dp"
+        android:text=""
+        android:textOff=""
+        android:textOn="" />
+
+    <ToggleButton
+        android:id="@+id/toggleButtonTorch"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/selector_torch_button"
+        android:checked="false"
+        android:padding="5dp"
+        android:text=""
+        android:textOff=""
+        android:textOn="" />
+
+    <ImageButton
+        android:id="@+id/imageButtonCloseNetwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:background="@null"
+        android:padding="5dp"
+        android:contentDescription="@string/close_network"
+        android:src="@drawable/ic_close_network" />
+
+</RelativeLayout>

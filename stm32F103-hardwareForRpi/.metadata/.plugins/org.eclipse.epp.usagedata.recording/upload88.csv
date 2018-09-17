@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+java.vm.vendor,sysinfo,,,"Oracle Corporation",1534733486945
+java.vm.version,sysinfo,,,"25.131-b11",1534733486945
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534733508928
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534733516462
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534733518136
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534733541017
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534733543373
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534737651091
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534737652049
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534739782195
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534739783761
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534739917950
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534739919142
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744209832
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744211997
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744227721
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744228789
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744233943
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744235549
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744253543
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744255204
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744284971
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744286405
+activated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744287929
+deactivated,workbench,org.eclipse.ui.workbench,3.5.1.M20090826-0800a,"",1534744288473

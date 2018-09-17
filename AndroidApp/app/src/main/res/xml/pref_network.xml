@@ -1,0 +1,45 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="@string/cfg_tcpIpPort"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_tcpIpPort" />
+
+    <EditTextPreference
+        android:key="@string/cfg_connectTimeout"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_connectTimeout" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/cfg_isInternalNetwork"
+        android:title="@string/pref_title_isInternalScan" />
+
+    <EditTextPreference
+        android:key="@string/cfg_internalHost"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_internalHost" />
+
+    <EditTextPreference
+        android:inputType="textUri"
+        android:key="@string/cfg_externalHost"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_externalHost" />
+
+    <EditTextPreference
+        android:key="@string/cfg_password"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_password" />
+</PreferenceScreen>
