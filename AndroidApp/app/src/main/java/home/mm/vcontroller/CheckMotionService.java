@@ -55,7 +55,6 @@ public class CheckMotionService extends Service {
     public static String INTENT_ACTION_UP_LIST = "UP_LIST";
     public static String INTENT_ACTION_DOWN_LIST = "DOWN_LIST";
     public static String INTENT_ACTION_NOTIFICATION_NUMBER = "item_for_delete";
-    private float voltage = -1;
 
     private RenderScript mRS;
 
@@ -80,7 +79,7 @@ public class CheckMotionService extends Service {
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotificationsList.clear();
-        setAlarmNotification(-1);
+        setInfoNotification(-1);
         Log.d(LOG_TAG, "onCreate");
         try {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -153,6 +152,7 @@ public class CheckMotionService extends Service {
         if (thread != null) thread.interrupt();
         mNotificationManager.cancel(NOTIFICATION_MOTION);
         mNotificationManager.cancel(NOTIFICATION_FAIL);
+        mNotificationManager.cancel(NOTIFICATION_START_FOREGROUND);
         mRS.finish();
         Log.d(LOG_TAG, "onDestroy");
     }
@@ -177,6 +177,7 @@ public class CheckMotionService extends Service {
             socket.getOutputStream().write(String.format("%s,%s\n", MainActivity.CMD.AUTH.name(), Settings.password).getBytes());
             socket.getOutputStream().flush();
             DataInputStream in = new DataInputStream(socket.getInputStream());
+            float voltage = -1;
             if (Settings.hasExternalControllerSPI && Settings.checkExternalControllerBatteryVoltage) {
                 StringBuilder s = new StringBuilder(MainActivity.CMD.SPI.name())
                         .append(",r,")
@@ -233,6 +234,7 @@ public class CheckMotionService extends Service {
                             , voltage));
                 }
             }
+            setInfoNotification(voltage);
             setAlarmNotification(mNotificationsList.size() - 1);
         } catch (java.net.SocketTimeoutException ex) {
             setErrorNotification(android.text.format.DateFormat.format("hh:mm:ss", new Date()).toString() + " " + ex.getMessage(), null);
@@ -273,7 +275,7 @@ public class CheckMotionService extends Service {
             ex.printStackTrace(new PrintWriter(w));
             bigText = w.toString();
         }
-        builder.setSmallIcon(R.drawable.ic_motion_alarm)
+        builder.setSmallIcon(R.drawable.ic__notification_error)
                 .setShowWhen(true)
                 .setUsesChronometer(true)
                 .setCategory(Notification.CATEGORY_ALARM)
@@ -291,152 +293,158 @@ public class CheckMotionService extends Service {
         return String.format("%2.1fv (%2.2fv)", voltage, voltage / 4);
     }
 
-    void setAlarmNotification(int listPos) {
-        boolean isInfoOnly = listPos < 0 || listPos >= mNotificationsList.size();
-
-        NotificationCompat.Builder builder;
+    void setInfoNotification(float voltage) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (isInfoOnly) {
-                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_INFO, "Info notifications", NotificationManager.IMPORTANCE_LOW);
-                notificationChannel.setDescription("Motion detector is ready");
-                notificationChannel.enableVibration(false);
-                notificationChannel.enableLights(false);
-                notificationChannel.setSound(null, null);
-                notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-                mNotificationManager.createNotificationChannel(notificationChannel);
-            } else {
-                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ALARM, "Alarm notifications", NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.setDescription("Motion Alarm notification");
-                notificationChannel.enableLights(true);
-                notificationChannel.setLightColor(Color.RED);
-                notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-                notificationChannel.enableVibration(Settings.vibrateMotionNotification);
-                if (Settings.vibrateMotionNotification)
-                    notificationChannel.setVibrationPattern(new long[]{0, 1000});
-                if (Settings.hasNotificationsSound)
-                    notificationChannel.setSound(Uri.parse(Settings.notificationsRingtone), null);
-                else notificationChannel.setSound(null, null);
-                mNotificationManager.createNotificationChannel(notificationChannel);
-            }
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_INFO, "Info notifications", NotificationManager.IMPORTANCE_LOW);
+            notificationChannel.setDescription("Motion detector is ready");
+            notificationChannel.enableVibration(false);
+            notificationChannel.enableLights(false);
+            //notificationChannel.setSound(null, null);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            mNotificationManager.createNotificationChannel(notificationChannel);
         }
-        builder = new NotificationCompat.Builder(this, isInfoOnly ? NOTIFICATION_CHANNEL_INFO : NOTIFICATION_CHANNEL_ALARM);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_INFO);
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_motion_alarm);
+        String voltageStr = voltage > 0 ? getVoltageInfo(voltage) : "";
+        builder.setContentTitle("Motion detector " + voltageStr)
+                .setShowWhen(true)
+                .setUsesChronometer(true)
+                .setCategory(Notification.CATEGORY_SERVICE);
+        startForeground(NOTIFICATION_START_FOREGROUND, builder.build());
+    }
+
+    void setAlarmNotification(int listPos) {
+        if(mNotificationsList.isEmpty()) {
+            mNotificationManager.cancel(NOTIFICATION_MOTION);
+            return;
+        }
+        if(listPos < 0 || listPos >= mNotificationsList.size()) listPos = 0;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ALARM, "Alarm notifications", NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.setDescription("Motion Alarm notification");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            notificationChannel.enableVibration(Settings.vibrateMotionNotification);
+            if (Settings.vibrateMotionNotification)
+                notificationChannel.setVibrationPattern(new long[]{0, 1000});
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ALARM);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setOngoing(true)
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic__notification_detected);
 
         //builder.setOnlyAlertOnce(Settings.hasNotificationsSound);
 
-        //-----------------------------------------------------------
-        if (isInfoOnly) {
-            String voltageStr = voltage > 0 ? getVoltageInfo(voltage) : "";
-            builder.setContentTitle("Motion detector " + voltageStr)
-                    .setShowWhen(true)
-                    .setUsesChronometer(true)
-                    .setCategory(Notification.CATEGORY_SERVICE);
-            startForeground(NOTIFICATION_START_FOREGROUND, builder.build());
-            return;
-        } else {
-            builder.setColor(Color.RED).setShowWhen(true)
-                    .setCategory(Notification.CATEGORY_ALARM);
+        builder.setColor(Color.RED).setShowWhen(true);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            builder.setCategory(Notification.CATEGORY_ALARM);
             if (Settings.vibrateMotionNotification) builder.setVibrate(new long[]{0, 1000});
             if (Settings.hasNotificationsSound)
                 builder.setSound(Uri.parse(Settings.notificationsRingtone));
+        }
 
-            String info = mNotificationsList.get(listPos).info;
-            String title = "Motion alarm (" + (listPos + 1) + "/" + mNotificationsList.size() + ")";
-            String snapshotFileName = mNotificationsList.get(listPos).snapshotFileName;
-            long startTime = mNotificationsList.get(listPos).startTime;
-            float voltage = mNotificationsList.get(listPos).voltage;
+        String info = mNotificationsList.get(listPos).info;
+        String title = "Motion alarm (" + (listPos + 1) + "/" + mNotificationsList.size() + ")";
+        String snapshotFileName = mNotificationsList.get(listPos).snapshotFileName;
+        long startTime = mNotificationsList.get(listPos).startTime;
+        float voltage = mNotificationsList.get(listPos).voltage;
 
-            if (snapshotFileName != null) {
-                RemoteViews notificationLayoutLong = new RemoteViews(getPackageName(), R.layout.notification_with_snapshot_large);
-                RemoteViews notificationLayoutShort = new RemoteViews(getPackageName(), R.layout.notification_with_snapshot_short);
+        if (snapshotFileName != null) {
+            RemoteViews notificationLayoutLong = new RemoteViews(getPackageName(), R.layout.notification_with_snapshot_large);
+            RemoteViews notificationLayoutShort = new RemoteViews(getPackageName(), R.layout.notification_with_snapshot_short);
 
-                notificationLayoutLong.setChronometer(R.id.notification_chronometer, startTime, null, true);
-                notificationLayoutLong.setTextViewText(R.id.notification_title, title);
-                notificationLayoutLong.setTextViewText(R.id.notification_info, info);
-                notificationLayoutShort.setChronometer(R.id.notification_chronometer, startTime, null, true);
-                notificationLayoutShort.setTextViewText(R.id.notification_title, title);
-                notificationLayoutShort.setTextViewText(R.id.notification_info, info);
-                if (voltage < 0) {
-                    notificationLayoutLong.setViewVisibility(R.id.notification_voltage, View.INVISIBLE);
-                    notificationLayoutShort.setViewVisibility(R.id.notification_voltage, View.INVISIBLE);
-                } else {
-                    String voltageStr = getVoltageInfo(voltage);
-                    notificationLayoutLong.setTextViewText(R.id.notification_voltage, voltageStr);
-                    notificationLayoutLong.setViewVisibility(R.id.notification_voltage, View.VISIBLE);
-                    notificationLayoutShort.setTextViewText(R.id.notification_voltage, voltageStr);
-                    notificationLayoutShort.setViewVisibility(R.id.notification_voltage, View.VISIBLE);
-                }
-
-                Bitmap bitmap = BitmapFactory.decodeFile(snapshotFileName);
-                builder.setLargeIcon(bitmap);
-                notificationLayoutLong.setImageViewBitmap(R.id.notification_snapshot, bitmap);
-
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(new File(snapshotFileName)), "image/*");
-                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notificationLayoutLong.setOnClickPendingIntent(R.id.notification_snapshot, pendingIntent);
-
-                intent = new Intent(this, CheckMotionService.class);
-                intent.setAction(INTENT_ACTION_DELETE_SNAPSHOT);
-                intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
-                pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonDelete, pendingIntent);
-
-                if (listPos > 0) {
-                    intent = new Intent(this, CheckMotionService.class);
-                    intent.setAction(INTENT_ACTION_UP_LIST);
-                    intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
-                    pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonUp, pendingIntent);
-                    notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonUp, View.VISIBLE);
-                } else
-                    notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonUp, View.INVISIBLE);
-                if (listPos < (mNotificationsList.size() - 1)) {
-                    intent = new Intent(this, CheckMotionService.class);
-                    intent.setAction(INTENT_ACTION_DOWN_LIST);
-                    intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
-                    pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonDown, pendingIntent);
-                    notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonDown, View.VISIBLE);
-                } else
-                    notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonDown, View.INVISIBLE);
-
-                intent = new Intent(this, CheckMotionService.class);
-                intent.setAction(INTENT_ACTION_COLLAPSE_ALL);
-                pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonCollapseAll, pendingIntent);
-                builder.setCustomContentView(notificationLayoutShort);
-                builder.setCustomBigContentView(notificationLayoutLong);
+            notificationLayoutLong.setChronometer(R.id.notification_chronometer, startTime, null, true);
+            notificationLayoutLong.setTextViewText(R.id.notification_title, title);
+            notificationLayoutLong.setTextViewText(R.id.notification_info, info);
+            notificationLayoutShort.setChronometer(R.id.notification_chronometer, startTime, null, true);
+            notificationLayoutShort.setTextViewText(R.id.notification_title, title);
+            notificationLayoutShort.setTextViewText(R.id.notification_info, info);
+            if (voltage < 0) {
+                notificationLayoutLong.setViewVisibility(R.id.notification_voltage, View.INVISIBLE);
+                notificationLayoutShort.setViewVisibility(R.id.notification_voltage, View.INVISIBLE);
             } else {
-                builder.setContentTitle(title)
-                        .setColor(Color.RED)
-                        .setContentText(info)
-                        .setUsesChronometer(true)
-                        .setWhen(startTime);
+                String voltageStr = getVoltageInfo(voltage);
+                notificationLayoutLong.setTextViewText(R.id.notification_voltage, voltageStr);
+                notificationLayoutLong.setViewVisibility(R.id.notification_voltage, View.VISIBLE);
+                notificationLayoutShort.setTextViewText(R.id.notification_voltage, voltageStr);
+                notificationLayoutShort.setViewVisibility(R.id.notification_voltage, View.VISIBLE);
+            }
 
+            Bitmap bitmap = BitmapFactory.decodeFile(snapshotFileName);
+            builder.setLargeIcon(bitmap);
+            notificationLayoutLong.setImageViewBitmap(R.id.notification_snapshot, bitmap);
+
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(new File(snapshotFileName)), "image/*");
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notificationLayoutLong.setOnClickPendingIntent(R.id.notification_snapshot, pendingIntent);
+
+            intent = new Intent(this, CheckMotionService.class);
+            intent.setAction(INTENT_ACTION_DELETE_SNAPSHOT);
+            intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
+            pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonDelete, pendingIntent);
+
+            if (listPos != 0) {
                 intent = new Intent(this, CheckMotionService.class);
-                intent.setAction(INTENT_ACTION_COLLAPSE_ALL);
+                intent.setAction(INTENT_ACTION_UP_LIST);
                 intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
                 pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_collapse_all, getString(R.string.collapse_all_notifications), pendingIntent);
-                if (listPos > 0) {
-                    intent = new Intent(this, CheckMotionService.class);
-                    intent.setAction(INTENT_ACTION_UP_LIST);
-                    intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
-                    PendingIntent upPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.addAction(R.drawable.ic_arrow_up_bold, getString(R.string.prior_notification), upPendingIntent);
-                }
-                if (listPos < (mNotificationsList.size() - 1)) {
-                    intent = new Intent(this, CheckMotionService.class);
-                    intent.setAction(INTENT_ACTION_DOWN_LIST);
-                    intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
-                    PendingIntent downPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.addAction(R.drawable.ic_arrow_down_bold, getString(R.string.after_notification), downPendingIntent);
-                }
+                notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonUp, pendingIntent);
+                notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonUp, View.VISIBLE);
+            } else {
+                notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonUp, View.INVISIBLE);
+            }
+            if (listPos < (mNotificationsList.size() - 1)) {
+                intent = new Intent(this, CheckMotionService.class);
+                intent.setAction(INTENT_ACTION_DOWN_LIST);
+                intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
+                pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonDown, pendingIntent);
+                notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonDown, View.VISIBLE);
+            } else {
+                notificationLayoutLong.setViewVisibility(R.id.notification_imageButtonDown, View.INVISIBLE);
+            }
+            intent = new Intent(this, CheckMotionService.class);
+            intent.setAction(INTENT_ACTION_COLLAPSE_ALL);
+            pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notificationLayoutLong.setOnClickPendingIntent(R.id.notification_imageButtonCollapseAll, pendingIntent);
+            builder.setCustomContentView(notificationLayoutShort);
+            builder.setCustomBigContentView(notificationLayoutLong);
+        } else {
+            builder.setContentTitle(title)
+                    .setColor(Color.RED)
+                    .setContentText(info)
+                    .setUsesChronometer(true)
+                    .setWhen(startTime);
+
+            intent = new Intent(this, CheckMotionService.class);
+            intent.setAction(INTENT_ACTION_COLLAPSE_ALL);
+            intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
+            pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_collapse_all, getString(R.string.collapse_all_notifications), pendingIntent);
+            if (listPos > 0) {
+                intent = new Intent(this, CheckMotionService.class);
+                intent.setAction(INTENT_ACTION_UP_LIST);
+                intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
+                PendingIntent upPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_arrow_up_bold, getString(R.string.prior_notification), upPendingIntent);
+            }
+            if (listPos < (mNotificationsList.size() - 1)) {
+                intent = new Intent(this, CheckMotionService.class);
+                intent.setAction(INTENT_ACTION_DOWN_LIST);
+                intent.putExtra(INTENT_ACTION_NOTIFICATION_NUMBER, listPos);
+                PendingIntent downPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_arrow_down_bold, getString(R.string.after_notification), downPendingIntent);
             }
         }
         mNotificationManager.notify(NOTIFICATION_MOTION, builder.build());

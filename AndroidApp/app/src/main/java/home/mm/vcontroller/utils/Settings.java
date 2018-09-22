@@ -1,6 +1,7 @@
 package home.mm.vcontroller.utils;
 
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,6 +14,7 @@ public class Settings {
     public static boolean isInternalNetwork = true;
     public static int vFps = 15, vBitrate = 500000, vQuality = 0, vISO = 0;
     public static double resolutionDiv = 2;
+
     public static String internalHost = "192.168.0.0.77";
     public static String externalHost = "ans42.ru";
     public static int tcpIpPort = 8081;
@@ -40,7 +42,7 @@ public class Settings {
     public static String cmdSpiMagicBytes = "666F";
     public static boolean hasExternalControllerSPI = true;
     public static boolean checkExternalControllerBatteryVoltage = true;
-    public static float externalControllerBatteryVoltageAlarmLevel = 2.75f * 4;
+    public static float externalControllerBatteryVoltageAlarmLevel = 3.5f * 4;
 
     public static void loadConfig(SharedPreferences settings) throws Exception {
         Class aClass = Settings.class;

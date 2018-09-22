@@ -13,6 +13,18 @@
     <SwitchPreference
         android:dependency="@string/cfg_startCheckMotionService"
         android:defaultValue="true"
+        android:key="@string/cfg_hasNotificationsSound"
+        android:title="@string/pref_title_hasNotificationsSound" />
+
+    <RingtonePreference
+        android:dependency="@string/cfg_hasNotificationsSound"
+        android:key="@string/cfg_notifications_ringtone"
+        android:ringtoneType="notification"
+        android:title="@string/pref_title_motion_notification_ringtone" />
+
+    <SwitchPreference
+        android:dependency="@string/cfg_startCheckMotionService"
+        android:defaultValue="true"
         android:key="@string/cfg_loadMotionSnapshot"
         android:title="@string/pref_title_loadMotionSnapshot" />
 
@@ -23,18 +35,6 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/pref_title_motionSnapshotFileMask" />
-
-    <SwitchPreference
-        android:dependency="@string/cfg_startCheckMotionService"
-        android:defaultValue="true"
-        android:key="@string/cfg_hasNotificationsSound"
-        android:title="@string/pref_title_hasNotificationsSound" />
-
-    <RingtonePreference
-        android:dependency="@string/cfg_hasNotificationsSound"
-        android:key="@string/cfg_notifications_ringtone"
-        android:ringtoneType="notification"
-        android:title="@string/pref_title_motion_notification_ringtone" />
 
     <SwitchPreference
         android:dependency="@string/cfg_loadMotionSnapshot"

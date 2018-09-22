@@ -62,6 +62,7 @@
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
         android:background="@null"
+        android:padding="5dp"
         android:contentDescription="@string/snapshot"
         android:scaleType="centerInside"
         android:soundEffectsEnabled="true"
@@ -69,14 +70,11 @@
 
     <TextView
         android:id="@+id/textViewTraffic"
-        android:layout_width="65dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageButtonSnapshot"
-        android:layout_marginBottom="4dp"
-        android:layout_marginStart="3dp"
-        android:layout_toEndOf="@+id/imageButtonSnapshot"
-        android:text=""
+        android:layout_toRightOf="@+id/imageButtonSnapshot"
         android:background="#81929904"
+        android:text=""
         android:textStyle="bold" />
 
     <ImageButton
@@ -86,6 +84,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:background="@null"
+        android:padding="5dp"
         android:contentDescription="@string/configure"
         android:src="@drawable/ic_configure" />
 

@@ -11,6 +11,7 @@ import android.preference.PreferenceActivity;
 import android.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
@@ -179,6 +180,12 @@ public class SettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.cfg_motionDetectTimeWindow)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.cfg_motionNumberInTimeWindow)));
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                PreferenceScreen screen = getPreferenceScreen();
+                screen.removePreference(findPreference(getString(R.string.cfg_hasNotificationsSound)));
+                screen.removePreference(findPreference(getString(R.string.cfg_notifications_ringtone)));
+                screen.removePreference(findPreference(getString(R.string.cfg_vibrateMotionNotification)));
+            }
         }
 
         @Override
